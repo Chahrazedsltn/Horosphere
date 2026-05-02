@@ -43,7 +43,9 @@ COPY docker/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 COPY --chown=www-data:www-data . .
 
-RUN composer install --no-interaction --prefer-dist
+# En dev : composer update pour résoudre tout changement de composer.json
+# sans bloquer le build si le lock file est désynchronisé.
+RUN composer update --no-interaction --prefer-dist --with-all-dependencies
 
 EXPOSE 9000
 CMD ["php-fpm"]
@@ -56,6 +58,8 @@ COPY docker/php.ini /usr/local/etc/php/conf.d/horosphere.ini
 
 COPY --chown=www-data:www-data . .
 
+# En prod : composer install depuis le lock file (doit être à jour avant le deploy)
+# Voir DEPLOY.md — étape "Mise à jour du lock file"
 RUN composer install --no-interaction --prefer-dist --no-dev --optimize-autoloader \
     && php bin/console cache:clear --env=prod \
     && php bin/console cache:warmup --env=prod

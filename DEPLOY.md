@@ -22,7 +22,26 @@ nano .env
 
 ---
 
-## 2. Génération des clés JWT
+## 2. Mise à jour du lock file Composer (une seule fois après un `composer.json` modifié)
+
+> **Obligatoire** avant le premier `docker compose up --build` en prod.
+> En dev, le Dockerfile utilise `composer update` automatiquement — cette étape est optionnelle.
+
+```bash
+# Option A — via Docker (recommandé, pas besoin de PHP local)
+docker run --rm -v "$(pwd)/api:/app" -w /app composer:2 \
+  composer update --no-interaction --prefer-dist
+
+# Option B — PHP installé localement
+cd api && composer update --no-interaction --prefer-dist && cd ..
+
+# Committer le lock file mis à jour
+git add api/composer.lock && git commit -m "chore: update composer.lock"
+```
+
+---
+
+## 3. Génération des clés JWT
 
 ```bash
 # Exécuter le script (lit JWT_PASSPHRASE depuis .env)

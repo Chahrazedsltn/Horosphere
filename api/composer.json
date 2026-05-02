@@ -45,10 +45,9 @@
         "symfony/validator": "7.2.*",
         "symfony/web-link": "7.2.*",
         "symfony/yaml": "7.2.*",
+        "symfony/rate-limiter": "7.2.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0",
-        "twig/inky-extra": "^3.0",
-        "symfony/rate-limiter": "7.2.*"
+        "twig/twig": "^2.12|^3.0"
     },
     "suggest": {
         "sentry/sentry-symfony": "Intégration Sentry pour le monitoring des erreurs en production (^5.0)"
