@@ -11,8 +11,10 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - api_public:/var/www/api/public:ro
     depends_on:
-      - api
-      - frontend
+      api:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
     networks:
       - horosphere_net
     restart: unless-stopped
@@ -47,6 +49,13 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    # PHP-FPM écoute sur le port 9000
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 9000 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     networks:
       - horosphere_net
     restart: unless-stopped
@@ -85,10 +94,8 @@ services:
       - ./api:/var/www/api
       - api_vendor:/var/www/api/vendor
     depends_on:
-      db:
-        condition: service_healthy
       api:
-        condition: service_started
+        condition: service_healthy
     networks:
       - horosphere_net
     restart: unless-stopped
@@ -109,6 +116,13 @@ services:
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
+    # Vite dev server écoute sur le port 5173
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 5173 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 60s
     networks:
       - horosphere_net
     restart: unless-stopped

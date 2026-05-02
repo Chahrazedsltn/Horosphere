@@ -6,9 +6,11 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 5173,
+    // En Docker : Nginx intercepte /api avant Vite — ce proxy sert uniquement
+    // pour un développement local SANS Docker (npm run dev en direct).
     proxy: {
       '/api': {
-        target: 'http://api:9000',
+        target: 'http://localhost:80',
         changeOrigin: true,
       },
     },
