@@ -8,6 +8,7 @@ use App\Entity\User;
 use App\Repository\PasswordResetTokenRepository;
 use App\Repository\UserRepository;
 use App\Service\AuditService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,7 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route('/api/auth', name: 'api_auth_')]
@@ -27,6 +27,7 @@ class AuthController extends AbstractController
         private readonly UserPasswordHasherInterface  $passwordHasher,
         private readonly MailerInterface              $mailer,
         private readonly AuditService                 $auditService,
+        private readonly EntityManagerInterface       $em,
     ) {}
 
     /**
@@ -90,7 +91,7 @@ class AuthController extends AbstractController
             );
 
             // On reconstruit l'URL frontend (pas Symfony) depuis APP_FRONTEND_URL
-            $frontendUrl = $_ENV['APP_FRONTEND_URL'] ?? 'http://localhost';
+            $frontendUrl = $_SERVER['APP_FRONTEND_URL'] ?? $_ENV['APP_FRONTEND_URL'] ?? 'http://localhost';
             $resetUrl    = rtrim($frontendUrl, '/') . '/reinitialiser-mot-de-passe?token=' . $tokenEntity->getToken();
 
             $email_message = (new TemplatedEmail())
@@ -149,8 +150,7 @@ class AuthController extends AbstractController
         $user->setPassword($this->passwordHasher->hashPassword($user, $nouveauMotDePasse));
         $tokenEntity->markAsUsed();
 
-        $em = $this->userRepository->getEntityManager();
-        $em->flush();
+        $this->em->flush();
 
         $this->auditService->log(
             AuditLog::ACTION_RESET_PASSWORD,
