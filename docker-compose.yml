@@ -49,9 +49,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # PHP-FPM écoute sur le port 9000
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 9000 || exit 1"]
+      test: ["CMD-SHELL", "pgrep php-fpm > /dev/null || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -69,16 +68,7 @@ services:
       dockerfile: Dockerfile
       target: dev
     container_name: horosphere_worker
-    command: >
-      sh -c "
-        echo 'Attente de la base de données...' &&
-        sleep 5 &&
-        php bin/console messenger:consume async scheduler_default
-          --time-limit=3600
-          --memory-limit=256M
-          --failure-limit=3
-          -vv
-      "
+    command: ["sh", "/var/www/api/docker/worker.sh"]
     environment:
       APP_ENV: ${APP_ENV:-dev}
       APP_SECRET: ${APP_SECRET}
@@ -116,11 +106,10 @@ services:
     volumes:
       - ./frontend:/app
       - frontend_node_modules:/app/node_modules
-    # Vite dev server écoute sur le port 5173
     healthcheck:
-      test: ["CMD-SHELL", "nc -z 127.0.0.1 5173 || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:5173 > /dev/null 2>&1 || exit 1"]
       interval: 10s
-      timeout: 5s
+      timeout: 10s
       retries: 15
       start_period: 60s
     networks:
