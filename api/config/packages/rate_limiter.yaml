@@ -1,0 +1,13 @@
+framework:
+    rate_limiter:
+        # Limite les tentatives de login : 10 essais par minute par IP
+        login_ip:
+            policy: sliding_window
+            limit: 10
+            interval: '1 minute'
+
+        # Limite plus stricte par email : 5 essais par 5 minutes
+        login_email:
+            policy: sliding_window
+            limit: 5
+            interval: '5 minutes'

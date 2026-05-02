@@ -1,0 +1,113 @@
+@startuml SEQ_Pointage
+title Diagramme de Séquence — Pointage Arrivée / Départ (GPS)
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+
+skinparam participant {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+}
+skinparam actor {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+}
+
+actor "Agent"              as AG
+participant "Navigateur\n(React / PWA)"  as UI
+participant "PointageController"         as PC
+participant "GeofencingService"          as GS
+participant "PointageService"            as PS
+participant "AlerteService"              as AS
+database "Base de données\n(MariaDB)"   as DB
+
+== Arrivée ==
+
+AG -> UI : Ouvre l'application\net autorise la géolocalisation
+UI -> UI : Obtient coordonnées GPS\n(navigator.geolocation)
+UI -> PC : POST /pointage/arriver\n{ lat, lon, token_jwt }
+activate PC
+
+PC -> PC : Vérifie le token JWT\n(Symfony Security)
+PC -> GS : estDansZone(lat, lon)
+activate GS
+
+GS -> DB : SELECT * FROM site\nWHERE geofencing_actif = 1
+DB --> GS : liste des sites actifs
+GS -> GS : calculerDistance()\npour chaque site
+GS --> PC : Site trouvé (id_site)\n[ou hors zone]
+deactivate GS
+
+alt Agent dans la zone géographique
+  PC -> PS : pointer(user, lat, lon, site)
+  activate PS
+  PS -> DB : INSERT INTO pointage\n(utilisateur_id, site_id, heure_arrivee,\nstatut='EN_COURS', coordonnees_gps)
+  DB --> PS : id_pointage
+  PS --> PC : Pointage créé
+  deactivate PS
+  PC --> UI : 201 Created\n{ message: "Pointage enregistré", id_pointage }
+  UI --> AG : Confirmation visuelle\n"Arrivée enregistrée ✓"
+
+else Agent hors zone
+  PC -> PS : pointer(user, lat, lon, site=null)
+  activate PS
+  PS -> DB : INSERT INTO pointage\n(utilisateur_id, site_id=null,\nstatut='HORS_ZONE', est_anomalie=1)
+  DB --> PS : id_pointage
+  PS -> AS : creerAlerte(HORS_ZONE, user, pointage)
+  activate AS
+  AS -> DB : INSERT INTO alerte\n(utilisateur_id, pointage_id,\ntype_alerte='HORS_ZONE', message)
+  DB --> AS : id_alerte
+  AS --> PS : Alerte créée
+  deactivate AS
+  PS --> PC : Pointage + Alerte créés
+  deactivate PS
+  PC --> UI : 201 Created\n{ warning: "Hors zone détecté", id_pointage }
+  UI --> AG : Avertissement\n"Vous êtes hors de la zone prévue"
+end
+
+== Départ ==
+
+AG -> UI : Clique sur "Pointer le départ"
+UI -> UI : Obtient coordonnées GPS
+UI -> PC : POST /pointage/partir\n{ lat, lon, token_jwt }
+activate PC
+
+PC -> PC : Vérifie le token JWT
+PC -> PS : terminerPointage(user, lat, lon)
+activate PS
+
+PS -> DB : SELECT * FROM pointage\nWHERE utilisateur_id = ?\nAND statut = 'EN_COURS'
+DB --> PS : Pointage en cours
+
+alt Pointage en cours trouvé
+  PS -> GS : estDansZone(lat, lon)
+  activate GS
+  GS --> PS : résultat (dans zone / hors zone)
+  deactivate GS
+  PS -> DB : UPDATE pointage SET\nheure_depart = NOW(),\nstatut = 'VALIDE'\nWHERE id = ?
+  DB --> PS : OK
+  PS -> PS : verifierAnomalies(pointage)
+
+  opt Écart horaire détecté
+    PS -> AS : creerAlerte(ECART_HORAIRE, user, pointage)
+    AS -> DB : INSERT INTO alerte ...
+    DB --> AS : OK
+    AS --> PS : Alerte créée
+  end
+
+  PS --> PC : Pointage terminé
+  deactivate PS
+  PC --> UI : 200 OK\n{ message: "Départ enregistré", duree_minutes }
+  UI --> AG : Confirmation\n"Départ enregistré ✓ — 8h00 travaillées"
+
+else Aucun pointage en cours
+  PS --> PC : Erreur : pas de pointage actif
+  deactivate PS
+  PC --> UI : 422 Unprocessable Entity\n{ error: "Aucun pointage en cours" }
+  UI --> AG : Message d'erreur
+end
+
+deactivate PC
+
+@enduml

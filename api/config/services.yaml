@@ -1,0 +1,29 @@
+parameters:
+    app.exports_dir: '%kernel.project_dir%/public/exports'
+    app.gotenberg_url: '%env(string:GOTENBERG_URL)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    App\Service\ExportService:
+        arguments:
+            $exportsDir: '%app.exports_dir%'
+            $gotenbergUrl: '%app.gotenberg_url%'
+
+    App\EventListener\JWTCreatedListener:
+        tags:
+            - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_created, method: onJWTCreated }
+
+    App\EventListener\LoginRateLimitListener:
+        arguments:
+            $loginIpLimiter: '@limiter.login_ip'
+            $loginEmailLimiter: '@limiter.login_email'

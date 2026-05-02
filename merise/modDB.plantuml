@@ -1,0 +1,68 @@
+@startuml
+' Paramètres d'affichage pour un rendu propre
+hide circle
+skinparam linetype ortho
+
+entity "User" {
+  * id : INT <<PK>>
+  --
+  email : VARCHAR(180)
+  roles : JSON
+  password : VARCHAR(255)
+  first_name : VARCHAR(100)
+  last_name : VARCHAR(100)
+  department : VARCHAR(100)
+  created_at : DATETIME
+}
+
+entity "Pointage" {
+  * id : INT <<PK>>
+  --
+  user_id : INT <<FK>>
+  site_id : INT <<FK>>
+  date_jour : DATE
+  heure_arrivee : DATETIME
+  heure_depart : DATETIME
+  status : VARCHAR(50)
+  gps_coordinates : VARCHAR(255)
+  is_anomaly : BOOLEAN
+}
+
+entity "Site" {
+  * id : INT <<PK>>
+  --
+  name : VARCHAR(100)
+  address : VARCHAR(255)
+  latitude : DECIMAL(10,8)
+  longitude : DECIMAL(11,8)
+  radius_meters : INT
+}
+
+entity "UserRequest" {
+  * id : INT <<PK>>
+  --
+  user_id : INT <<FK>>
+  type : VARCHAR(50)
+  status : VARCHAR(50)
+  start_date : DATETIME
+  end_date : DATETIME
+  motif : TEXT
+  created_at : DATETIME
+}
+
+entity "Document" {
+  * id : INT <<PK>>
+  --
+  user_id : INT <<FK>>
+  type : VARCHAR(50)
+  file_path : VARCHAR(255)
+  created_at : DATETIME
+}
+
+' Relations (Cardinalités Merise)
+User "1" -- "0..*" Pointage : effectue
+User "1" -- "0..*" UserRequest : soumet
+User "1" -- "0..*" Document : possède
+Site "1" -- "0..*" Pointage : localise
+
+@enduml

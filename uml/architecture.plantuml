@@ -1,0 +1,122 @@
+@startuml ARCHI_Horosphere
+title Architecture Technique — Horosphere (Vue N-Tiers)
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+
+skinparam rectangle {
+  BackgroundColor #FAFAFA
+  BorderColor #555555
+  RoundCorner 10
+}
+
+skinparam component {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+  FontColor #000000
+}
+
+skinparam database {
+  BackgroundColor #FFF8E1
+  BorderColor #E65100
+}
+
+skinparam cloud {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+}
+
+skinparam node {
+  BackgroundColor #F3E5F5
+  BorderColor #7B1FA2
+}
+
+' ══════════════════════════════════════════
+'  COUCHE PRÉSENTATION (Tier 1)
+' ══════════════════════════════════════════
+rectangle "Couche Présentation\n(Tier 1 — Client)" as TIER1 {
+
+  component "Application Web\n(React SPA / PWA)" as REACT {
+    component "Pages & Composants\n(React Router)" as PAGES
+    component "Gestion d'état\n(Context API / Zustand)" as STATE
+    component "Service HTTP\n(Axios + Intercepteurs JWT)" as HTTP
+    component "Géolocalisation\n(Navigator.geolocation API)" as GEO_CLIENT
+  }
+}
+
+' ══════════════════════════════════════════
+'  COUCHE APPLICATIVE (Tier 2 — Symfony API)
+' ══════════════════════════════════════════
+rectangle "Couche Applicative\n(Tier 2 — Serveur Symfony)" as TIER2 {
+
+  component "API REST\n(Symfony + API Platform)" as API {
+    component "Security Layer\n(JWT — LexikJWTAuthBundle)" as JWT
+    component "Controllers\n(PointageCtrl, DemandeCtrl,\nAlerteCtrl, DocumentCtrl, AdminCtrl)" as CTRL
+    component "Services Métier\n(PointageService, GeofencingService,\nAlerteService, DemandeService,\nDocumentService)" as SVC
+    component "Formulaires & Validation\n(Symfony Form + Validator)" as FORM
+    component "Scheduler\n(Symfony Scheduler — détection alertes)" as SCHED
+  }
+
+  component "ORM\n(Doctrine)" as ORM {
+    component "Entités\n(User, Site, Pointage,\nDemande, Document, Alerte)" as ENTITIES
+    component "Repositories\n(Requêtes métier)" as REPOS
+    component "Migrations\n(Doctrine Migrations)" as MIGR
+  }
+}
+
+' ══════════════════════════════════════════
+'  COUCHE DONNÉES (Tier 3)
+' ══════════════════════════════════════════
+rectangle "Couche Données\n(Tier 3 — Persistance)" as TIER3 {
+  database "MariaDB\n(Base de données relationnelle)" as DB {
+    component "Tables : utilisateur, site,\npointage, demande,\ndocument, alerte" as TABLES
+  }
+  component "Stockage Fichiers\n(CSV / PDF générés)" as FILES
+}
+
+' ══════════════════════════════════════════
+'  SERVICES EXTERNES
+' ══════════════════════════════════════════
+cloud "Services Externes" as EXT {
+  component "Google Maps API\n(Géocodage / Cartographie)" as GMAPS
+  component "Service Email\n(SMTP / Mailer)" as MAIL
+}
+
+' ══════════════════════════════════════════
+'  INFRASTRUCTURE (Docker)
+' ══════════════════════════════════════════
+node "Infrastructure Docker\n(docker-compose)" as INFRA {
+  component "Container PHP-FPM\n(Symfony App)" as C_PHP
+  component "Container Nginx\n(Reverse Proxy)" as C_NGINX
+  component "Container MariaDB" as C_DB
+  component "Container Node\n(Build React)" as C_NODE
+}
+
+' ══════════════════════════════════════════
+'  CI/CD
+' ══════════════════════════════════════════
+node "CI/CD\n(GitHub Actions)" as CICD {
+  component "Pipeline :\nLint → Tests PHPUnit\n→ Build → Deploy" as PIPELINE
+}
+
+' ══════════════════════════════════════════
+'  FLUX
+' ══════════════════════════════════════════
+PAGES  --> HTTP       : appels composants
+HTTP   --> JWT        : requêtes HTTPS + Bearer token
+JWT    --> CTRL       : route sécurisée
+CTRL   --> SVC        : délègue la logique métier
+CTRL   --> FORM       : validation
+SVC    --> ORM        : accès aux données
+SVC    --> GMAPS      : vérification géofencing
+SVC    --> MAIL       : notifications
+ORM    --> DB         : SQL (Parameterized Queries)
+SCHED  --> SVC        : tâches automatiques
+CTRL   --> FILES      : génération documents
+GEO_CLIENT --> HTTP   : coordonnées GPS
+
+C_NGINX --> C_PHP  : proxy_pass
+C_PHP   --> C_DB   : connexion SQL
+CICD    --> INFRA  : déploiement
+
+@enduml

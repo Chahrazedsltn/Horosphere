@@ -1,0 +1,1986 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horosphere — Maquettes UX/UI</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===================== VARIABLES ===================== */
+:root {
+  --bg: #F4F4F6;
+  --surface: #FFFFFF;
+  --surface2: #EEEEF2;
+  --border: #DDDDE8;
+  --border2: #CACAD8;
+  --text: #18182E;
+  --text2: #52527A;
+  --text3: #9090B4;
+  --accent: #3B3BCC;
+  --accent-light: #EBEBFF;
+  --accent-mid: #7B7BE8;
+  --green: #1A9E5C;
+  --green-bg: #E6F7EE;
+  --green-border: #A3DFC0;
+  --red: #CC3B3B;
+  --red-bg: #FFF0F0;
+  --red-border: #F0AAAA;
+  --amber: #B06820;
+  --amber-bg: #FFF5E6;
+  --amber-border: #F0C880;
+  --sidebar-w: 220px;
+  --topbar-h: 60px;
+  --radius: 10px;
+  --shadow: 0 2px 12px rgba(24,24,46,0.08);
+  --shadow-lg: 0 8px 32px rgba(24,24,46,0.13);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: #1A1A2E;
+  min-height: 100vh;
+  color: var(--text);
+}
+
+/* ===================== NAV MAQUETTES ===================== */
+.nav-strip {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+  background: #0F0F1E;
+  border-bottom: 1px solid #2A2A48;
+  display: flex; align-items: center; gap: 0;
+  padding: 0 16px;
+  height: 44px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-strip::-webkit-scrollbar { display: none; }
+.nav-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: #7B7BE8; white-space: nowrap;
+  padding-right: 16px;
+  border-right: 1px solid #2A2A48;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+.nav-btn {
+  padding: 6px 12px; border-radius: 6px;
+  font-size: 11px; font-weight: 500;
+  color: #7070A0; cursor: pointer;
+  white-space: nowrap; flex-shrink: 0;
+  transition: all 0.15s;
+  font-family: 'JetBrains Mono', monospace;
+  border: none; background: none;
+}
+.nav-btn:hover { color: #CCCCE0; background: #1E1E36; }
+.nav-btn.active { color: #A0A0FF; background: #1E1E48; border: 1px solid #3A3A70; }
+
+/* ===================== PAGE WRAPPER ===================== */
+.page { display: none; padding-top: 44px; min-height: 100vh; }
+.page.active { display: flex; min-height: 100vh; }
+
+/* ===================== SIDEBAR ===================== */
+.sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: fixed; top: 44px; left: 0; bottom: 0;
+  z-index: 100;
+  overflow-y: auto;
+}
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .app-name {
+  font-size: 18px; font-weight: 700; color: var(--accent);
+  letter-spacing: -0.3px;
+}
+.sidebar-logo .app-sub {
+  font-size: 11px; color: var(--text3); margin-top: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sidebar-section {
+  padding: 16px 12px 4px;
+  font-size: 10px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; margin: 1px 8px;
+  border-radius: 7px; cursor: pointer;
+  font-size: 13.5px; font-weight: 500; color: var(--text2);
+  transition: all 0.13s;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--accent-light); color: var(--accent); font-weight: 600; }
+.nav-item .icon {
+  width: 18px; height: 18px; border-radius: 5px;
+  background: var(--surface2); flex-shrink: 0;
+  display: grid; place-items: center; font-size: 11px;
+}
+.nav-item.active .icon { background: var(--accent); color: #fff; }
+.sidebar-bottom {
+  margin-top: auto; padding: 12px 8px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-user {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 8px;
+  cursor: pointer;
+}
+.sidebar-user:hover { background: var(--surface2); }
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--accent-light); border: 2px solid var(--accent-mid);
+  display: grid; place-items: center;
+  font-size: 12px; font-weight: 700; color: var(--accent);
+  flex-shrink: 0;
+}
+.avatar.sm { width: 28px; height: 28px; font-size: 10px; }
+.avatar.lg { width: 52px; height: 52px; font-size: 18px; border-width: 2px; }
+.user-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.user-role { font-size: 11px; color: var(--text3); }
+
+/* ===================== MAIN AREA ===================== */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex; flex-direction: column;
+  min-height: calc(100vh - 44px);
+  background: var(--bg);
+}
+.topbar {
+  height: var(--topbar-h);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 28px; gap: 16px;
+  position: sticky; top: 44px; z-index: 50;
+}
+.topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.topbar-spacer { flex: 1; }
+.topbar-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px; font-weight: 600; color: var(--accent);
+}
+.topbar-date { font-size: 12px; color: var(--text3); }
+.content { padding: 28px; flex: 1; }
+
+/* ===================== CARDS & GRIDS ===================== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.card-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.card-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.card-body { padding: 18px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+
+/* ===================== BADGES & STATUS ===================== */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 9px; border-radius: 20px;
+  font-size: 11px; font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+}
+.badge.green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.badge.red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.badge.amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.badge.blue { background: var(--accent-light); color: var(--accent); border: 1px solid #B0B0F0; }
+.badge.dot::before { content: '●'; font-size: 7px; }
+
+/* ===================== BUTTONS ===================== */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 9px 18px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  border: none; transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #2E2EAA; }
+.btn-success { background: var(--green-bg); color: var(--green); border: 1.5px solid var(--green-border); }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1.5px solid var(--red-border); }
+.btn-ghost { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+.btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 6px; }
+.btn-lg { padding: 14px 24px; font-size: 15px; border-radius: 10px; }
+
+/* ===================== INPUTS ===================== */
+.input {
+  width: 100%; height: 40px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 0 14px;
+  font-size: 13.5px; font-family: 'Outfit', sans-serif;
+  color: var(--text); outline: none;
+  transition: border 0.15s;
+}
+.input:focus { border-color: var(--accent-mid); }
+.input::placeholder { color: var(--text3); }
+.input-label { font-size: 12px; font-weight: 600; color: var(--text2); margin-bottom: 6px; display: block; }
+.input-group { margin-bottom: 14px; }
+
+/* ===================== TABLE ===================== */
+.table { width: 100%; border-collapse: collapse; }
+.table th {
+  padding: 10px 14px; text-align: left;
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--text3);
+  font-family: 'JetBrains Mono', monospace;
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+}
+.table td {
+  padding: 11px 14px; font-size: 13px;
+  color: var(--text2); border-bottom: 1px solid var(--border);
+}
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: #FAFAFC; }
+
+/* ===================== STAT CARD ===================== */
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.stat-num {
+  font-size: 28px; font-weight: 700; color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+.stat-label { font-size: 12px; color: var(--text3); margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+.stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+/* ===================== MAP PLACEHOLDER ===================== */
+.map-placeholder {
+  background: linear-gradient(145deg, #E8EEF4, #D8E4EE);
+  border: 1.5px dashed #9BB0C4;
+  border-radius: 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 6px; color: #6890A8;
+}
+.map-x { font-size: 32px; opacity: 0.4; line-height: 1; }
+.map-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; font-family: 'JetBrains Mono', monospace; }
+.map-sub { font-size: 10px; opacity: 0.8; }
+
+/* ===================== PROGRESS BAR ===================== */
+.progress-wrap { background: var(--surface2); border-radius: 6px; overflow: hidden; height: 8px; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 6px; transition: width 0.3s; }
+.progress-fill.green { background: var(--green); }
+
+/* ===================== DIVIDER ===================== */
+.divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+/* ===================== ALERT ===================== */
+.alert {
+  padding: 10px 14px; border-radius: 8px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; margin-bottom: 16px;
+  border: 1px solid;
+}
+.alert.info { background: var(--accent-light); border-color: #B0B0F0; color: var(--accent); }
+.alert.warning { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+.alert.danger { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
+
+/* ===================== TOGGLE ===================== */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; }
+.toggle { width: 38px; height: 22px; background: var(--border2); border-radius: 11px; position: relative; cursor: pointer; flex-shrink: 0; }
+.toggle.on { background: var(--accent); }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left 0.2s; }
+.toggle.on::after { left: 19px; }
+.toggle-label { font-size: 13px; color: var(--text2); }
+
+/* ===================== CALENDAR ===================== */
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+.cal-header { text-align: center; font-size: 10px; font-weight: 700; color: var(--text3); padding: 4px 0; font-family: 'JetBrains Mono', monospace; text-transform: uppercase; }
+.cal-day {
+  aspect-ratio: 1; border: 1px solid var(--border);
+  border-radius: 6px; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  font-size: 11px; font-family: 'JetBrains Mono', monospace;
+  color: var(--text2); background: var(--surface); cursor: pointer;
+}
+.cal-day:hover { border-color: var(--accent-mid); }
+.cal-day.present { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); font-weight: 600; }
+.cal-day.absent { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
+.cal-day.today { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+.cal-day.empty { background: var(--surface2); color: var(--border2); border-color: var(--border); cursor: default; }
+.cal-dot { width: 4px; height: 4px; border-radius: 50%; background: currentColor; margin-top: 1px; opacity: 0.7; }
+
+/* ===================== CHART ===================== */
+.chart-bars { display: flex; align-items: flex-end; gap: 5px; padding: 8px 8px 0; height: 80px; }
+.bar { flex: 1; background: var(--accent-light); border: 1px solid var(--accent-mid); border-radius: 4px 4px 0 0; min-height: 6px; }
+.bar.highlight { background: var(--accent); border-color: var(--accent); }
+.bar.muted { background: var(--surface2); border-color: var(--border); }
+.chart-labels { display: flex; gap: 5px; padding: 4px 8px 6px; }
+.chart-label { flex: 1; text-align: center; font-size: 9px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+
+/* ===================== PAGE F0 — LOGIN ===================== */
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #F0F0F8 0%, #E8E8F4 100%);
+  display: flex; align-items: center; justify-content: center;
+  padding: 40px;
+}
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  width: 420px;
+  padding: 40px;
+}
+.login-logo { text-align: center; margin-bottom: 32px; }
+.login-logo .name {
+  font-size: 28px; font-weight: 700; color: var(--accent);
+  letter-spacing: -0.5px;
+}
+.login-logo .icon-wrap {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: var(--accent-light); border: 2px solid var(--accent-mid);
+  display: grid; place-items: center; margin: 0 auto 12px;
+  font-size: 22px;
+}
+.login-title { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.login-sub { font-size: 13px; color: var(--text3); margin-bottom: 28px; }
+.forgot-link { font-size: 12px; color: var(--accent); text-align: right; display: block; margin-bottom: 20px; cursor: pointer; }
+.checkbox-row { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+.checkbox { width: 16px; height: 16px; border: 1.5px solid var(--border2); border-radius: 4px; background: var(--surface2); flex-shrink: 0; display: grid; place-items: center; }
+.checkbox-label { font-size: 13px; color: var(--text2); }
+
+/* ===================== POINTAGE WIDGET ===================== */
+.pointage-widget {
+  display: flex; flex-direction: column; gap: 14px;
+}
+.btn-pointage {
+  height: 54px; border-radius: 10px; border: 2px solid;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all 0.15s;
+}
+.btn-pointage.arrivee { background: var(--green-bg); border-color: var(--green-border); color: var(--green); }
+.btn-pointage.pause { background: var(--amber-bg); border-color: var(--amber-border); color: var(--amber); }
+.btn-pointage.depart { background: var(--red-bg); border-color: var(--red-border); color: var(--red); }
+.timer-display {
+  background: var(--surface2); border-radius: 10px; padding: 14px 18px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.timer-val { font-family: 'JetBrains Mono', monospace; font-size: 22px; font-weight: 700; color: var(--text); }
+.timer-key { font-size: 10px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ===================== VALIDATION CARD ===================== */
+.validation-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px;
+  box-shadow: var(--shadow);
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.validation-card.anomaly { border-left: 3px solid var(--red); }
+.validation-card.warning { border-left: 3px solid var(--amber); }
+
+/* ===================== SECTION HEADING ===================== */
+.section-h {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.section-h::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* SPACING UTILS */
+.mb-4 { margin-bottom: 4px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-4 { margin-top: 4px; }
+.mt-8 { margin-top: 8px; }
+.flex { display: flex; }
+.flex-1 { flex: 1; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.text-sm { font-size: 12px; }
+.text-xs { font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+.text-muted { color: var(--text3); }
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }
+.text-accent { color: var(--accent); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- ===================== NAV STRIP ===================== -->
+<nav class="nav-strip">
+  <div class="nav-logo">◎ Horosphere — Maquettes</div>
+  <button class="nav-btn active" onclick="showPage('p-login')">F0 · Connexion</button>
+  <button class="nav-btn" onclick="showPage('p-dashboard')">F1 · Tableau de Bord</button>
+  <button class="nav-btn" onclick="showPage('p-historique')">F2 · Historique</button>
+  <button class="nav-btn" onclick="showPage('p-profil')">F3 · Profil</button>
+  <button class="nav-btn" onclick="showPage('p-rh-dashboard')">F4 · Vue RH</button>
+  <button class="nav-btn" onclick="showPage('p-validation')">F5 · Validation RH</button>
+  <button class="nav-btn" onclick="showPage('p-rapports')">F6 · Rapports</button>
+  <button class="nav-btn" onclick="showPage('p-parametres')">F7 · Paramètres</button>
+  <button class="nav-btn" onclick="showPage('p-demandes')">F8 · Mes Demandes</button>
+  <button class="nav-btn" onclick="showPage('p-documents')">F9 · Mes Documents</button>
+  <button class="nav-btn" onclick="showPage('p-employes')">F10 · Employés</button>
+  <button class="nav-btn" onclick="showPage('p-zones-geo')">F11 · Zones Géo</button>
+</nav>
+
+
+<!-- =====================================================================
+     F0 — CONNEXION
+===================================================================== -->
+<div id="p-login" class="page active" style="background: linear-gradient(135deg,#EDEDF8 0%,#E2E2F2 100%); display:flex; align-items:center; justify-content:center; min-height:100vh;">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon-wrap">◎</div>
+      <div class="name">Horosphere</div>
+    </div>
+    <div class="login-title">Connexion</div>
+    <div class="login-sub" style="margin-bottom:24px">Accédez à votre espace de gestion des présences.</div>
+    <div class="input-group">
+      <label class="input-label">Adresse e-mail</label>
+      <input class="input" placeholder="utilisateur@entreprise.fr" type="email" />
+    </div>
+    <div class="input-group" style="margin-bottom:10px">
+      <label class="input-label">Mot de passe</label>
+      <input class="input" placeholder="••••••••••" type="password" />
+    </div>
+    <a class="forgot-link">Mot de passe oublié ?</a>
+    <div class="checkbox-row">
+      <div class="checkbox"></div>
+      <span class="checkbox-label">Rester connecté</span>
+    </div>
+    <button class="btn btn-primary" style="width:100%;height:46px;font-size:14px;">Se connecter →</button>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F1 — TABLEAU DE BORD EMPLOYÉ
+===================================================================== -->
+<div id="p-dashboard" class="page">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="app-name">Horosphere</div>
+      <div class="app-sub">Gestion des présences</div>
+    </div>
+    <div class="sidebar-section">Navigation</div>
+    <div class="nav-item active"><div class="icon">⌂</div> Accueil</div>
+    <div class="nav-item"><div class="icon">◷</div> Mon Historique</div>
+    <div class="nav-item"><div class="icon">✉</div> Mes Demandes</div>
+    <div class="nav-item"><div class="icon">☰</div> Mes Documents</div>
+    <div class="sidebar-bottom">
+      <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+      <div class="sidebar-user">
+        <div class="avatar">SO</div>
+        <div><div class="user-name">S. Chahrazed</div><div class="user-role">Développeur junior</div></div>
+      </div>
+    </div>
+  </aside>
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Tableau de Bord — Pointage</div>
+      <div class="topbar-spacer"></div>
+      <div style="text-align:right">
+        <div class="topbar-clock">09:47:22</div>
+        <div class="topbar-date">Jeudi 26 Février 2026</div>
+      </div>
+      <div style="width:1px;height:30px;background:var(--border);margin:0 4px"></div>
+      <div class="avatar sm">LI</div>
+    </div>
+    <div class="content">
+      <div class="alert info">
+        ℹ&nbsp; Bienvenue Chahrazed — Vous n'avez pas encore pointé aujourd'hui.
+      </div>
+
+      <div class="grid-2 mb-20">
+        <!-- Widget Pointage -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Pointage du jour</div>
+            <div style="margin-left:auto"><span class="badge red dot">Non pointé</span></div>
+          </div>
+          <div class="card-body">
+            <div class="pointage-widget mb-16">
+              <div class="btn-pointage arrivee">▶ &nbsp;Arrivée</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div class="btn-pointage pause">⏸ &nbsp;Pause</div>
+                <div class="btn-pointage depart">■ &nbsp;Départ</div>
+              </div>
+            </div>
+            <div class="timer-display mb-12">
+              <div><div class="timer-key">Durée travaillée</div><div class="timer-val">0h 00m</div></div>
+              <div style="text-align:center"><div class="timer-key">Dernière action</div><div style="font-size:14px;font-weight:600;color:var(--text3);margin-top:4px">— —</div></div>
+              <div style="text-align:right"><div class="timer-key">Statut</div><div style="margin-top:4px"><span class="badge red dot">Absent</span></div></div>
+            </div>
+            <div class="text-xs text-muted mb-4">Progression journée (09:00 → 18:00)</div>
+            <div class="progress-wrap"><div class="progress-fill" style="width:0%"></div></div>
+            <div class="flex justify-between mt-4"><span class="text-xs text-muted">08:00</span><span class="text-xs text-muted">9h / jour</span><span class="text-xs text-muted">17:00</span></div>
+          </div>
+        </div>
+
+        <!-- Géolocalisation -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Géofencing & Localisation</div>
+            <span class="badge blue" style="margin-left:auto;font-size:10px">API Geo</span>
+          </div>
+          <div class="card-body">
+            <div class="map-placeholder" style="height:150px;margin-bottom:14px">
+              <div class="map-x">✕</div>
+              <div class="map-label">Carte Géofencing — Google Maps API</div>
+              <div class="map-sub">Zone autorisée : rayon 200m</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div style="background:var(--green-bg);border:1px solid var(--green-border);border-radius:8px;padding:10px;text-align:center">
+                <div class="text-xs" style="color:var(--green)">ZONE VALIDE</div>
+                <div style="font-size:15px;font-weight:700;color:var(--green);margin-top:4px">● Oui</div>
+              </div>
+              <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center">
+                <div class="text-xs text-muted">DISTANCE</div>
+                <div style="font-size:15px;font-weight:700;color:var(--text2);margin-top:4px">— m</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="grid-4 mb-20">
+        <div class="stat-card"><div class="stat-num">22</div><div class="stat-label">Jours présents</div><div class="stat-sub">Ce mois-ci</div></div>
+        <div class="stat-card"><div class="stat-num">176h</div><div class="stat-label">Heures travaillées</div><div class="stat-sub">Moy. 8h/jour</div></div>
+        <div class="stat-card"><div class="stat-num text-red">1h30</div><div class="stat-label">Heures supp.</div><div class="stat-sub">À valider RH</div></div>
+        <div class="stat-card"><div class="stat-num text-green">2</div><div class="stat-label">Congés restants</div><div class="stat-sub">Sur 25 jours</div></div>
+      </div>
+
+      <!-- Derniers pointages -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Derniers Pointages</div></div>
+        <table class="table">
+          <thead><tr><th>Date</th><th>Jour</th><th>Arrivée</th><th>Départ</th><th>Durée</th><th>Statut</th></tr></thead>
+          <tbody>
+            <tr><td class="fw-600">25/02/2026</td><td class="text-muted">Mercredi</td><td>08:52</td><td>17:38</td><td class="fw-600">8h 46m</td><td><span class="badge green dot">Validé</span></td></tr>
+            <tr><td class="fw-600">24/02/2026</td><td class="text-muted">Mardi</td><td>09:10</td><td>18:05</td><td class="fw-600">8h 55m</td><td><span class="badge green dot">Validé</span></td></tr>
+            <tr><td class="fw-600">23/02/2026</td><td class="text-muted">Lundi</td><td>08:44</td><td>17:20</td><td class="fw-600">8h 36m</td><td><span class="badge amber dot">En attente</span></td></tr>
+            <tr><td class="fw-600">21/02/2026</td><td class="text-muted">Vendredi</td><td>—</td><td>—</td><td class="text-muted">0h</td><td><span class="badge red dot">Absent</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F2 — HISTORIQUE VUE MOIS
+===================================================================== -->
+<div id="p-historique" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub">Gestion des présences</div></div>
+    <div class="sidebar-section">Navigation</div>
+    <div class="nav-item"><div class="icon">⌂</div> Accueil</div>
+    <div class="nav-item active"><div class="icon">◷</div> Mon Historique</div>
+    <div class="nav-item"><div class="icon">✉</div> Mes Demandes</div>
+    <div class="nav-item"><div class="icon">☰</div> Mes Documents</div>
+    <div class="sidebar-bottom">
+      <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+      <div class="sidebar-user"><div class="avatar">SO</div><div><div class="user-name">S. Chahrazed</div><div class="user-role">Développeur junior</div></div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Historique des Présences</div>
+      <div class="topbar-spacer"></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-ghost btn-sm">‹ Jan 2026</button>
+        <span style="font-size:14px;font-weight:700;color:var(--text);padding:0 6px">Fév 2026</span>
+        <button class="btn btn-ghost btn-sm">Mar 2026 ›</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:8px">↓ Export CSV</button>
+    </div>
+    <div class="content">
+      <div class="grid-2">
+        <!-- Calendrier -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Vue Calendrier — Février 2026</div></div>
+          <div class="card-body">
+            <div class="cal-grid mb-12">
+              <div class="cal-header">Lun</div><div class="cal-header">Mar</div><div class="cal-header">Mer</div><div class="cal-header">Jeu</div><div class="cal-header">Ven</div><div class="cal-header">Sam</div><div class="cal-header">Dim</div>
+              <!-- S1 -->
+              <div class="cal-day empty">—</div><div class="cal-day empty">—</div><div class="cal-day empty">—</div><div class="cal-day empty">—</div><div class="cal-day empty">—</div>
+              <div class="cal-day present">1<div class="cal-dot"></div></div><div class="cal-day present">2<div class="cal-dot"></div></div>
+              <!-- S2 -->
+              <div class="cal-day present">3<div class="cal-dot"></div></div><div class="cal-day present">4<div class="cal-dot"></div></div><div class="cal-day present">5<div class="cal-dot"></div></div><div class="cal-day present">6<div class="cal-dot"></div></div><div class="cal-day present">7<div class="cal-dot"></div></div>
+              <div class="cal-day empty">8</div><div class="cal-day empty">9</div>
+              <!-- S3 -->
+              <div class="cal-day present">10<div class="cal-dot"></div></div><div class="cal-day present">11<div class="cal-dot"></div></div><div class="cal-day present">12<div class="cal-dot"></div></div><div class="cal-day absent">13</div><div class="cal-day present">14<div class="cal-dot"></div></div>
+              <div class="cal-day empty">15</div><div class="cal-day empty">16</div>
+              <!-- S4 -->
+              <div class="cal-day present">17<div class="cal-dot"></div></div><div class="cal-day present">18<div class="cal-dot"></div></div><div class="cal-day present">19<div class="cal-dot"></div></div><div class="cal-day present">20<div class="cal-dot"></div></div><div class="cal-day present">21<div class="cal-dot"></div></div>
+              <div class="cal-day empty">22</div><div class="cal-day empty">23</div>
+              <!-- S5 -->
+              <div class="cal-day present">24<div class="cal-dot"></div></div><div class="cal-day present">25<div class="cal-dot"></div></div><div class="cal-day today">26</div><div class="cal-day">27</div><div class="cal-day">28</div>
+              <div class="cal-day empty">—</div><div class="cal-day empty">—</div>
+            </div>
+            <div style="display:flex;gap:16px">
+              <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:3px;background:var(--accent-light);border:1px solid var(--accent-mid)"></div><span class="text-sm text-muted">Présent</span></div>
+              <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:3px;background:var(--red-bg);border:1px solid var(--red-border)"></div><span class="text-sm text-muted">Absence</span></div>
+              <div style="display:flex;align-items:center;gap:5px"><div style="width:10px;height:10px;border-radius:3px;background:var(--accent)"></div><span class="text-sm text-muted">Aujourd'hui</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau détaillé -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Détail des Pointages</div></div>
+          <table class="table">
+            <thead><tr><th>Jour</th><th>Date</th><th>Entrée</th><th>Sortie</th><th>Total</th></tr></thead>
+            <tbody>
+              <tr><td class="text-muted">Lun</td><td class="fw-600">24/02</td><td>08:52</td><td>17:38</td><td class="fw-600 text-accent">8h 46m</td></tr>
+              <tr><td class="text-muted">Mar</td><td class="fw-600">25/02</td><td>09:10</td><td>18:05</td><td class="fw-600 text-accent">8h 55m</td></tr>
+              <tr><td class="text-muted">Mer</td><td class="fw-600">26/02</td><td>—</td><td>—</td><td class="fw-600 text-red">0h</td></tr>
+              <tr><td class="text-muted">Jeu</td><td style="color:var(--border2)">27/02</td><td style="color:var(--border2)">—</td><td style="color:var(--border2)">—</td><td style="color:var(--border2)">—</td></tr>
+              <tr><td class="text-muted">Ven</td><td style="color:var(--border2)">28/02</td><td style="color:var(--border2)">—</td><td style="color:var(--border2)">—</td><td style="color:var(--border2)">—</td></tr>
+            </tbody>
+          </table>
+          <div style="padding:12px 16px;background:var(--surface2);border-top:1px solid var(--border);border-radius:0 0 var(--radius) var(--radius);display:flex;justify-content:space-between;align-items:center">
+            <span class="text-sm text-muted">Total mensuel</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--text)">176h 20m — 22 jours</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F3 — PROFIL COMPTE
+===================================================================== -->
+<div id="p-profil" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub">Gestion des présences</div></div>
+    <div class="sidebar-section">Navigation</div>
+    <div class="nav-item"><div class="icon">⌂</div> Accueil</div>
+    <div class="nav-item"><div class="icon">◷</div> Mon Historique</div>
+    <div class="nav-item active"><div class="icon">◯</div> Mon Profil</div>
+    <div class="nav-item"><div class="icon">☰</div> Mes Documents</div>
+    <div class="sidebar-bottom">
+      <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+      <div class="sidebar-user"><div class="avatar">SO</div><div><div class="user-name">S. Chahrazed</div><div class="user-role">Développeur Junior</div></div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar"><div class="topbar-title">Mon Profil</div></div>
+    <div class="content">
+      <div class="grid-2">
+        <!-- Infos personnelles -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Informations Personnelles</div></div>
+          <div class="card-body">
+            <div style="display:flex;gap:18px;align-items:flex-start;margin-bottom:20px">
+              <div style="text-align:center">
+                <div class="avatar lg" style="margin:0 auto 8px">SO</div>
+                <span class="text-sm text-accent" style="cursor:pointer">Modifier</span>
+              </div>
+              <div style="flex:1">
+                <div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:2px">Soltani Chahrazed</div>
+                <div class="text-sm text-muted mb-12">Développeur Junior— Équipe Dev</div>
+                <span class="badge green">Actif</span>
+              </div>
+            </div>
+            <div class="grid-2">
+              <div class="input-group"><label class="input-label">Prénom</label><input class="input" value="Chahrazed" /></div>
+              <div class="input-group"><label class="input-label">Nom</label><input class="input" value="Soltani" /></div>
+              <div class="input-group"><label class="input-label">E-mail</label><input class="input" value="s.chahrazed@entreprise.fr" /></div>
+              <div class="input-group"><label class="input-label">Téléphone</label><input class="input" placeholder="06 XX XX XX XX" /></div>
+              <div class="input-group"><label class="input-label">Département</label><input class="input" value="Informatique" /></div>
+              <div class="input-group"><label class="input-label">Responsable</label><input class="input" value="alternante" /></div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;margin-top:4px">Sauvegarder les modifications</button>
+          </div>
+        </div>
+
+        <!-- Sécurité -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Sécurité du Compte</div></div>
+            <div class="card-body">
+              <div class="input-group"><label class="input-label">Mot de passe actuel</label><input class="input" type="password" placeholder="••••••••" /></div>
+              <div class="input-group"><label class="input-label">Nouveau mot de passe</label><input class="input" type="password" placeholder="••••••••" /></div>
+              <div class="input-group mb-16"><label class="input-label">Confirmer le mot de passe</label><input class="input" type="password" placeholder="••••••••" /></div>
+              <button class="btn btn-ghost" style="width:100%">Changer le mot de passe</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Préférences & Notifications</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+              <div class="toggle-wrap"><div class="toggle on"></div><span class="toggle-label">Notifications e-mail actives</span></div>
+              <div class="toggle-wrap"><div class="toggle"></div><span class="toggle-label">Rappel de pointage (SMS)</span></div>
+              <div class="toggle-wrap"><div class="toggle on"></div><span class="toggle-label">Résumé hebdomadaire</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F4 — VUE RH ADMIN
+===================================================================== -->
+<div id="p-rh-dashboard" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub" style="color:var(--red)">Admin RH</div></div>
+    <div class="sidebar-section">Gestion</div>
+    <div class="nav-item active"><div class="icon">⌂</div> Vue Globale</div>
+    <div class="nav-item"><div class="icon">◎</div> Employés</div>
+    <div class="nav-item"><div class="icon">✓</div> Validation RH</div>
+    <div class="nav-item"><div class="icon">↓</div> Rapports</div>
+    <div class="sidebar-section">Configuration</div>
+    <div class="nav-item"><div class="icon">📍</div> Zones Géo</div>
+    <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user"><div class="avatar" style="background:#FFF0F0;border-color:var(--red-border)">RH</div><div><div class="user-name">Admin RH</div><div class="user-role">Responsable RH</div></div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Vue RH — Tableau de Bord</div>
+      <div class="topbar-spacer"></div>
+      <div class="badge amber">⚠ 3 anomalies à traiter</div>
+    </div>
+    <div class="content">
+      <div class="grid-5 mb-20">
+        <div class="stat-card"><div class="stat-num">47</div><div class="stat-label">Employés actifs</div></div>
+        <div class="stat-card"><div class="stat-num text-green">42</div><div class="stat-label">Présents auj.</div></div>
+        <div class="stat-card"><div class="stat-num text-red">3</div><div class="stat-label">Absents non justifiés</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--amber)">5</div><div class="stat-label">Pointages en attente</div></div>
+        <div class="stat-card"><div class="stat-num">8</div><div class="stat-label">Congés en cours</div></div>
+      </div>
+
+      <div class="grid-2 mb-20">
+        <!-- Chart -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Présences — Semaine en cours</div></div>
+          <div class="card-body">
+            <div class="chart-bars" style="height:90px">
+              <div class="bar" style="height:78%"></div>
+              <div class="bar" style="height:88%"></div>
+              <div class="bar" style="height:65%"></div>
+              <div class="bar highlight" style="height:91%"></div>
+              <div class="bar" style="height:80%"></div>
+              <div class="bar muted" style="height:22%"></div>
+              <div class="bar muted" style="height:18%"></div>
+            </div>
+            <div class="chart-labels">
+              <div class="chart-label">Lun</div><div class="chart-label">Mar</div><div class="chart-label">Mer</div><div class="chart-label">Jeu</div><div class="chart-label">Ven</div><div class="chart-label">Sam</div><div class="chart-label">Dim</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Taux présence -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Taux de Présence</div></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <div class="flex justify-between mb-4"><span class="text-sm fw-600">Présents aujourd'hui</span><span class="text-sm fw-600 text-green">42 / 47</span></div>
+              <div class="progress-wrap"><div class="progress-fill green" style="width:89%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-4"><span class="text-sm fw-600">Taux mensuel</span><span class="text-sm fw-600 text-accent">94%</span></div>
+              <div class="progress-wrap"><div class="progress-fill" style="width:94%"></div></div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-4"><span class="text-sm fw-600">Ponctualité</span><span class="text-sm fw-600" style="color:var(--amber)">87%</span></div>
+              <div class="progress-wrap"><div class="progress-fill" style="width:87%;background:var(--amber)"></div></div>
+            </div>
+            <div class="divider" style="margin:4px 0"></div>
+            <div class="alert warning" style="margin-bottom:0">⚠ &nbsp;3 employés absents sans justificatif ce jour.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste employés -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Liste Employés — Statut du Jour</div>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm">+ Ajouter</button>
+            <button class="btn btn-ghost btn-sm">⬇ Exporter</button>
+          </div>
+        </div>
+        <table class="table">
+          <thead><tr><th>Employé</th><th>Département</th><th>Arrivée</th><th>Statut</th><th>Lieu</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div class="flex items-center gap-8"><div class="avatar sm">AD</div><div><div class="fw-600">A. Dupont</div><div class="text-sm text-muted">Dev Frontend</div></div></div></td>
+              <td>Informatique</td><td>08:45</td><td><span class="badge green dot">Présent</span></td><td><span class="badge blue">Siège</span></td>
+              <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">Voir</button><button class="btn btn-ghost btn-sm">✏</button></div></td>
+            </tr>
+            <tr>
+              <td><div class="flex items-center gap-8"><div class="avatar sm">MM</div><div><div class="fw-600">M. Martin</div><div class="text-sm text-muted">Designer UX</div></div></div></td>
+              <td>Design</td><td>09:12</td><td><span class="badge amber dot">En pause</span></td><td><span class="badge blue">Distanciel</span></td>
+              <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">Voir</button><button class="btn btn-ghost btn-sm">✏</button></div></td>
+            </tr>
+            <tr>
+              <td><div class="flex items-center gap-8"><div class="avatar sm" style="background:var(--red-bg);border-color:var(--red-border);color:var(--red)">JB</div><div><div class="fw-600">J. Bernard</div><div class="text-sm text-muted">Chef de projet</div></div></div></td>
+              <td>Management</td><td>—</td><td><span class="badge red dot">Absent</span></td><td>—</td>
+              <td><div style="display:flex;gap:6px"><button class="btn btn-danger btn-sm">Alerte</button><button class="btn btn-ghost btn-sm">✏</button></div></td>
+            </tr>
+            <tr>
+              <td><div class="flex items-center gap-8"><div class="avatar sm">CF</div><div><div class="fw-600">C. Fontaine</div><div class="text-sm text-muted">Comptabilité</div></div></div></td>
+              <td>Finance</td><td>08:30</td><td><span class="badge green dot">Présent</span></td><td><span class="badge blue">Siège</span></td>
+              <td><div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm">Voir</button><button class="btn btn-ghost btn-sm">✏</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F5 — VALIDATION RH
+===================================================================== -->
+<div id="p-validation" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub" style="color:var(--red)">Admin RH</div></div>
+    <div class="sidebar-section">Gestion</div>
+    <div class="nav-item"><div class="icon">⌂</div> Vue Globale</div>
+    <div class="nav-item"><div class="icon">◎</div> Employés</div>
+    <div class="nav-item active"><div class="icon">✓</div> Validation RH</div>
+    <div class="nav-item"><div class="icon">↓</div> Rapports</div>
+    <div class="sidebar-section">Configuration</div>
+    <div class="nav-item"><div class="icon">📍</div> Zones Géo</div>
+    <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user"><div class="avatar" style="background:#FFF0F0;border-color:var(--red-border)">RH</div><div><div class="user-name">Admin RH</div><div class="user-role">Responsable RH</div></div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Validation RH — Anomalies & Corrections</div>
+      <div class="topbar-spacer"></div>
+      <div class="badge amber">5 en attente de validation</div>
+    </div>
+    <div class="content">
+      <!-- Filtres -->
+      <div style="display:flex;gap:8px;margin-bottom:20px">
+        <button class="btn btn-primary btn-sm">Tous (5)</button>
+        <button class="btn btn-ghost btn-sm">Retards (2)</button>
+        <button class="btn btn-ghost btn-sm">Oublis de pointage (2)</button>
+        <button class="btn btn-ghost btn-sm">Hors zone (1)</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:14px">
+
+        <!-- Anomalie 1 — Retard -->
+        <div class="validation-card anomaly">
+          <div class="avatar" style="background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)">AD</div>
+          <div style="flex:1">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <div style="font-size:15px;font-weight:700;color:var(--text)">A. Dupont</div>
+                <div class="text-sm text-muted">25/02/2026 — Arrivée à 09:45 (prévu 09:00)</div>
+              </div>
+              <span class="badge amber">Retard 45 min</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,auto) 1fr;gap:16px;background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:12px">
+              <div><div class="text-xs text-muted">Arrivée</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px">09:45</div></div>
+              <div><div class="text-xs text-muted">Prévue</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px;color:var(--amber)">09:00</div></div>
+              <div><div class="text-xs text-muted">Départ</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px">18:10</div></div>
+              <div><div class="text-xs text-muted">Total</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px">8h 25m</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <button class="btn btn-success">✓ Approuver</button>
+              <button class="btn btn-ghost">✏ Corriger la saisie</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Anomalie 2 — Oubli départ -->
+        <div class="validation-card anomaly">
+          <div class="avatar" style="background:var(--red-bg);border-color:var(--red-border);color:var(--red)">CF</div>
+          <div style="flex:1">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <div style="font-size:15px;font-weight:700;color:var(--text)">C. Fontaine</div>
+                <div class="text-sm text-muted">24/02/2026 — Départ non pointé</div>
+              </div>
+              <span class="badge red">Oubli Départ</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,auto) 1fr;gap:16px;background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:12px">
+              <div><div class="text-xs text-muted">Arrivée</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px">08:32</div></div>
+              <div><div class="text-xs text-muted">Départ</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px;color:var(--red)">—</div></div>
+              <div><div class="text-xs text-muted">Durée estimée</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px;color:var(--amber)">?</div></div>
+              <div><div class="text-xs text-muted">Lieu</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px">Siège</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <button class="btn btn-success">✓ Approuver (heure auto)</button>
+              <button class="btn btn-ghost">✏ Corriger la saisie</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Anomalie 3 — Hors zone -->
+        <div class="validation-card warning">
+          <div class="avatar" style="background:var(--amber-bg);border-color:var(--amber-border);color:var(--amber)">RM</div>
+          <div style="flex:1">
+            <div class="flex justify-between items-center mb-8">
+              <div>
+                <div style="font-size:15px;font-weight:700;color:var(--text)">R. Moreau</div>
+                <div class="text-sm text-muted">26/02/2026 — Pointage hors zone géofencing</div>
+              </div>
+              <span class="badge amber">⚠ Zone KO</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,auto) 1fr;gap:16px;background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:12px">
+              <div><div class="text-xs text-muted">Arrivée</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px">08:55</div></div>
+              <div><div class="text-xs text-muted">Distance zone</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px;color:var(--red)">+620m</div></div>
+              <div><div class="text-xs text-muted">Rayon autorisé</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px">200m</div></div>
+              <div><div class="text-xs text-muted">Motif déclaré</div><div class="fw-600" style="font-family:'JetBrains Mono',monospace;margin-top:3px">Rdv client</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <button class="btn btn-success">✓ Approuver l'exception</button>
+              <button class="btn btn-danger btn-sm" style="height:auto;padding:9px 18px">✕ Refuser</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F6 — RAPPORTS & EXPORTS
+===================================================================== -->
+<div id="p-rapports" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub" style="color:var(--red)">Admin RH</div></div>
+    <div class="sidebar-section">Gestion</div>
+    <div class="nav-item"><div class="icon">⌂</div> Vue Globale</div>
+    <div class="nav-item"><div class="icon">◎</div> Employés</div>
+    <div class="nav-item"><div class="icon">✓</div> Validation RH</div>
+    <div class="nav-item active"><div class="icon">↓</div> Rapports</div>
+    <div class="sidebar-section">Configuration</div>
+    <div class="nav-item"><div class="icon">📍</div> Zones Géo</div>
+    <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user"><div class="avatar" style="background:#FFF0F0;border-color:var(--red-border)">RH</div><div><div class="user-name">Admin RH</div></div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar"><div class="topbar-title">Rapports & Exports</div></div>
+    <div class="content">
+      <div class="grid-2 mb-20">
+        <!-- Export mensuel -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Export Mensuel</div></div>
+          <div class="card-body">
+            <div class="input-group"><label class="input-label">Mois</label><select class="input"><option>Février 2026</option><option>Janvier 2026</option><option>Décembre 2025</option></select></div>
+            <div class="input-group">
+              <label class="input-label">Format d'export</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px">
+                <div style="border:2px solid var(--accent);background:var(--accent-light);border-radius:8px;padding:8px;text-align:center;cursor:pointer"><div class="text-xs text-accent fw-600">CSV</div></div>
+                <div style="border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--text2)"><div class="text-xs fw-600">XLSX</div></div>
+                <div style="border:1px solid var(--border);border-radius:8px;padding:8px;text-align:center;cursor:pointer;color:var(--text2)"><div class="text-xs fw-600">PDF</div></div>
+              </div>
+            </div>
+            <div class="input-group"><label class="input-label">Employé(s)</label><select class="input"><option>Tous les employés</option><option>Par département</option></select></div>
+            <button class="btn btn-primary" style="width:100%">↓ Générer l'export</button>
+          </div>
+        </div>
+
+        <!-- Rapport personnalisé -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Rapport Personnalisé</div></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <div class="input-group"><label class="input-label">Date de début</label><input class="input" type="text" placeholder="JJ/MM/AAAA" /></div>
+              <div class="input-group"><label class="input-label">Date de fin</label><input class="input" type="text" placeholder="JJ/MM/AAAA" /></div>
+            </div>
+            <div class="input-group"><label class="input-label">Employé(s)</label><select class="input"><option>Tous les employés</option></select></div>
+            <div class="input-group"><label class="input-label">Type de rapport</label>
+              <select class="input"><option>Présences & absences</option><option>Heures supplémentaires</option><option>Anomalies</option></select>
+            </div>
+            <button class="btn btn-primary" style="width:100%">↓ Générer le rapport</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graph annuel -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">Taux de Présence — Année 2025/2026</div></div>
+        <div class="card-body">
+          <div class="chart-bars" style="height:110px">
+            <div class="bar" style="height:92%"></div><div class="bar" style="height:88%"></div><div class="bar" style="height:85%"></div>
+            <div class="bar" style="height:78%"></div><div class="bar" style="height:91%"></div><div class="bar" style="height:82%"></div>
+            <div class="bar" style="height:95%"></div><div class="bar muted" style="height:55%"></div>
+            <div class="bar" style="height:89%"></div><div class="bar" style="height:87%"></div>
+            <div class="bar" style="height:84%"></div><div class="bar highlight" style="height:94%"></div>
+          </div>
+          <div class="chart-labels">
+            <div class="chart-label">Jan</div><div class="chart-label">Fév</div><div class="chart-label">Mar</div><div class="chart-label">Avr</div><div class="chart-label">Mai</div><div class="chart-label">Jun</div><div class="chart-label">Jul</div><div class="chart-label">Aoû</div><div class="chart-label">Sep</div><div class="chart-label">Oct</div><div class="chart-label">Nov</div><div class="chart-label">Déc</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F7 — PARAMÈTRES SYSTÈME
+===================================================================== -->
+<div id="p-parametres" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub" style="color:var(--red)">Admin RH</div></div>
+    <div class="sidebar-section">Gestion</div>
+    <div class="nav-item"><div class="icon">⌂</div> Vue Globale</div>
+    <div class="nav-item"><div class="icon">◎</div> Employés</div>
+    <div class="nav-item"><div class="icon">✓</div> Validation RH</div>
+    <div class="nav-item"><div class="icon">↓</div> Rapports</div>
+    <div class="sidebar-section">Configuration</div>
+    <div class="nav-item"><div class="icon">📍</div> Zones Géo</div>
+    <div class="nav-item active"><div class="icon">⚙</div> Paramètres</div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user"><div class="avatar" style="background:#FFF0F0;border-color:var(--red-border)">RH</div><div><div class="user-name">Admin RH</div></div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar"><div class="topbar-title">Paramètres Système</div></div>
+    <div class="content">
+      <div class="grid-2">
+
+        <!-- Géofencing -->
+        <div class="card">
+          <div class="card-header"><div class="card-title">Configuration Géofencing</div><span class="badge blue" style="margin-left:auto">API Google Maps</span></div>
+          <div class="card-body">
+            <div class="map-placeholder" style="height:120px;margin-bottom:16px">
+              <div class="map-x">✕</div>
+              <div class="map-label">Carte de Config Zones</div>
+              <div class="map-sub">Google Maps SDK</div>
+            </div>
+            <div class="input-group"><label class="input-label">Adresse du site principal</label><input class="input" placeholder="12 Rue de la Paix, 75001 Paris" /></div>
+            <div class="input-group"><label class="input-label">Rayon autorisé (mètres)</label><input class="input" value="200" /></div>
+            <div class="input-group mb-16">
+              <label class="input-label">Sites additionnels</label>
+              <button class="btn btn-ghost btn-sm" style="width:100%">+ Ajouter un site</button>
+            </div>
+            <button class="btn btn-success" style="width:100%">Sauvegarder la zone</button>
+          </div>
+        </div>
+
+        <!-- Règles -->
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Règles Horaires</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+              <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+                <label class="input-label" style="margin:0">Heure début journée</label>
+                <input class="input" value="09:00" style="width:80px" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+                <label class="input-label" style="margin:0">Heure fin journée</label>
+                <input class="input" value="18:00" style="width:80px" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+                <label class="input-label" style="margin:0">Alerte retard après</label>
+                <input class="input" value="15 min" style="width:80px" />
+              </div>
+              <div style="display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center">
+                <label class="input-label" style="margin:0">Durée max pause déjeuner</label>
+                <input class="input" value="60 min" style="width:80px" />
+              </div>
+              <button class="btn btn-primary" style="width:100%;margin-top:4px">Sauvegarder les règles</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">Notifications & Automatisations</div></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+              <div class="toggle-wrap"><div class="toggle on"></div><span class="toggle-label">Alerte e-mail RH sur anomalie</span></div>
+              <div class="toggle-wrap"><div class="toggle on"></div><span class="toggle-label">Validation RH obligatoire</span></div>
+              <div class="toggle-wrap"><div class="toggle"></div><span class="toggle-label">Rapport automatique hebdo</span></div>
+              <div class="toggle-wrap"><div class="toggle on"></div><span class="toggle-label">Blocage hors zone géofencing</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F8 — MES DEMANDES (EMPLOYÉ)
+===================================================================== -->
+<div id="p-demandes" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub">Gestion des présences</div></div>
+    <div class="sidebar-section">Navigation</div>
+    <div class="nav-item"><div class="icon">⌂</div> Accueil</div>
+    <div class="nav-item"><div class="icon">◷</div> Mon Historique</div>
+    <div class="nav-item active"><div class="icon">✉</div> Mes Demandes</div>
+    <div class="nav-item"><div class="icon">☰</div> Mes Documents</div>
+    <div class="sidebar-bottom">
+      <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+      <div class="sidebar-user">
+        <div class="avatar">SO</div>
+        <div><div class="user-name">S. Chahrazed</div><div class="user-role">Développeur junior</div></div>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Mes Demandes</div>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-primary btn-sm">+ Nouvelle demande</button>
+    </div>
+    <div class="content">
+
+      <!-- Filtres & compteurs -->
+      <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center">
+        <button class="btn btn-primary btn-sm">Toutes (6)</button>
+        <button class="btn btn-ghost btn-sm">En attente (2)</button>
+        <button class="btn btn-ghost btn-sm">Approuvées (3)</button>
+        <button class="btn btn-ghost btn-sm">Refusées (1)</button>
+        <div class="topbar-spacer"></div>
+        <select class="input" style="width:160px;height:34px;font-size:12px">
+          <option>Tous les types</option>
+          <option>Congés payés</option>
+          <option>Correction pointage</option>
+          <option>Télétravail</option>
+        </select>
+      </div>
+
+      <!-- Nouvelle demande rapide -->
+      <div class="card mb-20">
+        <div class="card-header">
+          <div class="card-title">Nouvelle Demande</div>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:14px;align-items:flex-end">
+            <div>
+              <label class="input-label">Type de demande</label>
+              <select class="input">
+                <option>Congés payés</option>
+                <option>Correction de pointage</option>
+                <option>Télétravail</option>
+                <option>Absence exceptionnelle</option>
+                <option>Récupération</option>
+              </select>
+            </div>
+            <div>
+              <label class="input-label">Date de début</label>
+              <input class="input" type="text" placeholder="JJ/MM/AAAA" />
+            </div>
+            <div>
+              <label class="input-label">Date de fin</label>
+              <input class="input" type="text" placeholder="JJ/MM/AAAA" />
+            </div>
+            <button class="btn btn-primary" style="height:40px;white-space:nowrap">Envoyer →</button>
+          </div>
+          <div style="margin-top:12px">
+            <label class="input-label">Motif (optionnel)</label>
+            <div style="width:100%;height:60px;background:var(--surface);border:1.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;color:var(--text3);display:flex;align-items:flex-start">Ajouter un commentaire...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste des demandes -->
+      <div class="section-h">Historique des demandes</div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <!-- Demande 1 — En attente / Congés -->
+        <div class="card" style="border-left:3px solid var(--accent-mid)">
+          <div style="padding:16px 18px;display:flex;gap:16px;align-items:flex-start">
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--accent-light);border:1.5px solid var(--accent-mid);display:grid;place-items:center;font-size:18px;flex-shrink:0">🌴</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                <div>
+                  <div style="font-size:15px;font-weight:700;color:var(--text)">Congés payés</div>
+                  <div class="text-sm text-muted">Du 10/03/2026 au 14/03/2026 — 5 jours ouvrés</div>
+                </div>
+                <span class="badge blue dot">En attente</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <div style="font-size:12px;color:var(--text3)">Soumise le 20/02/2026</div>
+                <div style="width:4px;height:4px;border-radius:50%;background:var(--border2)"></div>
+                <div style="font-size:12px;color:var(--text3)">En attente de validation RH</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm">Annuler</button>
+          </div>
+        </div>
+
+        <!-- Demande 2 — En attente / Correction pointage -->
+        <div class="card" style="border-left:3px solid var(--amber-border)">
+          <div style="padding:16px 18px;display:flex;gap:16px;align-items:flex-start">
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--amber-bg);border:1.5px solid var(--amber-border);display:grid;place-items:center;font-size:18px;flex-shrink:0">✏️</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                <div>
+                  <div style="font-size:15px;font-weight:700;color:var(--text)">Correction de pointage</div>
+                  <div class="text-sm text-muted">23/02/2026 — Départ oublié à 17:30</div>
+                </div>
+                <span class="badge amber dot">En attente</span>
+              </div>
+              <div style="font-size:12px;color:var(--text3)">Motif : "Oubli de pointer avant de quitter le bureau."</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Soumise le 24/02/2026</div>
+            </div>
+            <button class="btn btn-ghost btn-sm">Annuler</button>
+          </div>
+        </div>
+
+        <!-- Demande 3 — Approuvée / Télétravail -->
+        <div class="card" style="border-left:3px solid var(--green-border)">
+          <div style="padding:16px 18px;display:flex;gap:16px;align-items:flex-start">
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--green-bg);border:1.5px solid var(--green-border);display:grid;place-items:center;font-size:18px;flex-shrink:0">🏠</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                <div>
+                  <div style="font-size:15px;font-weight:700;color:var(--text)">Télétravail</div>
+                  <div class="text-sm text-muted">Du 24/02/2026 au 25/02/2026 — 2 jours</div>
+                </div>
+                <span class="badge green dot">Approuvée</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <div style="font-size:12px;color:var(--text3)">Approuvée par A. Manager</div>
+                <div style="width:4px;height:4px;border-radius:50%;background:var(--border2)"></div>
+                <div style="font-size:12px;color:var(--green)">Le 19/02/2026</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm">Détails</button>
+          </div>
+        </div>
+
+        <!-- Demande 4 — Approuvée / Congés -->
+        <div class="card" style="border-left:3px solid var(--green-border)">
+          <div style="padding:16px 18px;display:flex;gap:16px;align-items:flex-start">
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--green-bg);border:1.5px solid var(--green-border);display:grid;place-items:center;font-size:18px;flex-shrink:0">🌴</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                <div>
+                  <div style="font-size:15px;font-weight:700;color:var(--text)">Congés payés</div>
+                  <div class="text-sm text-muted">Du 02/01/2026 au 09/01/2026 — 6 jours ouvrés</div>
+                </div>
+                <span class="badge green dot">Approuvée</span>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center">
+                <div style="font-size:12px;color:var(--text3)">Approuvée par A. Manager</div>
+                <div style="width:4px;height:4px;border-radius:50%;background:var(--border2)"></div>
+                <div style="font-size:12px;color:var(--green)">Le 10/12/2025</div>
+              </div>
+            </div>
+            <button class="btn btn-ghost btn-sm">Détails</button>
+          </div>
+        </div>
+
+        <!-- Demande 5 — Approuvée / Récupération -->
+        <div class="card" style="border-left:3px solid var(--green-border)">
+          <div style="padding:16px 18px;display:flex;gap:16px;align-items:flex-start">
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--green-bg);border:1.5px solid var(--green-border);display:grid;place-items:center;font-size:18px;flex-shrink:0">⏱️</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                <div>
+                  <div style="font-size:15px;font-weight:700;color:var(--text)">Récupération</div>
+                  <div class="text-sm text-muted">15/11/2025 — Demi-journée après-midi</div>
+                </div>
+                <span class="badge green dot">Approuvée</span>
+              </div>
+              <div style="font-size:12px;color:var(--text3)">Motif : "Récupération heures supplémentaires semaine 44."</div>
+            </div>
+            <button class="btn btn-ghost btn-sm">Détails</button>
+          </div>
+        </div>
+
+        <!-- Demande 6 — Refusée -->
+        <div class="card" style="border-left:3px solid var(--red-border)">
+          <div style="padding:16px 18px;display:flex;gap:16px;align-items:flex-start">
+            <div style="width:40px;height:40px;border-radius:10px;background:var(--red-bg);border:1.5px solid var(--red-border);display:grid;place-items:center;font-size:18px;flex-shrink:0">🌴</div>
+            <div style="flex:1">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                <div>
+                  <div style="font-size:15px;font-weight:700;color:var(--text)">Congés payés</div>
+                  <div class="text-sm text-muted">Du 20/10/2025 au 24/10/2025 — 5 jours ouvrés</div>
+                </div>
+                <span class="badge red dot">Refusée</span>
+              </div>
+              <div style="font-size:12px;color:var(--red)">Motif du refus : "Période de forte activité, équipe insuffisante."</div>
+              <div style="font-size:12px;color:var(--text3);margin-top:2px">Refusée par A. Manager — Le 05/10/2025</div>
+            </div>
+            <button class="btn btn-ghost btn-sm">Détails</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Solde congés -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header"><div class="card-title">Solde & Compteurs</div></div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+            <div class="stat-card" style="box-shadow:none;border-color:var(--green-border);background:var(--green-bg)">
+              <div class="stat-num text-green">2</div>
+              <div class="stat-label" style="color:var(--green)">Congés restants</div>
+              <div class="stat-sub">Sur 25 jours / an</div>
+            </div>
+            <div class="stat-card" style="box-shadow:none">
+              <div class="stat-num">23</div>
+              <div class="stat-label">Congés pris</div>
+              <div class="stat-sub">Cette année</div>
+            </div>
+            <div class="stat-card" style="box-shadow:none">
+              <div class="stat-num" style="color:var(--accent)">1h30</div>
+              <div class="stat-label">Heures à récupérer</div>
+              <div class="stat-sub">Heures supp. validées</div>
+            </div>
+            <div class="stat-card" style="box-shadow:none">
+              <div class="stat-num">4</div>
+              <div class="stat-label">Jours télétravail</div>
+              <div class="stat-sub">Ce mois-ci / 8 max</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F9 — MES DOCUMENTS (EMPLOYÉ)
+===================================================================== -->
+<div id="p-documents" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub">Gestion des présences</div></div>
+    <div class="sidebar-section">Navigation</div>
+    <div class="nav-item"><div class="icon">⌂</div> Accueil</div>
+    <div class="nav-item"><div class="icon">◷</div> Mon Historique</div>
+    <div class="nav-item"><div class="icon">✉</div> Mes Demandes</div>
+    <div class="nav-item active"><div class="icon">☰</div> Mes Documents</div>
+    <div class="sidebar-bottom">
+      <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+      <div class="sidebar-user">
+        <div class="avatar">SO</div>
+        <div><div class="user-name">S. Chahrazed/div><div class="user-role">Développeur junior</div></div>
+      </div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Mes Documents</div>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-ghost btn-sm">↑ Déposer un document</button>
+    </div>
+    <div class="content">
+
+      <!-- Filtres -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;align-items:center">
+        <button class="btn btn-primary btn-sm">Tous (8)</button>
+        <button class="btn btn-ghost btn-sm">Bulletins de paie (4)</button>
+        <button class="btn btn-ghost btn-sm">Attestations (2)</button>
+        <button class="btn btn-ghost btn-sm">Contrats (1)</button>
+        <button class="btn btn-ghost btn-sm">Autres (1)</button>
+        <div class="topbar-spacer"></div>
+        <input class="input" placeholder="Rechercher un document…" style="width:200px;height:34px;font-size:12px" />
+      </div>
+
+      <!-- Section : Bulletins de paie -->
+      <div class="section-h mb-16">Bulletins de paie</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px">
+
+        <div class="card" style="cursor:pointer">
+          <div style="padding:18px;text-align:center">
+            <div style="font-size:32px;margin-bottom:10px">📄</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Bulletin Février 2026</div>
+            <div class="text-sm text-muted mb-12">Généré le 28/02/2026 · PDF · 142 Ko</div>
+            <span class="badge green">Disponible</span>
+          </div>
+          <div style="padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-ghost btn-sm">👁 Voir</button>
+            <button class="btn btn-primary btn-sm">↓ Télécharger</button>
+          </div>
+        </div>
+
+        <div class="card" style="cursor:pointer">
+          <div style="padding:18px;text-align:center">
+            <div style="font-size:32px;margin-bottom:10px">📄</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Bulletin Janvier 2026</div>
+            <div class="text-sm text-muted mb-12">Généré le 31/01/2026 · PDF · 138 Ko</div>
+            <span class="badge green">Disponible</span>
+          </div>
+          <div style="padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-ghost btn-sm">👁 Voir</button>
+            <button class="btn btn-primary btn-sm">↓ Télécharger</button>
+          </div>
+        </div>
+
+        <div class="card" style="cursor:pointer">
+          <div style="padding:18px;text-align:center">
+            <div style="font-size:32px;margin-bottom:10px">📄</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Bulletin Décembre 2025</div>
+            <div class="text-sm text-muted mb-12">Généré le 31/12/2025 · PDF · 145 Ko</div>
+            <span class="badge green">Disponible</span>
+          </div>
+          <div style="padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-ghost btn-sm">👁 Voir</button>
+            <button class="btn btn-primary btn-sm">↓ Télécharger</button>
+          </div>
+        </div>
+
+        <div class="card" style="cursor:pointer">
+          <div style="padding:18px;text-align:center">
+            <div style="font-size:32px;margin-bottom:10px">📄</div>
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">Bulletin Novembre 2025</div>
+            <div class="text-sm text-muted mb-12">Généré le 30/11/2025 · PDF · 141 Ko</div>
+            <span class="badge green">Disponible</span>
+          </div>
+          <div style="padding:0 14px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <button class="btn btn-ghost btn-sm">👁 Voir</button>
+            <button class="btn btn-primary btn-sm">↓ Télécharger</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Section : Attestations & Contrats -->
+      <div class="section-h mb-16">Attestations & Contrats</div>
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Document</th>
+              <th>Type</th>
+              <th>Date d'émission</th>
+              <th>Taille</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="font-size:20px">📋</div>
+                  <div><div class="fw-600">Attestation de présence</div><div class="text-sm text-muted">Période : Jan–Fév 2026</div></div>
+                </div>
+              </td>
+              <td><span class="badge blue">Attestation</span></td>
+              <td>10/02/2026</td>
+              <td class="text-muted">98 Ko</td>
+              <td><span class="badge green">Disponible</span></td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm">👁 Voir</button>
+                  <button class="btn btn-primary btn-sm">↓</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="font-size:20px">📋</div>
+                  <div><div class="fw-600">Attestation employeur</div><div class="text-sm text-muted">Demande du 15/01/2026</div></div>
+                </div>
+              </td>
+              <td><span class="badge blue">Attestation</span></td>
+              <td>17/01/2026</td>
+              <td class="text-muted">87 Ko</td>
+              <td><span class="badge green">Disponible</span></td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm">👁 Voir</button>
+                  <button class="btn btn-primary btn-sm">↓</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="font-size:20px">📝</div>
+                  <div><div class="fw-600">Contrat de travail CDI</div><div class="text-sm text-muted">Signé le 01/03/2022</div></div>
+                </div>
+              </td>
+              <td><span class="badge" style="background:#F4F0FF;color:#6030CC;border-color:#C0A0F0">Contrat</span></td>
+              <td>01/03/2022</td>
+              <td class="text-muted">312 Ko</td>
+              <td><span class="badge green">Disponible</span></td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm">👁 Voir</button>
+                  <button class="btn btn-primary btn-sm">↓</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="font-size:20px">📎</div>
+                  <div><div class="fw-600">Justificatif d'absence — 13/02/2026</div><div class="text-sm text-muted">Déposé le 14/02/2026</div></div>
+                </div>
+              </td>
+              <td><span class="badge amber">Justificatif</span></td>
+              <td>14/02/2026</td>
+              <td class="text-muted">54 Ko</td>
+              <td><span class="badge amber dot">En cours de validation</span></td>
+              <td>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm">👁 Voir</button>
+                  <button class="btn btn-ghost btn-sm">✕</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F10 — GESTION DES EMPLOYÉS (RH ADMIN)
+===================================================================== -->
+<div id="p-employes" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub" style="color:var(--red)">Admin RH</div></div>
+    <div class="sidebar-section">Gestion</div>
+    <div class="nav-item"><div class="icon">⌂</div> Vue Globale</div>
+    <div class="nav-item active"><div class="icon">◎</div> Employés</div>
+    <div class="nav-item"><div class="icon">✓</div> Validation RH</div>
+    <div class="nav-item"><div class="icon">↓</div> Rapports</div>
+    <div class="sidebar-section">Configuration</div>
+    <div class="nav-item"><div class="icon">📍</div> Zones Géo</div>
+    <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user"><div class="avatar" style="background:#FFF0F0;border-color:var(--red-border)">RH</div><div><div class="user-name">Admin RH</div><div class="user-role">Responsable RH</div></div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Gestion des Employés</div>
+      <div class="topbar-spacer"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-right:8px">↓ Exporter</button>
+      <button class="btn btn-primary btn-sm">+ Ajouter un employé</button>
+    </div>
+    <div class="content">
+
+      <!-- Stats rapides -->
+      <div class="grid-4 mb-20">
+        <div class="stat-card"><div class="stat-num">47</div><div class="stat-label">Total employés</div><div class="stat-sub">Actifs</div></div>
+        <div class="stat-card"><div class="stat-num text-green">42</div><div class="stat-label">Présents aujourd'hui</div><div class="stat-sub">89% de présence</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:var(--accent)">5</div><div class="stat-label">Nouveaux ce mois</div><div class="stat-sub">Onboarding en cours</div></div>
+        <div class="stat-card"><div class="stat-num text-red">2</div><div class="stat-label">Comptes désactivés</div><div class="stat-sub">Départs récents</div></div>
+      </div>
+
+      <!-- Filtres + recherche -->
+      <div style="display:flex;gap:10px;margin-bottom:16px;align-items:center">
+        <input class="input" placeholder="🔍  Rechercher un employé…" style="width:240px;height:36px;font-size:13px" />
+        <select class="input" style="width:160px;height:36px;font-size:12px">
+          <option>Tous les départements</option>
+          <option>Informatique</option>
+          <option>Design</option>
+          <option>Finance</option>
+          <option>Management</option>
+          <option>Commercial</option>
+        </select>
+        <select class="input" style="width:140px;height:36px;font-size:12px">
+          <option>Tous les statuts</option>
+          <option>Actif</option>
+          <option>Absent</option>
+          <option>En congé</option>
+          <option>Désactivé</option>
+        </select>
+        <div class="topbar-spacer"></div>
+        <div style="display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+          <div style="padding:6px 12px;background:var(--accent-light);cursor:pointer;font-size:12px;font-weight:600;color:var(--accent)">☰ Liste</div>
+          <div style="padding:6px 12px;background:var(--surface);cursor:pointer;font-size:12px;color:var(--text3)">⊞ Grille</div>
+        </div>
+      </div>
+
+      <!-- Table employés -->
+      <div class="card">
+        <table class="table">
+          <thead>
+            <tr>
+              <th style="width:40px"><input type="checkbox" style="accent-color:var(--accent)" /></th>
+              <th>Employé</th>
+              <th>Département</th>
+              <th>Poste</th>
+              <th>Statut</th>
+              <th>Pointage auj.</th>
+              <th>Lieu</th>
+              <th>Responsable</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" style="accent-color:var(--accent)" /></td>
+              <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar sm">AD</div><div><div class="fw-600">A. Dupont</div><div class="text-xs text-muted">a.dupont@cie.fr</div></div></div></td>
+              <td>Informatique</td><td class="text-muted">Dev Frontend</td>
+              <td><span class="badge green dot">Présent</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">08:45 → En cours</td>
+              <td><span class="badge blue">Siège</span></td>
+              <td class="text-muted">A. Manager</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm">✏ Éditer</button><button class="btn btn-ghost btn-sm">👁</button></div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="accent-color:var(--accent)" /></td>
+              <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar sm">MM</div><div><div class="fw-600">M. Martin</div><div class="text-xs text-muted">m.martin@cie.fr</div></div></div></td>
+              <td>Design</td><td class="text-muted">Designer UX</td>
+              <td><span class="badge amber dot">En pause</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">09:12 → Pause</td>
+              <td><span class="badge blue">Distanciel</span></td>
+              <td class="text-muted">A. Manager</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm">✏ Éditer</button><button class="btn btn-ghost btn-sm">👁</button></div></td>
+            </tr>
+            <tr style="background:#FFFAF8">
+              <td><input type="checkbox" style="accent-color:var(--accent)" /></td>
+              <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar sm" style="background:var(--red-bg);border-color:var(--red-border);color:var(--red)">JB</div><div><div class="fw-600">J. Bernard</div><div class="text-xs text-muted">j.bernard@cie.fr</div></div></div></td>
+              <td>Management</td><td class="text-muted">Chef de projet</td>
+              <td><span class="badge red dot">Absent</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--red)">— Non pointé</td>
+              <td>—</td>
+              <td class="text-muted">DG</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm">✏ Éditer</button><button class="btn btn-danger btn-sm">⚠</button></div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="accent-color:var(--accent)" /></td>
+              <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar sm">CF</div><div><div class="fw-600">C. Fontaine</div><div class="text-xs text-muted">c.fontaine@cie.fr</div></div></div></td>
+              <td>Finance</td><td class="text-muted">Comptable</td>
+              <td><span class="badge green dot">Présent</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">08:30 → En cours</td>
+              <td><span class="badge blue">Siège</span></td>
+              <td class="text-muted">Dir. Finance</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm">✏ Éditer</button><button class="btn btn-ghost btn-sm">👁</button></div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="accent-color:var(--accent)" /></td>
+              <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar sm">RM</div><div><div class="fw-600">R. Moreau</div><div class="text-xs text-muted">r.moreau@cie.fr</div></div></div></td>
+              <td>Commercial</td><td class="text-muted">Commercial B2B</td>
+              <td><span class="badge green dot">Présent</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px">08:55 → En cours</td>
+              <td><span class="badge amber">Hors zone</span></td>
+              <td class="text-muted">Dir. Commercial</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm">✏ Éditer</button><button class="btn btn-ghost btn-sm">👁</button></div></td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="accent-color:var(--accent)" /></td>
+              <td><div style="display:flex;align-items:center;gap:10px"><div class="avatar sm">SL</div><div><div class="fw-600">S. Laurent</div><div class="text-xs text-muted">s.laurent@cie.fr</div></div></div></td>
+              <td>Informatique</td><td class="text-muted">Dev Backend</td>
+              <td><span class="badge" style="background:#F4F0FF;border-color:#C0A0F0;color:#6030CC">En congé 🌴</span></td>
+              <td style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text3)">— Congé</td>
+              <td>—</td>
+              <td class="text-muted">A. Manager</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm">✏ Éditer</button><button class="btn btn-ghost btn-sm">👁</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Pagination -->
+        <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <span class="text-sm text-muted">Affichage 1–6 sur 47 employés</span>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-ghost btn-sm">‹</button>
+            <button class="btn btn-primary btn-sm">1</button>
+            <button class="btn btn-ghost btn-sm">2</button>
+            <button class="btn btn-ghost btn-sm">3</button>
+            <span style="padding:5px 8px;font-size:12px;color:var(--text3)">…</span>
+            <button class="btn btn-ghost btn-sm">8</button>
+            <button class="btn btn-ghost btn-sm">›</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fiche employé — panneau latéral simulé -->
+      <div class="card" style="margin-top:20px">
+        <div class="card-header">
+          <div class="card-title">Fiche Employé — Aperçu Rapide</div>
+          <span class="text-sm text-muted" style="margin-left:auto">Cliquer sur un employé pour afficher</span>
+        </div>
+        <div class="card-body">
+          <div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:20px;align-items:start">
+            <div style="text-align:center">
+              <div class="avatar lg" style="margin:0 auto 8px">AD</div>
+              <span class="badge green">Actif</span>
+            </div>
+            <div>
+              <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">A. Dupont</div>
+              <div class="text-sm text-muted mb-8">Développeur Frontend — Informatique</div>
+              <div class="text-sm" style="margin-bottom:3px">📧 a.dupont@cie.fr</div>
+              <div class="text-sm" style="margin-bottom:3px">📞 06 12 34 56 78</div>
+              <div class="text-sm">👤 Manager : A. Manager</div>
+            </div>
+            <div>
+              <div class="text-xs text-muted mb-8">CE MOIS</div>
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <div class="flex justify-between"><span class="text-sm">Jours présents</span><span class="text-sm fw-600">22</span></div>
+                <div class="flex justify-between"><span class="text-sm">Heures travaillées</span><span class="text-sm fw-600">176h</span></div>
+                <div class="flex justify-between"><span class="text-sm">Retards</span><span class="text-sm fw-600 text-red">1</span></div>
+                <div class="flex justify-between"><span class="text-sm">Congés restants</span><span class="text-sm fw-600 text-green">2 j.</span></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <button class="btn btn-primary btn-sm" style="width:100%">✏ Éditer le profil</button>
+              <button class="btn btn-ghost btn-sm" style="width:100%">◷ Voir l'historique</button>
+              <button class="btn btn-ghost btn-sm" style="width:100%">✉ Envoyer un message</button>
+              <button class="btn btn-danger btn-sm" style="width:100%">⊘ Désactiver le compte</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- =====================================================================
+     F11 — ZONES GÉOFENCING (RH ADMIN)
+===================================================================== -->
+<div id="p-zones-geo" class="page">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><div class="app-name">Horosphere</div><div class="app-sub" style="color:var(--red)">Admin RH</div></div>
+    <div class="sidebar-section">Gestion</div>
+    <div class="nav-item"><div class="icon">⌂</div> Vue Globale</div>
+    <div class="nav-item"><div class="icon">◎</div> Employés</div>
+    <div class="nav-item"><div class="icon">✓</div> Validation RH</div>
+    <div class="nav-item"><div class="icon">↓</div> Rapports</div>
+    <div class="sidebar-section">Configuration</div>
+    <div class="nav-item active"><div class="icon">📍</div> Zones Géo</div>
+    <div class="nav-item"><div class="icon">⚙</div> Paramètres</div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user"><div class="avatar" style="background:#FFF0F0;border-color:var(--red-border)">RH</div><div><div class="user-name">Admin RH</div><div class="user-role">Responsable RH</div></div></div>
+    </div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title">Zones Géofencing</div>
+      <div class="topbar-spacer"></div>
+      <span class="badge blue" style="margin-right:8px">API Google Maps</span>
+      <button class="btn btn-primary btn-sm">+ Nouvelle zone</button>
+    </div>
+    <div class="content">
+
+      <div style="display:grid;grid-template-columns:1fr 340px;gap:20px">
+
+        <!-- Carte principale -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Carte des Zones Actives</div>
+              <div style="margin-left:auto;display:flex;gap:6px">
+                <button class="btn btn-ghost btn-sm">− Zoom</button>
+                <button class="btn btn-ghost btn-sm">+ Zoom</button>
+                <button class="btn btn-ghost btn-sm">⊙ Centrer</button>
+              </div>
+            </div>
+            <div class="map-placeholder" style="height:360px;border-radius:0 0 var(--radius) var(--radius);border:none;position:relative">
+              <!-- Fake map zones -->
+              <div style="position:absolute;width:120px;height:120px;border-radius:50%;background:rgba(59,59,204,0.12);border:2px solid rgba(59,59,204,0.4);top:30%;left:35%;transform:translate(-50%,-50%)"></div>
+              <div style="position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);top:30%;left:35%;transform:translate(-50%,-50%)"></div>
+              <div style="position:absolute;background:white;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;color:var(--accent);top:calc(30% - 44px);left:35%;transform:translateX(-50%);white-space:nowrap;box-shadow:var(--shadow)">📍 Siège Social</div>
+
+              <div style="position:absolute;width:80px;height:80px;border-radius:50%;background:rgba(26,158,92,0.12);border:2px solid rgba(26,158,92,0.4);top:62%;left:65%;transform:translate(-50%,-50%)"></div>
+              <div style="position:absolute;width:14px;height:14px;border-radius:50%;background:var(--green);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);top:62%;left:65%;transform:translate(-50%,-50%)"></div>
+              <div style="position:absolute;background:white;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;color:var(--green);top:calc(62% - 40px);left:65%;transform:translateX(-50%);white-space:nowrap;box-shadow:var(--shadow)">📍 Agence Lyon</div>
+
+              <div style="position:absolute;width:60px;height:60px;border-radius:50%;background:rgba(176,104,32,0.12);border:2px dashed rgba(176,104,32,0.5);top:22%;left:72%;transform:translate(-50%,-50%)"></div>
+              <div style="position:absolute;width:12px;height:12px;border-radius:50%;background:var(--amber);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);top:22%;left:72%;transform:translate(-50%,-50%)"></div>
+              <div style="position:absolute;background:white;border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;color:var(--amber);top:calc(22% - 40px);left:72%;transform:translateX(-50%);white-space:nowrap;box-shadow:var(--shadow)">📍 Espace Cowork.</div>
+
+              <div class="map-x" style="opacity:0.08;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:60px">✕</div>
+              <div class="map-label" style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);opacity:0.5">CARTE GÉOFENCING — Google Maps SDK</div>
+            </div>
+          </div>
+
+          <!-- Alertes en temps réel -->
+          <div class="card">
+            <div class="card-header"><div class="card-title">Alertes Géofencing — Temps Réel</div><span class="badge red" style="margin-left:auto">1 alerte active</span></div>
+            <table class="table">
+              <thead><tr><th>Employé</th><th>Zone</th><th>Distance hors zone</th><th>Heure</th><th>Statut</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr style="background:#FFFAF5">
+                  <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar sm">RM</div><span class="fw-600">R. Moreau</span></div></td>
+                  <td>Siège Social</td>
+                  <td><span style="color:var(--red);font-family:'JetBrains Mono',monospace;font-weight:600">+620 m</span></td>
+                  <td style="font-family:'JetBrains Mono',monospace;font-size:12px">08:55</td>
+                  <td><span class="badge amber">Hors zone</span></td>
+                  <td><button class="btn btn-ghost btn-sm">Voir →</button></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar sm">AD</div><span class="fw-600">A. Dupont</span></div></td>
+                  <td>Siège Social</td>
+                  <td><span style="color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:600">12 m</span></td>
+                  <td style="font-family:'JetBrains Mono',monospace;font-size:12px">08:45</td>
+                  <td><span class="badge green">Dans la zone</span></td>
+                  <td><button class="btn btn-ghost btn-sm">Voir →</button></td>
+                </tr>
+                <tr>
+                  <td><div style="display:flex;align-items:center;gap:8px"><div class="avatar sm">MM</div><span class="fw-600">M. Martin</span></div></td>
+                  <td>Distanciel</td>
+                  <td><span style="color:var(--text3);font-family:'JetBrains Mono',monospace">N/A</span></td>
+                  <td style="font-family:'JetBrains Mono',monospace;font-size:12px">09:12</td>
+                  <td><span class="badge blue">Télétravail</span></td>
+                  <td><button class="btn btn-ghost btn-sm">Voir →</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Panneau de gestion des zones -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+
+          <!-- Zone 1 -->
+          <div class="card" style="border-left:3px solid var(--accent)">
+            <div class="card-header" style="padding:12px 14px">
+              <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0"></div>
+              <div class="card-title" style="margin-left:6px">Siège Social</div>
+              <span class="badge green" style="margin-left:auto;font-size:10px">Active</span>
+            </div>
+            <div class="card-body" style="padding:12px 14px">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+                <div class="flex justify-between"><span class="text-sm text-muted">Adresse</span><span class="text-sm fw-600" style="text-align:right;max-width:160px">12 Rue de la Paix, Paris</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Rayon</span><span class="text-sm fw-600 text-accent">200 m</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Employés assignés</span><span class="text-sm fw-600">38</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Présents auj.</span><span class="text-sm fw-600 text-green">31 / 38</span></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <button class="btn btn-ghost btn-sm">✏ Modifier</button>
+                <button class="btn btn-danger btn-sm">Désactiver</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zone 2 -->
+          <div class="card" style="border-left:3px solid var(--green)">
+            <div class="card-header" style="padding:12px 14px">
+              <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
+              <div class="card-title" style="margin-left:6px">Agence Lyon</div>
+              <span class="badge green" style="margin-left:auto;font-size:10px">Active</span>
+            </div>
+            <div class="card-body" style="padding:12px 14px">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+                <div class="flex justify-between"><span class="text-sm text-muted">Adresse</span><span class="text-sm fw-600" style="text-align:right;max-width:160px">8 Pl. Bellecour, Lyon</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Rayon</span><span class="text-sm fw-600 text-accent">150 m</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Employés assignés</span><span class="text-sm fw-600">6</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Présents auj.</span><span class="text-sm fw-600 text-green">5 / 6</span></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <button class="btn btn-ghost btn-sm">✏ Modifier</button>
+                <button class="btn btn-danger btn-sm">Désactiver</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Zone 3 -->
+          <div class="card" style="border-left:3px solid var(--amber)">
+            <div class="card-header" style="padding:12px 14px">
+              <div style="width:10px;height:10px;border-radius:50%;background:var(--amber);flex-shrink:0"></div>
+              <div class="card-title" style="margin-left:6px">Espace Coworking</div>
+              <span class="badge amber" style="margin-left:auto;font-size:10px">Test</span>
+            </div>
+            <div class="card-body" style="padding:12px 14px">
+              <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px">
+                <div class="flex justify-between"><span class="text-sm text-muted">Adresse</span><span class="text-sm fw-600" style="text-align:right;max-width:160px">15 Rue Réaumur, Paris</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Rayon</span><span class="text-sm fw-600 text-accent">100 m</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Employés assignés</span><span class="text-sm fw-600">3</span></div>
+                <div class="flex justify-between"><span class="text-sm text-muted">Présents auj.</span><span class="text-sm fw-600 text-green">3 / 3</span></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <button class="btn btn-ghost btn-sm">✏ Modifier</button>
+                <button class="btn btn-success btn-sm">Activer</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ajouter une zone -->
+          <div style="border:2px dashed var(--border);border-radius:var(--radius);padding:20px;text-align:center;cursor:pointer;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent-mid)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:24px;margin-bottom:6px;color:var(--text3)">＋</div>
+            <div style="font-size:13px;font-weight:600;color:var(--text2)">Ajouter une zone</div>
+            <div class="text-sm text-muted mt-4">Définir un périmètre géographique</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  const target = document.getElementById(id);
+  if (target) {
+    target.style.display = 'flex';
+    target.classList.add('active');
+    // Login page special display
+    if (id === 'p-login') {
+      target.style.minHeight = '100vh';
+      target.style.alignItems = 'center';
+      target.style.justifyContent = 'center';
+    }
+  }
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const map = {
+    'p-login': 0, 'p-dashboard': 1, 'p-historique': 2, 'p-profil': 3,
+    'p-rh-dashboard': 4, 'p-validation': 5, 'p-rapports': 6, 'p-parametres': 7,
+    'p-demandes': 8, 'p-documents': 9, 'p-employes': 10, 'p-zones-geo': 11
+  };
+  const btns = document.querySelectorAll('.nav-btn');
+  if (map[id] !== undefined) btns[map[id]].classList.add('active');
+}
+
+// Init
+document.querySelectorAll('.page').forEach(p => { p.style.display = 'none'; });
+document.getElementById('p-login').style.display = 'flex';
+document.getElementById('p-login').classList.add('active');
+
+// Live clock
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  const s = String(now.getSeconds()).padStart(2,'0');
+  document.querySelectorAll('.topbar-clock').forEach(el => el.textContent = `${h}:${m}:${s}`);
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+</body>
+</html>

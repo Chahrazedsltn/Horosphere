@@ -1,0 +1,89 @@
+@startuml SEQ_Alerte
+title Diagramme de Séquence — Détection et Traitement d'une Alerte (Oubli de Départ)
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+
+skinparam participant {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+}
+skinparam actor {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+}
+
+actor "Agent"               as AG
+participant "Planificateur\n(Symfony Scheduler)" as CRON
+participant "AlerteService"            as AS
+participant "PointageRepository"       as PR
+participant "AlerteController"         as AC
+participant "Navigateur\n(React / PWA)" as UI
+database "Base de données\n(MariaDB)"  as DB
+
+== Détection automatique (tâche planifiée) ==
+
+CRON -> AS : [Chaque nuit à 23h30]\nverifierOubliDepart()
+activate AS
+
+AS -> PR : findEnCoursDepuisPlus(heures=10)
+activate PR
+PR -> DB : SELECT * FROM pointage\nWHERE statut = 'EN_COURS'\nAND heure_arrivee < NOW() - INTERVAL 10 HOUR
+DB --> PR : Liste des pointages\ntoujours ouverts
+PR --> AS : pointages[]
+deactivate PR
+
+loop Pour chaque pointage oublié
+
+  AS -> DB : SELECT * FROM alerte\nWHERE pointage_id = ?\nAND type_alerte = 'OUBLI_DEPART'
+  DB --> AS : (vérification doublon)
+
+  alt Aucune alerte existante
+
+    AS -> DB : INSERT INTO alerte\n(utilisateur_id, pointage_id,\ntype_alerte='OUBLI_DEPART',\nmessage='Départ non enregistré', est_lue=0)
+    DB --> AS : id_alerte
+
+    AS -> DB : UPDATE pointage\nSET statut = 'ANOMALIE',\nest_anomalie = 1\nWHERE id = ?
+    DB --> AS : OK
+
+    AS -> AS : notifierUtilisateur(alerte)\n[Email / Push notification]
+
+  else Alerte déjà créée
+    AS -> AS : Ignorer (doublon)
+  end
+
+end
+
+AS --> CRON : Traitement terminé\n(N alertes créées)
+deactivate AS
+
+== Consultation des alertes (Agent) ==
+
+AG -> UI : Se connecte et\nouvre son tableau de bord
+UI -> AC : GET /alerte/mes-alertes\n{ token_jwt }
+activate AC
+
+AC -> AC : Vérifie le token JWT
+AC -> DB : SELECT a.*, p.date_jour\nFROM alerte a\nLEFT JOIN pointage p ON a.pointage_id = p.id\nWHERE a.utilisateur_id = ?\nAND a.est_lue = 0\nORDER BY a.date_creation DESC
+DB --> AC : alertes[]
+AC --> UI : 200 OK\n{ alertes: [...], count_non_lues: N }
+deactivate AC
+
+UI --> AG : Affiche le badge\nde notification (N)\net la liste des alertes
+
+== Marquage comme lue (Agent) ==
+
+AG -> UI : Clique sur l'alerte\n"Oubli de départ détecté"
+UI -> AC : PATCH /alerte/{id}/lire\n{ token_jwt }
+activate AC
+
+AC -> AC : Vérifie que l'alerte\nappartient à l'utilisateur
+AC -> DB : UPDATE alerte\nSET est_lue = 1\nWHERE id = ? AND utilisateur_id = ?
+DB --> AC : OK
+AC --> UI : 200 OK
+deactivate AC
+
+UI --> AG : Alerte marquée comme lue\nBadge mis à jour (N-1)
+
+@enduml

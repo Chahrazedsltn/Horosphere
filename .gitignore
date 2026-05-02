@@ -1,0 +1,40 @@
+# ── Claude Code (outils locaux) ──────────────────────────────────────────────
+.claude/
+
+# ── Secrets & Environment ───────────────────────────────────────────────────
+.env
+!.env.example
+api/config/jwt/private.pem
+api/config/jwt/public.pem
+
+# ── PHP / Symfony ────────────────────────────────────────────────────────────
+api/vendor/
+api/var/
+api/public/exports/
+api/.php-cs-fixer.cache
+api/.phpunit.cache
+api/coverage/
+
+# ── Node / Frontend ──────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
+
+# ── Docker ───────────────────────────────────────────────────────────────────
+*.override.yml
+
+# ── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+api/var/log/
+
+# ── Backups ───────────────────────────────────────────────────────────────────
+*.sql
+*.sql.gz

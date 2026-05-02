@@ -1,0 +1,368 @@
+@startuml Class_Horosphere
+title Diagramme de Classes — Horosphere (Architecture Symfony/Doctrine)
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+
+skinparam class {
+  BackgroundColor #FAFAFA
+  BorderColor #444444
+  HeaderBackgroundColor #3B3BCC
+  HeaderFontColor #FFFFFF
+  ArrowColor #333333
+}
+
+skinparam package {
+  BackgroundColor #F0F4FF
+  BorderColor #336699
+}
+
+' ══════════════════════════════════════════
+'  PACKAGE : Entities (Doctrine ORM)
+' ══════════════════════════════════════════
+package "Entity" #E8F0FF {
+
+  enum RoleEnum {
+    AGENT
+    RH
+    ADMIN
+  }
+
+  enum StatutPointageEnum {
+    EN_COURS
+    VALIDE
+    HORS_ZONE
+    ANOMALIE
+  }
+
+  enum TypeDemandeEnum {
+    CONGE
+    CORRECTION
+    ABSENCE
+    AUTRE
+  }
+
+  enum StatutDemandeEnum {
+    EN_ATTENTE
+    APPROUVEE
+    REJETEE
+  }
+
+  enum TypeAlerteEnum {
+    OUBLI_DEPART
+    HORS_ZONE
+    ECART_HORAIRE
+  }
+
+  enum TypeDocumentEnum {
+    CSV
+    PDF
+  }
+
+  class User {
+    - id : int
+    - email : string
+    - motDePasse : string
+    - prenom : string
+    - nom : string
+    - role : RoleEnum
+    - departement : ?string
+    - dateCreation : DateTime
+    - consentementRgpd : bool
+    --
+    + getFullName() : string
+    + hasRole(role : RoleEnum) : bool
+    + getRoles() : array
+    + eraseCredentials() : void
+    + getUserIdentifier() : string
+  }
+
+  class Site {
+    - id : int
+    - nom : string
+    - adresse : string
+    - latitude : float
+    - longitude : float
+    - rayonMetres : int
+    - geofencingActif : bool
+    --
+    + isInZone(lat : float, lon : float) : bool
+  }
+
+  class Pointage {
+    - id : int
+    - dateJour : Date
+    - heureArrivee : DateTime
+    - heureDepart : ?DateTime
+    - statut : StatutPointageEnum
+    - coordonneesGps : ?string
+    - estAnomalie : bool
+    --
+    + getDureeMinutes() : ?int
+    + isComplete() : bool
+    + isEnCours() : bool
+  }
+
+  class Demande {
+    - id : int
+    - typeDemande : TypeDemandeEnum
+    - statut : StatutDemandeEnum
+    - dateDebut : Date
+    - dateFin : Date
+    - motif : ?string
+    - dateCreation : DateTime
+    --
+    + getDureeJours() : int
+    + isEnAttente() : bool
+  }
+
+  class Document {
+    - id : int
+    - typeDocument : TypeDocumentEnum
+    - cheminFichier : string
+    - dateCreation : DateTime
+    --
+    + getFileName() : string
+  }
+
+  class Alerte {
+    - id : int
+    - typeAlerte : TypeAlerteEnum
+    - message : string
+    - dateCreation : DateTime
+    - estLue : bool
+    --
+    + marquerLue() : void
+    + isRecente() : bool
+  }
+}
+
+' ══════════════════════════════════════════
+'  PACKAGE : Repository (Doctrine)
+' ══════════════════════════════════════════
+package "Repository" #E8FFE8 {
+
+  abstract class AbstractRepository {
+    # em : EntityManagerInterface
+    --
+    + find(id : int) : ?object
+    + findAll() : array
+    + save(entity : object) : void
+    + remove(entity : object) : void
+  }
+
+  class UserRepository {
+    + findByEmail(email : string) : ?User
+    + findByRole(role : RoleEnum) : User[]
+    + findByDepartement(dept : string) : User[]
+  }
+
+  class SiteRepository {
+    + findActifs() : Site[]
+    + findByNom(nom : string) : ?Site
+  }
+
+  class PointageRepository {
+    + findByUtilisateur(user : User) : Pointage[]
+    + findEnCoursByUtilisateur(user : User) : ?Pointage
+    + findByPeriode(user : User, debut : Date, fin : Date) : Pointage[]
+    + findAnomalies() : Pointage[]
+  }
+
+  class DemandeRepository {
+    + findByUtilisateur(user : User) : Demande[]
+    + findEnAttente() : Demande[]
+    + findByStatut(statut : StatutDemandeEnum) : Demande[]
+  }
+
+  class AlerteRepository {
+    + findNonLuesByUtilisateur(user : User) : Alerte[]
+    + findByUtilisateur(user : User) : Alerte[]
+    + countNonLues(user : User) : int
+  }
+
+  class DocumentRepository {
+    + findByUtilisateur(user : User) : Document[]
+    + findByType(type : TypeDocumentEnum) : Document[]
+  }
+
+  UserRepository     --|> AbstractRepository
+  SiteRepository     --|> AbstractRepository
+  PointageRepository --|> AbstractRepository
+  DemandeRepository  --|> AbstractRepository
+  AlerteRepository   --|> AbstractRepository
+  DocumentRepository --|> AbstractRepository
+}
+
+' ══════════════════════════════════════════
+'  PACKAGE : Service (Logique métier)
+' ══════════════════════════════════════════
+package "Service" #FFF8E1 {
+
+  class GeofencingService {
+    - siteRepository : SiteRepository
+    --
+    + calculerDistance(lat1 : float, lon1 : float, lat2 : float, lon2 : float) : float
+    + estDansZone(lat : float, lon : float, site : Site) : bool
+    + trouverSiteLePlusProche(lat : float, lon : float) : ?Site
+  }
+
+  class PointageService {
+    - pointageRepository : PointageRepository
+    - geofencingService : GeofencingService
+    - alerteService : AlerteService
+    - em : EntityManagerInterface
+    --
+    + pointer(user : User, lat : float, lon : float) : Pointage
+    + terminerPointage(pointage : Pointage, lat : float, lon : float) : void
+    + verifierAnomalies(pointage : Pointage) : void
+  }
+
+  class AlerteService {
+    - alerteRepository : AlerteRepository
+    - em : EntityManagerInterface
+    --
+    + creerAlerte(type : TypeAlerteEnum, user : User, pointage : ?Pointage) : Alerte
+    + verifierOubliDepart() : void
+    + notifierUtilisateur(alerte : Alerte) : void
+  }
+
+  class DemandeService {
+    - demandeRepository : DemandeRepository
+    - em : EntityManagerInterface
+    --
+    + soumettre(user : User, dto : DemandeDTO) : Demande
+    + approuver(demande : Demande, rh : User) : void
+    + rejeter(demande : Demande, rh : User, motif : string) : void
+  }
+
+  class DocumentService {
+    - documentRepository : DocumentRepository
+    - pointageRepository : PointageRepository
+    - em : EntityManagerInterface
+    --
+    + genererCsv(user : User, debut : Date, fin : Date) : Document
+    + genererPdf(user : User, debut : Date, fin : Date) : Document
+    - construireContenu(pointages : Pointage[]) : string
+  }
+}
+
+' ══════════════════════════════════════════
+'  PACKAGE : Controller (Symfony)
+' ══════════════════════════════════════════
+package "Controller" #FFE8E8 {
+
+  abstract class AbstractController {
+    # security : Security
+    + getUser() : User
+    + addFlash(type : string, message : string) : void
+    + render(template : string, params : array) : Response
+    + redirectToRoute(route : string) : RedirectResponse
+    + denyAccessUnlessGranted(attribute : string) : void
+  }
+
+  class SecurityController {
+    + login() : Response
+    + logout() : never
+  }
+
+  class PointageController {
+    - pointageService : PointageService
+    - pointageRepository : PointageRepository
+    --
+    + pointer(request : Request) : Response
+    + historique() : Response
+    + admin() : Response
+  }
+
+  class DemandeController {
+    - demandeService : DemandeService
+    - demandeRepository : DemandeRepository
+    --
+    + creer(request : Request) : Response
+    + liste() : Response
+    + traiter(demande : Demande, request : Request) : Response
+  }
+
+  class AlerteController {
+    - alerteRepository : AlerteRepository
+    --
+    + liste() : Response
+    + marquerLue(alerte : Alerte) : Response
+    + toutesLesAlertes() : Response
+  }
+
+  class DocumentController {
+    - documentService : DocumentService
+    --
+    + generer(request : Request) : Response
+    + telecharger(document : Document) : BinaryFileResponse
+    + liste() : Response
+  }
+
+  class AdminController {
+    - userRepository : UserRepository
+    - siteRepository : SiteRepository
+    --
+    + gererUtilisateurs() : Response
+    + creerUtilisateur(request : Request) : Response
+    + modifierUtilisateur(user : User, request : Request) : Response
+    + supprimerUtilisateur(user : User) : Response
+    + gererSites() : Response
+    + creerSite(request : Request) : Response
+    + modifierSite(site : Site, request : Request) : Response
+    + supprimerSite(site : Site) : Response
+  }
+
+  SecurityController  --|> AbstractController
+  PointageController  --|> AbstractController
+  DemandeController   --|> AbstractController
+  AlerteController    --|> AbstractController
+  DocumentController  --|> AbstractController
+  AdminController     --|> AbstractController
+}
+
+' ══════════════════════════════════════════
+'  ASSOCIATIONS ENTRE ENTITÉS
+' ══════════════════════════════════════════
+User      "1"    o-- "0..*"  Pointage  : effectue >
+User      "1"    o-- "0..*"  Demande   : soumet >
+User      "1"    o-- "0..*"  Document  : possède >
+User      "1"    o-- "0..*"  Alerte    : reçoit >
+Site      "1"    o-- "0..*"  Pointage  : concerne >
+Pointage  "0..1" o-- "0..*"  Alerte    : génère >
+
+User     ..>  RoleEnum            : utilise
+Pointage ..>  StatutPointageEnum  : utilise
+Demande  ..>  TypeDemandeEnum     : utilise
+Demande  ..>  StatutDemandeEnum   : utilise
+Alerte   ..>  TypeAlerteEnum      : utilise
+Document ..>  TypeDocumentEnum    : utilise
+
+' ══════════════════════════════════════════
+'  DÉPENDANCES SERVICES → REPOSITORIES
+' ══════════════════════════════════════════
+PointageService  ..>  PointageRepository  : dépend de
+PointageService  ..>  GeofencingService   : dépend de
+PointageService  ..>  AlerteService       : dépend de
+GeofencingService ..> SiteRepository      : dépend de
+AlerteService    ..>  AlerteRepository    : dépend de
+DemandeService   ..>  DemandeRepository   : dépend de
+DocumentService  ..>  DocumentRepository  : dépend de
+DocumentService  ..>  PointageRepository  : dépend de
+
+' ══════════════════════════════════════════
+'  DÉPENDANCES CONTROLLERS → SERVICES
+' ══════════════════════════════════════════
+PointageController ..>  PointageService   : utilise
+PointageController ..>  PointageRepository : utilise
+DemandeController  ..>  DemandeService    : utilise
+DemandeController  ..>  DemandeRepository : utilise
+AlerteController   ..>  AlerteRepository  : utilise
+DocumentController ..>  DocumentService   : utilise
+AdminController    ..>  UserRepository    : utilise
+AdminController    ..>  SiteRepository    : utilise
+
+@enduml

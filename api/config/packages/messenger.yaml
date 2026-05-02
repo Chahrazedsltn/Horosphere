@@ -1,0 +1,29 @@
+framework:
+    messenger:
+        failure_transport: failed
+
+        transports:
+            # Transport asynchrone via Doctrine (MariaDB)
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                options:
+                    use_notify: true
+                    check_delayed_interval: 1000
+                retry_strategy:
+                    max_retries: 3
+                    multiplier: 2
+
+            # Transport pour les messages en échec
+            failed: 'doctrine://default?queue_name=failed'
+
+            # Transport synchrone pour les tests / dev sans worker
+            sync: 'sync://'
+
+        routing:
+            'App\Message\VerifierOubliDepartMessage': async
+
+when@test:
+    framework:
+        messenger:
+            transports:
+                async: 'in-memory://'

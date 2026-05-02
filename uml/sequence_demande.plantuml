@@ -1,0 +1,102 @@
+@startuml SEQ_Demande
+title Diagramme de Séquence — Soumission et Traitement d'une Demande de Congé
+
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam sequenceMessageAlign center
+
+skinparam participant {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+}
+skinparam actor {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+}
+
+actor "Agent"               as AG
+actor "Responsable RH"      as RH
+participant "Navigateur\n(React / PWA)" as UI
+participant "DemandeController"         as DC
+participant "DemandeService"            as DS
+database "Base de données\n(MariaDB)"  as DB
+
+== Soumission de la demande (Agent) ==
+
+AG -> UI : Navigue vers\n"Nouvelle demande"
+UI --> AG : Affiche le formulaire\n(type, date_debut, date_fin, motif)
+
+AG -> UI : Remplit et soumet le formulaire
+UI -> DC : POST /demande/creer\n{ type_demande, date_debut,\n  date_fin, motif, token_jwt }
+activate DC
+
+DC -> DC : Vérifie le token JWT\n(Symfony Security)
+DC -> DC : Valide le formulaire\n(Symfony Form / Validator)
+
+alt Formulaire valide
+  DC -> DS : soumettre(user, demandeDTO)
+  activate DS
+  DS -> DB : INSERT INTO demande\n(utilisateur_id, type_demande,\nstatut='EN_ATTENTE', date_debut,\ndate_fin, motif, date_creation)
+  DB --> DS : id_demande
+  DS --> DC : Demande créée
+  deactivate DS
+  DC --> UI : 201 Created\n{ message: "Demande soumise", id_demande }
+  UI --> AG : Confirmation\n"Votre demande est en attente de validation"
+
+else Formulaire invalide
+  DC --> UI : 422 Unprocessable Entity\n{ errors: [...] }
+  UI --> AG : Affiche les erreurs\nde validation
+end
+
+deactivate DC
+
+== Consultation de la demande (RH) ==
+
+RH -> UI : Navigue vers\n"Demandes en attente"
+UI -> DC : GET /demande/liste?statut=EN_ATTENTE\n{ token_jwt }
+activate DC
+
+DC -> DC : Vérifie le rôle RH\n(denyAccessUnlessGranted)
+DC -> DB : SELECT d.*, u.prenom, u.nom\nFROM demande d\nJOIN utilisateur u ON d.utilisateur_id = u.id\nWHERE d.statut = 'EN_ATTENTE'
+DB --> DC : Liste des demandes en attente
+DC --> UI : 200 OK\n{ demandes: [...] }
+deactivate DC
+
+UI --> RH : Affiche la liste\ndes demandes en attente
+
+== Traitement de la demande (RH) ==
+
+RH -> UI : Clique sur "Approuver"\n(ou "Rejeter")
+UI -> DC : PUT /demande/{id}/traiter\n{ decision: 'APPROUVEE'|'REJETEE',\n  motif_rejet?, token_jwt }
+activate DC
+
+DC -> DC : Vérifie le rôle RH
+DC -> DS : approuver(demande, rh)\nou rejeter(demande, rh, motif)
+activate DS
+
+DS -> DB : UPDATE demande\nSET statut = 'APPROUVEE'\nWHERE id = ?
+DB --> DS : OK
+
+DS --> DC : Demande mise à jour
+deactivate DS
+
+DC --> UI : 200 OK\n{ message: "Demande traitée" }
+deactivate DC
+
+UI --> RH : Confirmation\n"Demande approuvée"
+
+== Notification de l'Agent ==
+
+UI -> UI : Rechargement\ndu tableau de bord
+
+AG -> UI : Consulte ses demandes
+UI -> DC : GET /demande/mes-demandes\n{ token_jwt }
+activate DC
+DC -> DB : SELECT * FROM demande\nWHERE utilisateur_id = ?
+DB --> DC : Demandes avec statut mis à jour
+DC --> UI : 200 OK\n{ demandes: [...] }
+deactivate DC
+
+UI --> AG : Affiche le statut\n"✓ Demande approuvée"
+
+@enduml

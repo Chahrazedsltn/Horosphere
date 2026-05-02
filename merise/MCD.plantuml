@@ -1,0 +1,99 @@
+@startuml MCD_Horosphere
+title Modèle Conceptuel de Données (MCD) — Horosphere
+
+hide circle
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam entity {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+  FontColor #000000
+}
+
+' ─────────────────────────────────────────
+'  ENTITÉS
+' ─────────────────────────────────────────
+
+entity "UTILISATEUR" as U {
+  <u>id_utilisateur</u>
+  --
+  email
+  mot_de_passe
+  prenom
+  nom
+  role
+  departement
+  date_creation
+  consentement_rgpd
+}
+
+entity "SITE" as S {
+  <u>id_site</u>
+  --
+  nom
+  adresse
+  latitude
+  longitude
+  rayon_metres
+  geofencing_actif
+}
+
+entity "POINTAGE" as P {
+  <u>id_pointage</u>
+  --
+  date_jour
+  heure_arrivee
+  heure_depart
+  statut
+  coordonnees_gps
+  est_anomalie
+}
+
+entity "DEMANDE" as D {
+  <u>id_demande</u>
+  --
+  type_demande
+  statut
+  date_debut
+  date_fin
+  motif
+  date_creation
+}
+
+entity "DOCUMENT" as DOC {
+  <u>id_document</u>
+  --
+  type_document
+  chemin_fichier
+  date_creation
+}
+
+entity "ALERTE" as A {
+  <u>id_alerte</u>
+  --
+  type_alerte
+  message
+  date_creation
+  est_lue
+}
+
+' ─────────────────────────────────────────
+'  ASSOCIATIONS (notation Merise : min,max)
+'  La cardinalité est écrite DU CÔTÉ de l'entité concernée
+'
+'  Lecture :
+'    UTILISATEUR (0,n) ─── EFFECTUE ─── POINTAGE (1,1)
+'    → un utilisateur effectue 0 à n pointages
+'    → un pointage appartient à exactement 1 utilisateur
+' ─────────────────────────────────────────
+
+U "0,n" -- "1,1" P : EFFECTUE >
+S "0,n" -- "1,1" P : CONCERNE >
+U "0,n" -- "1,1" D : SOUMET >
+U "0,n" -- "1,1" DOC : POSSEDE >
+U "0,n" -- "1,1" A : RECOIT >
+P "0,n" -- "0,1" A : GENERE >
+
+@enduml

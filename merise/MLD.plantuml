@@ -1,0 +1,109 @@
+@startuml MLD_Horosphere
+title Modèle Logique de Données (MLD) — Horosphere
+
+hide circle
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam entity {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  FontColor #000000
+}
+
+' ─────────────────────────────────────────
+'  RÈGLES DE PASSAGE MCD → MLD
+'
+'  • Chaque entité devient une table
+'  • Association (0,n) — (1,1) : la clé primaire du côté (0,n)
+'    migre comme clé étrangère dans la table du côté (1,1)
+'  • Les identifiants sont soulignés (#)
+'  • Les clés étrangères sont préfixées par *
+' ─────────────────────────────────────────
+
+entity "UTILISATEUR" as U {
+  # id_utilisateur
+  --
+  email
+  mot_de_passe
+  prenom
+  nom
+  role
+  departement
+  date_creation
+  consentement_rgpd
+}
+
+entity "SITE" as S {
+  # id_site
+  --
+  nom
+  adresse
+  latitude
+  longitude
+  rayon_metres
+  geofencing_actif
+}
+
+entity "POINTAGE" as P {
+  # id_pointage
+  --
+  * id_utilisateur   [FK → UTILISATEUR]
+  * id_site          [FK → SITE]
+  --
+  date_jour
+  heure_arrivee
+  heure_depart
+  statut
+  coordonnees_gps
+  est_anomalie
+}
+
+entity "DEMANDE" as D {
+  # id_demande
+  --
+  * id_utilisateur   [FK → UTILISATEUR]
+  --
+  type_demande
+  statut
+  date_debut
+  date_fin
+  motif
+  date_creation
+}
+
+entity "DOCUMENT" as DOC {
+  # id_document
+  --
+  * id_utilisateur   [FK → UTILISATEUR]
+  --
+  type_document
+  chemin_fichier
+  date_creation
+}
+
+entity "ALERTE" as A {
+  # id_alerte
+  --
+  * id_utilisateur   [FK → UTILISATEUR]
+  * id_pointage      [FK → POINTAGE, nullable]
+  --
+  type_alerte
+  message
+  date_creation
+  est_lue
+}
+
+' ─────────────────────────────────────────
+'  CONTRAINTES D'INTÉGRITÉ RÉFÉRENTIELLE
+' ─────────────────────────────────────────
+
+U ||--o{ P : "id_utilisateur"
+S ||--o{ P : "id_site"
+U ||--o{ D : "id_utilisateur"
+U ||--o{ DOC : "id_utilisateur"
+U ||--o{ A : "id_utilisateur"
+P |o--o{ A : "id_pointage"
+
+@enduml

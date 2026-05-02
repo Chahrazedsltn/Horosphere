@@ -1,0 +1,119 @@
+@startuml UC_Horosphere
+title Diagramme de Cas d'Utilisation — Horosphere
+
+left to right direction
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam actorStyle awesome
+
+skinparam usecase {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+  ArrowColor #336699
+}
+
+' ─────────────────────────────────────────
+'  ACTEURS
+' ─────────────────────────────────────────
+actor "Agent" as AG
+actor "RH"    as RH
+actor "Admin" as AD
+
+RH  --|> AG
+AD  --|> RH
+
+' ─────────────────────────────────────────
+'  CAS D'UTILISATION
+' ─────────────────────────────────────────
+
+rectangle "Horosphere" {
+
+  ' ── Authentification ──────────────────
+  package "Authentification" {
+    usecase "Se connecter"       as UC_LOGIN
+    usecase "Se déconnecter"     as UC_LOGOUT
+    usecase "Réinitialiser\nle mot de passe" as UC_RESET
+  }
+
+  ' ── Pointage ──────────────────────────
+  package "Pointage" {
+    usecase "Pointer une arrivée\n(GPS)"       as UC_ARRIVEE
+    usecase "Pointer un départ\n(GPS)"         as UC_DEPART
+    usecase "Consulter son\nhistorique"        as UC_HISTO
+    usecase "Vérifier la zone\ngéographique"  as UC_GEO
+  }
+
+  ' ── Demandes ──────────────────────────
+  package "Demandes" {
+    usecase "Soumettre une demande\n(congé / correction / absence)" as UC_DEMANDE
+    usecase "Consulter ses demandes"       as UC_CONSULT_DEM
+    usecase "Valider / Rejeter\nune demande"  as UC_VALID_DEM
+    usecase "Consulter toutes\nles demandes"  as UC_ALL_DEM
+  }
+
+  ' ── Alertes ───────────────────────────
+  package "Alertes" {
+    usecase "Consulter ses alertes"       as UC_ALERT_AG
+    usecase "Marquer une alerte\ncomme lue"   as UC_ALERT_LUE
+    usecase "Consulter toutes\nles alertes"  as UC_ALERT_RH
+    usecase "Détecter les anomalies\n(automatique)" as UC_DETECT
+  }
+
+  ' ── Documents ─────────────────────────
+  package "Documents & Rapports" {
+    usecase "Télécharger\nses documents"     as UC_DOCS_AG
+    usecase "Générer un rapport\nCSV / PDF"  as UC_GEN_DOC
+    usecase "Consulter les pointages\nde tous les agents" as UC_ALL_POINT
+  }
+
+  ' ── Administration ────────────────────
+  package "Administration" {
+    usecase "Gérer les utilisateurs\n(CRUD)"   as UC_USERS
+    usecase "Gérer les sites\n(CRUD)"          as UC_SITES
+    usecase "Configurer\nle géofencing"        as UC_GEO_CFG
+    usecase "Accéder aux\nparamètres système"  as UC_PARAMS
+  }
+}
+
+' ─────────────────────────────────────────
+'  ASSOCIATIONS AGENT
+' ─────────────────────────────────────────
+AG --> UC_LOGIN
+AG --> UC_LOGOUT
+AG --> UC_RESET
+AG --> UC_ARRIVEE
+AG --> UC_DEPART
+AG --> UC_HISTO
+AG --> UC_DEMANDE
+AG --> UC_CONSULT_DEM
+AG --> UC_ALERT_AG
+AG --> UC_ALERT_LUE
+AG --> UC_DOCS_AG
+
+' ─────────────────────────────────────────
+'  ASSOCIATIONS RH (hérite Agent)
+' ─────────────────────────────────────────
+RH --> UC_VALID_DEM
+RH --> UC_ALL_DEM
+RH --> UC_ALERT_RH
+RH --> UC_GEN_DOC
+RH --> UC_ALL_POINT
+
+' ─────────────────────────────────────────
+'  ASSOCIATIONS ADMIN (hérite RH)
+' ─────────────────────────────────────────
+AD --> UC_USERS
+AD --> UC_SITES
+AD --> UC_GEO_CFG
+AD --> UC_PARAMS
+
+' ─────────────────────────────────────────
+'  RELATIONS INCLUDE / EXTEND
+' ─────────────────────────────────────────
+UC_ARRIVEE  ..> UC_GEO     : <<include>>
+UC_DEPART   ..> UC_GEO     : <<include>>
+UC_ARRIVEE  ..> UC_DETECT  : <<extend>>
+UC_DEPART   ..> UC_DETECT  : <<extend>>
+UC_GEN_DOC  ..> UC_ALL_POINT : <<include>>
+
+@enduml
