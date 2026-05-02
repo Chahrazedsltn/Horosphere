@@ -25,5 +25,4 @@ services:
 
     App\EventListener\LoginRateLimitListener:
         arguments:
-            $loginIpLimiter: '@limiter.login_ip'
-            $loginEmailLimiter: '@limiter.login_email'
+            $cache: '@cache.app'

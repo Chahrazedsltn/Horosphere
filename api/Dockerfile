@@ -43,9 +43,7 @@ COPY docker/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 COPY --chown=www-data:www-data . .
 
-# En dev : composer update pour résoudre tout changement de composer.json
-# sans bloquer le build si le lock file est désynchronisé.
-RUN composer update --no-interaction --prefer-dist --with-all-dependencies
+RUN composer install --no-interaction --prefer-dist
 
 EXPOSE 9000
 CMD ["php-fpm"]
