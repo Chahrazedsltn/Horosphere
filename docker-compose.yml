@@ -168,6 +168,25 @@ services:
     restart: unless-stopped
 
   # ─────────────────────────────────────────
+  #  PHPMYADMIN — Interface DB
+  # ─────────────────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: horosphere_phpmyadmin
+    environment:
+      PMA_HOST: db
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - horosphere_net
+    restart: unless-stopped
+
+  # ─────────────────────────────────────────
   #  DB BACKUP — Sauvegarde quotidienne MariaDB
   # ─────────────────────────────────────────
   db-backup:

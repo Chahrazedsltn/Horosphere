@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { PlusCircle, Pencil, Trash2, MapPin } from 'lucide-react'
+import { PlusCircle, Pencil, Trash2, MapPin, Search } from 'lucide-react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
@@ -11,6 +11,12 @@ import { Loader } from '@googlemaps/js-api-loader'
 
 const EMPTY_FORM = { nom: '', adresse: '', latitude: '', longitude: '', rayonMetres: '200', geofencingActif: true }
 
+const loader = new Loader({
+  apiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY ?? '',
+  version: 'weekly',
+  libraries: ['maps', 'places'],
+})
+
 export default function SitesPage() {
   const [sites, setSites] = useState<Site[]>([])
   const [loading, setLoading] = useState(true)
@@ -18,28 +24,38 @@ export default function SitesPage() {
   const [editing, setEditing] = useState<Site | null>(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
+
+  // Carte principale
   const mapRef = useRef<HTMLDivElement>(null)
   const googleMapRef = useRef<google.maps.Map | null>(null)
   const circlesRef = useRef<google.maps.Circle[]>([])
+
+  // Mini-carte dans le modal
+  const modalMapRef = useRef<HTMLDivElement>(null)
+  const modalMapInstanceRef = useRef<google.maps.Map | null>(null)
+  const modalMarkerRef = useRef<google.maps.Marker | null>(null)
+
+  // Autocomplete
+  const autocompleteInputRef = useRef<HTMLInputElement>(null)
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null)
 
   useEffect(() => {
     siteService.liste().then(setSites).finally(() => setLoading(false))
   }, [])
 
+  // Carte principale
   useEffect(() => {
     const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
     if (!apiKey || !mapRef.current || sites.length === 0) return
 
-    const loader = new Loader({ apiKey, version: 'weekly', libraries: ['maps'] })
     loader.load().then(() => {
       if (!mapRef.current) return
       const center = { lat: sites[0].latitude, lng: sites[0].longitude }
       const map = new google.maps.Map(mapRef.current, {
-        center, zoom: 14,
+        center, zoom: 6,
         styles: [{ featureType: 'poi', stylers: [{ visibility: 'off' }] }],
       })
       googleMapRef.current = map
-
       circlesRef.current.forEach((c) => c.setMap(null))
       circlesRef.current = []
 
@@ -48,22 +64,96 @@ export default function SitesPage() {
           position: { lat: site.latitude, lng: site.longitude },
           map,
           title: site.nom,
-          label: { text: site.nom, color: '#3B3BCC', fontWeight: '600', fontSize: '11px' },
+          label: { text: site.nom, color: '#557A95', fontWeight: '600', fontSize: '11px' },
         })
         const circle = new google.maps.Circle({
           map,
           center: { lat: site.latitude, lng: site.longitude },
           radius: site.rayonMetres,
-          strokeColor: site.geofencingActif ? '#3B3BCC' : '#9090B4',
+          strokeColor: site.geofencingActif ? '#557A95' : '#909AA6',
           strokeOpacity: 0.8,
           strokeWeight: 2,
-          fillColor: site.geofencingActif ? '#EBEBFF' : '#EEEEF2',
+          fillColor: site.geofencingActif ? '#DAE8F0' : '#EDF0F3',
           fillOpacity: 0.35,
         })
         circlesRef.current.push(circle)
       })
     }).catch(console.error)
   }, [sites])
+
+  // Mini-carte dans le modal
+  useEffect(() => {
+    if (!modalOpen || !import.meta.env.VITE_GOOGLE_MAPS_API_KEY) return
+
+    loader.load().then(() => {
+      if (!modalMapRef.current) return
+
+      const initLat = form.latitude ? parseFloat(form.latitude) : 46.603354
+      const initLng = form.longitude ? parseFloat(form.longitude) : 1.888334
+      const zoom = form.latitude ? 15 : 5
+
+      const map = new google.maps.Map(modalMapRef.current, {
+        center: { lat: initLat, lng: initLng },
+        zoom,
+        styles: [{ featureType: 'poi', stylers: [{ visibility: 'off' }] }],
+      })
+      modalMapInstanceRef.current = map
+
+      const marker = new google.maps.Marker({
+        position: form.latitude ? { lat: initLat, lng: initLng } : undefined,
+        map,
+        draggable: true,
+        title: 'Position du site',
+      })
+      modalMarkerRef.current = marker
+
+      // Clic sur la carte → place le marqueur
+      map.addListener('click', (e: google.maps.MapMouseEvent) => {
+        if (!e.latLng) return
+        marker.setPosition(e.latLng)
+        const lat = e.latLng.lat().toFixed(6)
+        const lng = e.latLng.lng().toFixed(6)
+        setForm((prev) => ({ ...prev, latitude: lat, longitude: lng }))
+      })
+
+      // Drag du marqueur
+      marker.addListener('dragend', () => {
+        const pos = marker.getPosition()
+        if (!pos) return
+        setForm((prev) => ({
+          ...prev,
+          latitude: pos.lat().toFixed(6),
+          longitude: pos.lng().toFixed(6),
+        }))
+      })
+
+      // Autocomplete sur le champ de recherche
+      if (autocompleteInputRef.current) {
+        const ac = new google.maps.places.Autocomplete(autocompleteInputRef.current, {
+          types: ['establishment', 'geocode'],
+          fields: ['geometry', 'formatted_address', 'name'],
+        })
+        autocompleteRef.current = ac
+        ac.addListener('place_changed', () => {
+          const place = ac.getPlace()
+          if (!place.geometry?.location) return
+          const lat = place.geometry.location.lat().toFixed(6)
+          const lng = place.geometry.location.lng().toFixed(6)
+          const adresse = place.formatted_address ?? ''
+          setForm((prev) => ({ ...prev, latitude: lat, longitude: lng, adresse }))
+          map.setCenter(place.geometry.location)
+          map.setZoom(16)
+          marker.setPosition(place.geometry.location)
+        })
+      }
+    }).catch(console.error)
+
+    return () => {
+      modalMapInstanceRef.current = null
+      modalMarkerRef.current = null
+      autocompleteRef.current = null
+    }
+  }, [modalOpen])
 
   const openCreate = () => { setEditing(null); setForm(EMPTY_FORM); setModalOpen(true) }
   const openEdit = (s: Site) => {
@@ -110,7 +200,7 @@ export default function SitesPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-        {/* Carte */}
+        {/* Carte principale */}
         <Card title="Carte des sites" icon="🗺">
           {import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? (
             <div ref={mapRef} className="w-full h-[350px] rounded-md" />
@@ -155,6 +245,7 @@ export default function SitesPage() {
         </div>
       </div>
 
+      {/* Modal création / édition */}
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
@@ -167,12 +258,68 @@ export default function SitesPage() {
         }
       >
         <Input label="Nom du site" value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })} required />
-        <Input label="Adresse" value={form.adresse} onChange={(e) => setForm({ ...form, adresse: e.target.value })} required />
+
+        {/* Recherche adresse via Autocomplete */}
+        {import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
+          <div>
+            <label className="block text-[12px] font-semibold text-text2 mb-1.5">
+              Rechercher une adresse
+            </label>
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text3" />
+              <input
+                ref={autocompleteInputRef}
+                type="text"
+                placeholder="Tapez une adresse ou un lieu..."
+                className="w-full h-10 bg-bg border-[1.5px] border-border rounded-lg pl-8 pr-3 text-[13px] text-text outline-none focus:border-accent-mid placeholder:text-text3 transition-colors"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Mini-carte cliquable */}
+        {import.meta.env.VITE_GOOGLE_MAPS_API_KEY && (
+          <div>
+            <label className="block text-[12px] font-semibold text-text2 mb-1.5">
+              Positionner sur la carte <span className="text-text3 font-normal">(cliquer ou glisser le marqueur)</span>
+            </label>
+            <div ref={modalMapRef} className="w-full h-[220px] rounded-lg border border-border overflow-hidden" />
+          </div>
+        )}
+
+        <Input
+          label="Adresse complète"
+          value={form.adresse}
+          onChange={(e) => setForm({ ...form, adresse: e.target.value })}
+          required
+        />
+
         <div className="grid grid-cols-2 gap-3">
-          <Input label="Latitude" type="number" step="any" value={form.latitude} onChange={(e) => setForm({ ...form, latitude: e.target.value })} required />
-          <Input label="Longitude" type="number" step="any" value={form.longitude} onChange={(e) => setForm({ ...form, longitude: e.target.value })} required />
+          <Input
+            label="Latitude"
+            type="number"
+            step="any"
+            value={form.latitude}
+            onChange={(e) => setForm({ ...form, latitude: e.target.value })}
+            required
+          />
+          <Input
+            label="Longitude"
+            type="number"
+            step="any"
+            value={form.longitude}
+            onChange={(e) => setForm({ ...form, longitude: e.target.value })}
+            required
+          />
         </div>
-        <Input label="Rayon géofencing (mètres)" type="number" value={form.rayonMetres} onChange={(e) => setForm({ ...form, rayonMetres: e.target.value })} />
+
+        <Input
+          label="Rayon géofencing (mètres)"
+          type="number"
+          value={form.rayonMetres}
+          onChange={(e) => setForm({ ...form, rayonMetres: e.target.value })}
+        />
+
         <label className="flex items-center gap-2.5 cursor-pointer mt-1">
           <div
             onClick={() => setForm({ ...form, geofencingActif: !form.geofencingActif })}

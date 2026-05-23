@@ -101,7 +101,7 @@ export function PointageWidget() {
           <button
             onClick={handleArriver}
             disabled={loading || geoLoading}
-            className="h-[54px] rounded-[10px] border-2 border-green-border bg-green-bg text-green font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#D0F0E0] disabled:opacity-50"
+            className="h-[54px] rounded-[10px] border-2 border-green-border bg-green-bg text-green font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#D3EDDF] disabled:opacity-50"
           >
             {loading ? <span className="w-5 h-5 border-2 border-green border-t-transparent rounded-full animate-spin" /> : <LogIn size={18} />}
             Pointer l'arrivée
@@ -111,7 +111,7 @@ export function PointageWidget() {
             <button
               onClick={handleReprise}
               disabled={loading}
-              className="h-[54px] rounded-[10px] border-2 border-green-border bg-green-bg text-green font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#D0F0E0] disabled:opacity-50"
+              className="h-[54px] rounded-[10px] border-2 border-green-border bg-green-bg text-green font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#D3EDDF] disabled:opacity-50"
             >
               {loading ? <span className="w-5 h-5 border-2 border-green border-t-transparent rounded-full animate-spin" /> : <Play size={18} />}
               Reprendre le travail
@@ -119,7 +119,7 @@ export function PointageWidget() {
             <button
               onClick={handlePartir}
               disabled={loading || geoLoading}
-              className="h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#FFE0E0] disabled:opacity-50"
+              className="h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#F0DEDE] disabled:opacity-50"
             >
               {loading ? <span className="w-5 h-5 border-2 border-red border-t-transparent rounded-full animate-spin" /> : <LogOut size={18} />}
               Pointer le départ
@@ -130,7 +130,7 @@ export function PointageWidget() {
             <button
               onClick={handlePartir}
               disabled={loading || geoLoading}
-              className="h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#FFE0E0] disabled:opacity-50"
+              className="h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#F0DEDE] disabled:opacity-50"
             >
               {loading ? <span className="w-5 h-5 border-2 border-red border-t-transparent rounded-full animate-spin" /> : <LogOut size={18} />}
               Pointer le départ
@@ -138,7 +138,7 @@ export function PointageWidget() {
             <button
               onClick={handlePause}
               disabled={loading}
-              className="h-[54px] rounded-[10px] border-2 border-amber-border bg-amber-bg text-amber font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#FFF0D0] disabled:opacity-50"
+              className="h-[54px] rounded-[10px] border-2 border-amber-border bg-amber-bg text-amber font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#EDE4D2] disabled:opacity-50"
             >
               {loading ? <span className="w-5 h-5 border-2 border-amber border-t-transparent rounded-full animate-spin" /> : <Coffee size={18} />}
               Prendre une pause

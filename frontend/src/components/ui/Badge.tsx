@@ -13,7 +13,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   green: 'bg-green-bg text-green border border-green-border',
   red:   'bg-red-bg text-red border border-red-border',
   amber: 'bg-amber-bg text-amber border border-amber-border',
-  blue:  'bg-accent-light text-accent border border-[#B0B0F0]',
+  blue:  'bg-accent-light text-accent border border-accent-mid',
   gray:  'bg-surface2 text-text3 border border-border',
 }
 
