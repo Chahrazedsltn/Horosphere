@@ -51,7 +51,7 @@ jobs:
           echo JWT_PASSPHRASE=horosphere_jwt_passphrase >> .env
           echo MAILER_DSN=null://null >> .env
           echo CORS_ALLOW_ORIGIN="^https?://localhost" >> .env
-          echo MESSENGER_TRANSPORT_DSN="doctrine://default?queue_name=async" >> .env
+          echo MESSENGER_TRANSPORT_DSN=sync:// >> .env
           echo GOTENBERG_URL=http://localhost:3000 >> .env
           echo APP_FRONTEND_URL=http://localhost >> .env
           echo GOOGLE_MAPS_API_KEY=dummy_key_for_tests >> .env
