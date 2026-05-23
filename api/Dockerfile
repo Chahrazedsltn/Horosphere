@@ -44,7 +44,7 @@ COPY docker/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 COPY --chown=www-data:www-data . .
 
-RUN composer install --no-interaction --prefer-dist
+RUN composer install --no-interaction --prefer-dist --no-scripts
 
 EXPOSE 9000
 CMD ["php-fpm"]
