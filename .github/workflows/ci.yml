@@ -68,6 +68,11 @@ jobs:
         working-directory: api
         run: composer install --no-interaction --prefer-dist --no-scripts
 
+      - name: Override DATABASE_URL for CI (127.0.0.1 au lieu de db)
+        working-directory: api
+        run: |
+          echo DATABASE_URL="mysql://horosphere:horosphere_secret@127.0.0.1:3306/horosphere_test?serverVersion=mariadb-10.11.0&charset=utf8mb4" > .env.test.local
+
       - name: Generate JWT keys
         working-directory: api
         run: |
