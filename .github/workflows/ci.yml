@@ -40,6 +40,24 @@ jobs:
           extensions: pdo_mysql, intl, opcache, xdebug
           coverage: xdebug
 
+      - name: Create .env for CI
+        working-directory: api
+        run: |
+          cat > .env <<EOF
+          APP_ENV=test
+          APP_SECRET=test_secret_key_for_ci
+          DATABASE_URL=mysql://horosphere:horosphere_secret@127.0.0.1:3306/horosphere_test?serverVersion=mariadb-10.11.0&charset=utf8mb4
+          JWT_SECRET_KEY=%kernel.project_dir%/config/jwt/private.pem
+          JWT_PUBLIC_KEY=%kernel.project_dir%/config/jwt/public.pem
+          JWT_PASSPHRASE=horosphere_jwt_passphrase
+          MAILER_DSN=null://null
+          CORS_ALLOW_ORIGIN=^https?://localhost
+          MESSENGER_TRANSPORT_DSN=doctrine://default?queue_name=async
+          GOTENBERG_URL=http://localhost:3000
+          APP_FRONTEND_URL=http://localhost
+          GOOGLE_MAPS_API_KEY=dummy_key_for_tests
+          EOF
+
       - name: Cache Composer dependencies
         uses: actions/cache@v4
         with:
@@ -60,51 +78,14 @@ jobs:
 
       - name: Run migrations
         working-directory: api
-        env:
-          APP_ENV: test
-          APP_SECRET: test_secret_key_for_ci
-          DATABASE_URL: mysql://horosphere:horosphere_secret@127.0.0.1:3306/horosphere_test?serverVersion=mariadb-10.11.0&charset=utf8mb4
-          JWT_SECRET_KEY: "%kernel.project_dir%/config/jwt/private.pem"
-          JWT_PUBLIC_KEY: "%kernel.project_dir%/config/jwt/public.pem"
-          JWT_PASSPHRASE: horosphere_jwt_passphrase
-          MAILER_DSN: "null://null"
-          CORS_ALLOW_ORIGIN: "^https?://localhost"
-          MESSENGER_TRANSPORT_DSN: "doctrine://default?queue_name=async"
-          GOTENBERG_URL: "http://localhost:3000"
-          APP_FRONTEND_URL: "http://localhost"
         run: php bin/console doctrine:migrations:migrate --no-interaction
 
       - name: Load fixtures
         working-directory: api
-        env:
-          APP_ENV: test
-          APP_SECRET: test_secret_key_for_ci
-          DATABASE_URL: mysql://horosphere:horosphere_secret@127.0.0.1:3306/horosphere_test?serverVersion=mariadb-10.11.0&charset=utf8mb4
-          JWT_SECRET_KEY: "%kernel.project_dir%/config/jwt/private.pem"
-          JWT_PUBLIC_KEY: "%kernel.project_dir%/config/jwt/public.pem"
-          JWT_PASSPHRASE: horosphere_jwt_passphrase
-          MAILER_DSN: "null://null"
-          CORS_ALLOW_ORIGIN: "^https?://localhost"
-          MESSENGER_TRANSPORT_DSN: "doctrine://default?queue_name=async"
-          GOTENBERG_URL: "http://localhost:3000"
-          APP_FRONTEND_URL: "http://localhost"
         run: php bin/console doctrine:fixtures:load --no-interaction
 
       - name: Run PHPUnit tests
         working-directory: api
-        env:
-          APP_ENV: test
-          APP_SECRET: test_secret_key_for_ci
-          DATABASE_URL: mysql://horosphere:horosphere_secret@127.0.0.1:3306/horosphere_test?serverVersion=mariadb-10.11.0&charset=utf8mb4
-          JWT_SECRET_KEY: "%kernel.project_dir%/config/jwt/private.pem"
-          JWT_PUBLIC_KEY: "%kernel.project_dir%/config/jwt/public.pem"
-          JWT_PASSPHRASE: horosphere_jwt_passphrase
-          MAILER_DSN: "null://null"
-          CORS_ALLOW_ORIGIN: "^https?://localhost"
-          MESSENGER_TRANSPORT_DSN: "doctrine://default?queue_name=async"
-          GOTENBERG_URL: "http://localhost:3000"
-          APP_FRONTEND_URL: "http://localhost"
-          GOOGLE_MAPS_API_KEY: "dummy_key_for_tests"
         run: php bin/phpunit --coverage-text
 
   # ─────────────────────────────────────────
