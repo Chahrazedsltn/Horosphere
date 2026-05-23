@@ -26,3 +26,8 @@ services:
     App\EventListener\LoginRateLimitListener:
         arguments:
             $cache: '@cache.app'
+
+when@test:
+    services:
+        App\EventListener\LoginRateLimitListener:
+            tags: []
