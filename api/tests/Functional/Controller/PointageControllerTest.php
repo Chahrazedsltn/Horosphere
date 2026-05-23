@@ -17,7 +17,9 @@ class PointageControllerTest extends WebTestCase
         );
 
         $data = json_decode($client->getResponse()->getContent(), true);
-        return $data['token'] ?? '';
+        $token = $data['token'] ?? '';
+        static::ensureKernelShutdown();
+        return $token;
     }
 
     public function testLoginReturnsToken(): void
