@@ -9,12 +9,15 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
- * Protection brute force sur /api/auth/login.
- * Utilise le pool de cache PSR-6 (symfony/cache, déjà disponible).
+ * Protection brute force sur les endpoints d'authentification sensibles.
+ * Utilise le pool de cache PSR-6 (symfony/cache).
  *
- * Limites :
+ * /api/auth/login :
  *  - 10 tentatives par IP sur 60 secondes
  *  - 5 tentatives par email sur 300 secondes
+ *
+ * /api/auth/mot-de-passe-oublie :
+ *  - 5 tentatives par IP sur 600 secondes (évite spam email + énumération)
  */
 #[AsEventListener(event: KernelEvents::REQUEST, priority: 20)]
 final class LoginRateLimitListener
@@ -24,6 +27,9 @@ final class LoginRateLimitListener
     private const EMAIL_MAX = 5;
     private const EMAIL_TTL = 300;   // secondes
 
+    private const RESET_IP_MAX = 5;
+    private const RESET_IP_TTL = 600; // secondes
+
     public function __construct(
         private readonly CacheItemPoolInterface $cache,
     ) {}
@@ -31,10 +37,25 @@ final class LoginRateLimitListener
     public function __invoke(RequestEvent $event): void
     {
         $request = $event->getRequest();
+        $path    = $request->getPathInfo();
 
-        if ($request->getPathInfo() !== '/api/auth/login' || $request->getMethod() !== 'POST') {
+        if ($request->getMethod() !== 'POST') {
             return;
         }
+
+        if ($path === '/api/auth/login') {
+            $this->handleLogin($event);
+            return;
+        }
+
+        if ($path === '/api/auth/mot-de-passe-oublie') {
+            $this->handlePasswordReset($event);
+        }
+    }
+
+    private function handleLogin(RequestEvent $event): void
+    {
+        $request = $event->getRequest();
 
         // ── Limite par IP ──────────────────────────────────────────────
         $ip  = $request->getClientIp() ?? 'unknown';
@@ -65,20 +86,35 @@ final class LoginRateLimitListener
         }
     }
 
+    private function handlePasswordReset(RequestEvent $event): void
+    {
+        $ip  = $event->getRequest()->getClientIp() ?? 'unknown';
+        $key = 'rl_reset_ip_' . hash('sha256', $ip);
+
+        if ($this->isRateLimited($key, self::RESET_IP_MAX, self::RESET_IP_TTL)) {
+            $event->setResponse(new JsonResponse(
+                ['message' => 'Trop de demandes de réinitialisation. Réessayez dans ' . (self::RESET_IP_TTL / 60) . ' minutes.'],
+                429,
+                ['Retry-After' => self::RESET_IP_TTL],
+            ));
+        }
+    }
+
     /**
      * Incrémente le compteur et retourne true si la limite est dépassée.
+     * Le TTL est défini à la création de la clé (fenêtre fixe).
      */
     private function isRateLimited(string $key, int $max, int $ttl): bool
     {
-        $item = $this->cache->getItem($key);
-
-        $count = $item->isHit() ? (int) $item->get() : 0;
+        $item  = $this->cache->getItem($key);
+        $isNew = !$item->isHit();
+        $count = $isNew ? 0 : (int) $item->get();
         $count++;
 
-        $item->set($count);
-        if (!$item->isHit()) {
+        if ($isNew) {
             $item->expiresAfter($ttl);
         }
+        $item->set($count);
         $this->cache->save($item);
 
         return $count > $max;
