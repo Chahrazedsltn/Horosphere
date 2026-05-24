@@ -6,6 +6,7 @@ use App\Entity\Document;
 use App\Entity\User;
 use App\Repository\DocumentRepository;
 use App\Service\ExportService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -20,8 +21,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DocumentController extends AbstractController
 {
     public function __construct(
-        private readonly ExportService      $exportService,
-        private readonly DocumentRepository $documentRepository,
+        private readonly ExportService       $exportService,
+        private readonly DocumentRepository  $documentRepository,
+        private readonly EntityManagerInterface $em,
         #[Autowire('%app.exports_dir%')] private readonly string $exportsDir,
     ) {}
 
@@ -90,8 +92,7 @@ class DocumentController extends AbstractController
         $user = $currentUser;
 
         if (isset($data['utilisateur_id'])) {
-            $em = $this->container->get('doctrine.orm.entity_manager');
-            $targetUser = $em->find(User::class, (int) $data['utilisateur_id']);
+            $targetUser = $this->em->find(User::class, (int) $data['utilisateur_id']);
             if (null === $targetUser) {
                 return $this->json(['message' => 'Utilisateur introuvable.'], 404);
             }

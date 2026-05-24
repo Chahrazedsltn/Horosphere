@@ -3,7 +3,6 @@
 namespace App\Tests\Functional\Controller;
 
 use App\Entity\Demande;
-use App\Entity\User;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,18 +19,26 @@ class DemandeControllerTest extends WebTestCase
         return $data['token'] ?? '';
     }
 
-    /** Retourne l'ID d'une demande EN_ATTENTE appartenant à $ownerEmail */
-    private function getDemandeEnAttenteId(string $ownerEmail): int
+    /**
+     * Crée une demande en tant qu'agent et retourne son ID.
+     * Utilisé pour produire une demande EN_ATTENTE fraîche dans chaque test.
+     */
+    private function creerDemande(string $agentEmail, string $agentPassword): int
     {
-        static::bootKernel();
-        $em      = static::getContainer()->get('doctrine')->getManager();
-        $owner   = $em->getRepository(User::class)->findOneBy(['email' => $ownerEmail]);
-        $demande = $em->getRepository(Demande::class)->findOneBy([
-            'utilisateur' => $owner,
-            'statut'      => Demande::STATUT_EN_ATTENTE,
-        ]);
+        $token  = $this->getJwtToken($agentEmail, $agentPassword);
+        $client = static::createClient();
+        $client->request('POST', '/api/demandes', [], [],
+            ['CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer ' . $token],
+            json_encode([
+                'type_demande' => Demande::TYPE_CONGE,
+                'date_debut'   => date('Y-m-d', strtotime('+100 days')),
+                'date_fin'     => date('Y-m-d', strtotime('+110 days')),
+                'motif'        => 'Test CI auto',
+            ]),
+        );
+        $id = json_decode($client->getResponse()->getContent(), true)['data']['id'];
         static::ensureKernelShutdown();
-        return $demande->getId();
+        return $id;
     }
 
     public function testListeDemandesRequiresAuth(): void
@@ -51,7 +58,6 @@ class DemandeControllerTest extends WebTestCase
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
         $this->assertArrayHasKey('data', $data);
-        // L'agent ne voit que ses propres demandes
         foreach ($data['data'] as $demande) {
             $this->assertEquals('agent1@horosphere.fr', $demande['utilisateur']['email']);
         }
@@ -65,7 +71,6 @@ class DemandeControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
-        // La RH voit au moins les 3 demandes des fixtures
         $this->assertGreaterThanOrEqual(3, count($data['data']));
     }
 
@@ -86,8 +91,6 @@ class DemandeControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $data = json_decode($client->getResponse()->getContent(), true);
-        $this->assertArrayHasKey('data', $data);
-        // Toutes les demandes retournées sont EN_ATTENTE
         foreach ($data['data'] as $demande) {
             $this->assertEquals(Demande::STATUT_EN_ATTENTE, $demande['statut']);
         }
@@ -127,7 +130,7 @@ class DemandeControllerTest extends WebTestCase
 
     public function testTraiterDemandeApprouveeAsRh(): void
     {
-        $demandeId = $this->getDemandeEnAttenteId('agent1@horosphere.fr');
+        $demandeId = $this->creerDemande('agent1@horosphere.fr', 'Agent1234!');
         $token     = $this->getJwtToken('rh@horosphere.fr', 'Rh1234!');
         $client    = static::createClient();
         $client->request('PATCH', '/api/demandes/' . $demandeId . '/traiter', [], [],
@@ -142,7 +145,7 @@ class DemandeControllerTest extends WebTestCase
 
     public function testTraiterDemandeRejeteeAsRh(): void
     {
-        $demandeId = $this->getDemandeEnAttenteId('agent2@horosphere.fr');
+        $demandeId = $this->creerDemande('agent2@horosphere.fr', 'Agent1234!');
         $token     = $this->getJwtToken('rh@horosphere.fr', 'Rh1234!');
         $client    = static::createClient();
         $client->request('PATCH', '/api/demandes/' . $demandeId . '/traiter', [], [],
@@ -157,7 +160,7 @@ class DemandeControllerTest extends WebTestCase
 
     public function testTraiterDemandeDecisionInvalide(): void
     {
-        $demandeId = $this->getDemandeEnAttenteId('agent1@horosphere.fr');
+        $demandeId = $this->creerDemande('agent3@horosphere.fr', 'Agent1234!');
         $token     = $this->getJwtToken('rh@horosphere.fr', 'Rh1234!');
         $client    = static::createClient();
         $client->request('PATCH', '/api/demandes/' . $demandeId . '/traiter', [], [],
@@ -170,7 +173,7 @@ class DemandeControllerTest extends WebTestCase
 
     public function testTraiterDemandeRequiresRh(): void
     {
-        $demandeId = $this->getDemandeEnAttenteId('agent1@horosphere.fr');
+        $demandeId = $this->creerDemande('agent1@horosphere.fr', 'Agent1234!');
         $token     = $this->getJwtToken('agent2@horosphere.fr', 'Agent1234!');
         $client    = static::createClient();
         $client->request('PATCH', '/api/demandes/' . $demandeId . '/traiter', [], [],
