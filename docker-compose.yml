@@ -156,11 +156,13 @@ services:
     restart: unless-stopped
 
   # ─────────────────────────────────────────
-  #  MAILPIT — Dev mail catcher
+  #  MAILPIT — Dev mail catcher (dev uniquement)
+  #  Démarrer avec : docker compose --profile dev up -d
   # ─────────────────────────────────────────
   mailpit:
     image: axllent/mailpit:latest
     container_name: horosphere_mail
+    profiles: ["dev"]
     ports:
       - "8025:8025"
     networks:
@@ -168,11 +170,13 @@ services:
     restart: unless-stopped
 
   # ─────────────────────────────────────────
-  #  PHPMYADMIN — Interface DB
+  #  PHPMYADMIN — Interface DB (dev uniquement)
+  #  Démarrer avec : docker compose --profile dev up -d
   # ─────────────────────────────────────────
   phpmyadmin:
     image: phpmyadmin:latest
     container_name: horosphere_phpmyadmin
+    profiles: ["dev"]
     environment:
       PMA_HOST: db
       PMA_USER: ${DB_USER}

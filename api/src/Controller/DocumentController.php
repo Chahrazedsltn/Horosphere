@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Repository\DocumentRepository;
 use App\Service\ExportService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,8 +20,9 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class DocumentController extends AbstractController
 {
     public function __construct(
-        private readonly ExportService     $exportService,
+        private readonly ExportService      $exportService,
         private readonly DocumentRepository $documentRepository,
+        #[Autowire('%app.exports_dir%')] private readonly string $exportsDir,
     ) {}
 
     #[Route('/documents', name: 'liste', methods: ['GET'])]
@@ -42,12 +44,17 @@ class DocumentController extends AbstractController
             return $this->json(['message' => 'Accès refusé.'], 403);
         }
 
-        $filepath = $document->getCheminFichier();
-        if (!file_exists($filepath)) {
+        $filepath    = $document->getCheminFichier();
+        $realPath    = realpath((string) $filepath);
+        $exportsReal = realpath($this->exportsDir);
+
+        if (false === $realPath || false === $exportsReal
+            || !str_starts_with($realPath, $exportsReal . DIRECTORY_SEPARATOR)
+        ) {
             return $this->json(['message' => 'Fichier introuvable.'], 404);
         }
 
-        $response = new BinaryFileResponse($filepath);
+        $response = new BinaryFileResponse($realPath);
         $response->setContentDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
             $document->getFileName(),

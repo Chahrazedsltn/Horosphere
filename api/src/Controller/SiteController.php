@@ -47,6 +47,13 @@ class SiteController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
+        if (isset($data['rayon_metres'])) {
+            $rayon = (int) $data['rayon_metres'];
+            if ($rayon < 10 || $rayon > 50000) {
+                return $this->json(['message' => 'Le rayon doit être compris entre 10 et 50 000 mètres.'], 422);
+            }
+        }
+
         $site = new Site();
         $this->hydrateSite($site, $data);
 
@@ -68,6 +75,14 @@ class SiteController extends AbstractController
     public function modifier(Site $site, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+
+        if (isset($data['rayon_metres'])) {
+            $rayon = (int) $data['rayon_metres'];
+            if ($rayon < 10 || $rayon > 50000) {
+                return $this->json(['message' => 'Le rayon doit être compris entre 10 et 50 000 mètres.'], 422);
+            }
+        }
+
         $this->hydrateSite($site, $data);
 
         $errors = $this->validator->validate($site);

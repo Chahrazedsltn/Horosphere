@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\PointageRepository;
+use App\Service\GeofencingService;
 use App\Service\PointageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,6 +19,7 @@ class PointageController extends AbstractController
     public function __construct(
         private readonly PointageService    $pointageService,
         private readonly PointageRepository $pointageRepository,
+        private readonly GeofencingService  $geofencingService,
     ) {}
 
     #[Route('/arriver', name: 'arriver', methods: ['POST'])]
@@ -30,6 +32,10 @@ class PointageController extends AbstractController
 
         if (null === $lat || null === $lon) {
             return $this->json(['message' => 'Coordonnées GPS requises.'], 422);
+        }
+
+        if (!$this->geofencingService->validerCoordonnees($lat, $lon)) {
+            return $this->json(['message' => 'Coordonnées GPS invalides.'], 422);
         }
 
         $pointage = $this->pointageService->pointer($user, $lat, $lon);
@@ -50,6 +56,10 @@ class PointageController extends AbstractController
 
         if (null === $lat || null === $lon) {
             return $this->json(['message' => 'Coordonnées GPS requises.'], 422);
+        }
+
+        if (!$this->geofencingService->validerCoordonnees($lat, $lon)) {
+            return $this->json(['message' => 'Coordonnées GPS invalides.'], 422);
         }
 
         try {

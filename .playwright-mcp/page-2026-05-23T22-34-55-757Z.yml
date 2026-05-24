@@ -1,0 +1,27 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - generic [ref=e7]:
+      - img "Horosphere" [ref=e8]
+      - generic [ref=e9]: Horosphere
+    - generic [ref=e10]:
+      - heading "Gérez vos présences, simplement." [level=2] [ref=e11]:
+        - text: Gérez vos présences,
+        - text: simplement.
+      - paragraph [ref=e12]:
+        - text: Pointage, absences et équipes
+        - text: dans une interface unifiée.
+  - generic [ref=e18]:
+    - heading "Connexion" [level=1] [ref=e19]
+    - paragraph [ref=e20]: Accédez à votre espace de travail
+    - generic [ref=e34]: Email ou mot de passe incorrect.
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: Adresse e-mail
+        - textbox "vous@entreprise.fr" [ref=e24]: admin@horosphere.fr
+      - generic [ref=e25]:
+        - generic [ref=e26]: Mot de passe
+        - textbox "••••••••••" [ref=e27]: Admin1234!
+        - link "Mot de passe oublié ?" [ref=e29] [cursor=pointer]:
+          - /url: /mot-de-passe-oublie
+      - generic [ref=e32] [cursor=pointer]: Rester connecté
+      - button "Se connecter →" [ref=e33] [cursor=pointer]

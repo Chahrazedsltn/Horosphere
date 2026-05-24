@@ -136,6 +136,16 @@ class AuthController extends AbstractController
             return $this->json(['message' => 'Le mot de passe doit contenir au moins 8 caractères.'], 422);
         }
 
+        if (!preg_match('/[A-Z]/', $nouveauMotDePasse)
+            || !preg_match('/[a-z]/', $nouveauMotDePasse)
+            || !preg_match('/[0-9]/', $nouveauMotDePasse)
+            || !preg_match('/[\W_]/', $nouveauMotDePasse)
+        ) {
+            return $this->json([
+                'message' => 'Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial.',
+            ], 422);
+        }
+
         $tokenEntity = $this->resetTokenRepository->findValidByToken($token);
 
         if (null === $tokenEntity) {

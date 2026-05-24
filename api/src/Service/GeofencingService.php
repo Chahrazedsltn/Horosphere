@@ -12,6 +12,14 @@ class GeofencingService
     ) {}
 
     /**
+     * Valide qu'une coordonnée GPS est dans les bornes légales.
+     */
+    public function validerCoordonnees(float $lat, float $lon): bool
+    {
+        return $lat >= -90.0 && $lat <= 90.0 && $lon >= -180.0 && $lon <= 180.0;
+    }
+
+    /**
      * Calcule la distance entre deux coordonnées GPS via la formule haversine.
      * Retourne la distance en mètres.
      */
