@@ -80,6 +80,22 @@ class GeofencingServiceTest extends TestCase
         $this->assertLessThan(200, $distance);
     }
 
+    public function testValiderCoordonneesValides(): void
+    {
+        $this->assertTrue($this->service->validerCoordonnees(48.8698, 2.3309));
+        $this->assertTrue($this->service->validerCoordonnees(0.0, 0.0));
+        $this->assertTrue($this->service->validerCoordonnees(90.0, 180.0));
+        $this->assertTrue($this->service->validerCoordonnees(-90.0, -180.0));
+    }
+
+    public function testValiderCoordonneesInvalides(): void
+    {
+        $this->assertFalse($this->service->validerCoordonnees(91.0, 0.0));   // lat > 90
+        $this->assertFalse($this->service->validerCoordonnees(-91.0, 0.0));  // lat < -90
+        $this->assertFalse($this->service->validerCoordonnees(0.0, 181.0));  // lon > 180
+        $this->assertFalse($this->service->validerCoordonnees(0.0, -181.0)); // lon < -180
+    }
+
     private function createSite(float $lat, float $lon, int $rayon): Site
     {
         $site = new Site();
