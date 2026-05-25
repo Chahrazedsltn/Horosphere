@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth.service'
 import { useAuthStore } from '../store/auth.store'
 import logo from '../assets/logo.png'
+import loginBg from '../assets/login.jpg'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -43,10 +44,23 @@ export default function LoginPage() {
       <div className="hidden md:flex md:w-[42%] lg:w-[45%] flex-col justify-between p-10 relative overflow-hidden"
         style={{ background: 'linear-gradient(160deg, #2C3038 0%, #1a2530 100%)' }}>
 
+        {/* Image de fond avec transparence */}
+        <div className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: `url(${loginBg})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center top',
+            opacity: 0.32,
+          }} />
+
+        {/* Overlay gradient pour lisibilité */}
+        <div className="absolute inset-0 z-0"
+          style={{ background: 'linear-gradient(160deg, rgba(44,48,56,0.6) 0%, rgba(26,37,48,0.85) 100%)' }} />
+
         {/* Halos décoratifs */}
-        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full"
+        <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full z-0"
           style={{ background: 'radial-gradient(circle, rgba(85,122,149,0.35) 0%, transparent 65%)' }} />
-        <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full"
+        <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full z-0"
           style={{ background: 'radial-gradient(circle, rgba(115,149,174,0.2) 0%, transparent 65%)' }} />
 
         {/* Logo */}
