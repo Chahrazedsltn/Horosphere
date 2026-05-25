@@ -101,7 +101,10 @@ export function Sidebar() {
         </button>
 
         {/* User */}
-        <div className="flex items-center gap-2.5 px-2.5 py-2 mt-1 rounded-lg cursor-pointer hover:bg-surface2 transition-colors">
+        <div
+          onClick={() => navigate('/profil')}
+          className="flex items-center gap-2.5 px-2.5 py-2 mt-1 mx-2 rounded-lg cursor-pointer hover:bg-surface2 transition-colors"
+        >
           <Avatar initials={user?.initiales ?? user?.prenom?.charAt(0) ?? '?'} />
           <div>
             <div className="text-[13px] font-semibold text-text leading-tight">{user?.nomComplet ?? `${user?.prenom} ${user?.nom}`}</div>

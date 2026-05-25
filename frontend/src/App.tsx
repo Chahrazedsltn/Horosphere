@@ -19,6 +19,7 @@ const RapportsPage     = lazy(() => import('./pages/rh/RapportsPage'))
 const UsersPage        = lazy(() => import('./pages/admin/UsersPage'))
 const SitesPage        = lazy(() => import('./pages/admin/SitesPage'))
 const ParametresPage   = lazy(() => import('./pages/admin/ParametresPage'))
+const AlertesPage      = lazy(() => import('./pages/AlertesPage'))
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore()
@@ -48,6 +49,7 @@ export default function App() {
             <Route path="/demandes" element={<DemandesPage />} />
             <Route path="/documents" element={<DocumentsPage />} />
             <Route path="/profil" element={<ProfilPage />} />
+            <Route path="/alertes" element={<AlertesPage />} />
 
             {/* RH */}
             <Route path="/rh" element={
