@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, XCircle } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { StatutDemandeBadge, TypeDemandeBadge } from '../../components/ui/Badge'

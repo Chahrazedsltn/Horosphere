@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FileText, FileSpreadsheet, Download } from 'lucide-react'
+import { FilePdf, FileXls, DownloadSimple } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input, Select } from '../../components/ui/Input'
@@ -72,7 +72,7 @@ export default function RapportsPage() {
         <div className="flex gap-3">
           <Button
             variant="success"
-            icon={<FileSpreadsheet size={16} />}
+            icon={<FileXls size={16} />}
             loading={loading}
             onClick={() => handleExport('csv')}
           >
@@ -80,7 +80,7 @@ export default function RapportsPage() {
           </Button>
           <Button
             variant="danger"
-            icon={<FileText size={16} />}
+            icon={<FilePdf size={16} />}
             loading={loading}
             onClick={() => handleExport('pdf')}
           >
@@ -100,14 +100,14 @@ export default function RapportsPage() {
                 <div className={`w-8 h-8 rounded flex items-center justify-center flex-shrink-0 ${
                   doc.typeDocument === 'PDF' ? 'bg-red-bg text-red' : 'bg-green-bg text-green'
                 }`}>
-                  {doc.typeDocument === 'PDF' ? <FileText size={16} /> : <FileSpreadsheet size={16} />}
+                  {doc.typeDocument === 'PDF' ? <FilePdf size={16} /> : <FileXls size={16} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[13px] font-medium text-text truncate">{doc.fileName}</div>
                   <div className="text-[11px] text-text3 font-mono">{format(new Date(doc.dateCreation), 'dd/MM/yyyy à HH:mm')}</div>
                 </div>
                 <a href={documentService.downloadUrl(doc)} download>
-                  <Button variant="ghost" size="sm" icon={<Download size={14} />}>
+                  <Button variant="ghost" size="sm" icon={<DownloadSimple size={14} />}>
                     Télécharger
                   </Button>
                 </a>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Menu, Bell } from 'lucide-react'
+import { List, Bell } from '@phosphor-icons/react'
 import { useClock } from '../../hooks/useClock'
 import { useUiStore } from '../../store/ui.store'
 import { useNavigate } from 'react-router-dom'
@@ -22,7 +22,7 @@ export function Topbar({ title }: TopbarProps) {
         className="md:hidden w-8 h-8 flex items-center justify-center rounded-md text-text3 hover:bg-surface2"
         onClick={toggleSidebar}
       >
-        <Menu size={18} />
+        <List size={18} />
       </button>
 
       <span className="text-[16px] font-semibold text-text">{title}</span>

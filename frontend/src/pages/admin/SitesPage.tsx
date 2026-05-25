@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { PlusCircle, Pencil, Trash2, MapPin, Search } from 'lucide-react'
+import { PlusCircle, PencilSimple, Trash, MapPin, MagnifyingGlass } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
@@ -236,8 +236,8 @@ export default function SitesPage() {
                   </div>
                 </div>
                 <div className="flex gap-1.5">
-                  <Button variant="ghost" size="sm" icon={<Pencil size={13} />} onClick={() => openEdit(s)} />
-                  <Button variant="danger" size="sm" icon={<Trash2 size={13} />} onClick={() => handleDelete(s)} />
+                  <Button variant="ghost" size="sm" icon={<PencilSimple size={13} />} onClick={() => openEdit(s)} />
+                  <Button variant="danger" size="sm" icon={<Trash size={13} />} onClick={() => handleDelete(s)} />
                 </div>
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function SitesPage() {
               Rechercher une adresse
             </label>
             <div className="relative">
-              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text3" />
+              <MagnifyingGlass size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-text3" />
               <input
                 ref={autocompleteInputRef}
                 type="text"

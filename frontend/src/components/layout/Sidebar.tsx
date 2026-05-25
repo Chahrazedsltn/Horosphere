@@ -4,31 +4,31 @@ import { useAuthStore } from '../../store/auth.store'
 import { useUiStore } from '../../store/ui.store'
 import { authService } from '../../services/auth.service'
 import {
-  Home, Clock, ClipboardList, FolderOpen,
-  LayoutDashboard, ClipboardCheck, BarChart2,
-  Users, MapPin, Settings, LogOut,
-  type LucideIcon,
-} from 'lucide-react'
+  House, Clock, ClipboardText, FolderOpen,
+  SquaresFour, ClipboardCheck, ChartBar,
+  Users, MapPin, Gear, SignOut,
+  type Icon,
+} from '@phosphor-icons/react'
 
 interface NavItem {
-  icon: LucideIcon
+  icon: Icon
   label: string
   to: string
   roles?: string[]
 }
 
 const navItems: NavItem[] = [
-  { icon: Home,           label: 'Accueil',        to: '/dashboard'      },
-  { icon: Clock,          label: 'Mon Historique', to: '/historique'     },
-  { icon: ClipboardList,  label: 'Mes Demandes',   to: '/demandes'       },
-  { icon: FolderOpen,     label: 'Mes Documents',  to: '/documents'      },
+  { icon: House,         label: 'Accueil',        to: '/dashboard'      },
+  { icon: Clock,         label: 'Mon Historique', to: '/historique'     },
+  { icon: ClipboardText, label: 'Mes Demandes',   to: '/demandes'       },
+  { icon: FolderOpen,    label: 'Mes Documents',  to: '/documents'      },
   // RH
-  { icon: LayoutDashboard, label: 'Vue RH',        to: '/rh',            roles: ['RH', 'ADMIN'] },
-  { icon: ClipboardCheck,  label: 'Validation',    to: '/rh/validation', roles: ['RH', 'ADMIN'] },
-  { icon: BarChart2,       label: 'Rapports',      to: '/rh/rapports',   roles: ['RH', 'ADMIN'] },
+  { icon: SquaresFour,   label: 'Vue RH',         to: '/rh',            roles: ['RH', 'ADMIN'] },
+  { icon: ClipboardCheck,label: 'Validation',     to: '/rh/validation', roles: ['RH', 'ADMIN'] },
+  { icon: ChartBar,      label: 'Rapports',       to: '/rh/rapports',   roles: ['RH', 'ADMIN'] },
   // Admin
-  { icon: Users,   label: 'Utilisateurs',  to: '/admin/users', roles: ['ADMIN'] },
-  { icon: MapPin,  label: 'Sites & Zones', to: '/admin/sites', roles: ['ADMIN'] },
+  { icon: Users,  label: 'Utilisateurs',  to: '/admin/users', roles: ['ADMIN'] },
+  { icon: MapPin, label: 'Sites & Zones', to: '/admin/sites', roles: ['ADMIN'] },
 ]
 
 export function Sidebar() {
@@ -89,13 +89,13 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="p-2 border-t border-border">
-        <SidebarItem icon={Settings} label="Paramètres" to="/profil" />
+        <SidebarItem icon={Gear} label="Paramètres" to="/profil" />
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-2.5 px-3 py-2 mx-0 my-0.5 rounded-[7px] text-[13.5px] font-medium text-red hover:bg-red-bg transition-colors"
         >
           <span className="w-[18px] h-[18px] rounded-[5px] bg-surface2 grid place-items-center text-red">
-            <LogOut size={11} />
+            <SignOut size={11} />
           </span>
           Déconnexion
         </button>

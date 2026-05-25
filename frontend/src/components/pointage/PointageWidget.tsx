@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { LogIn, LogOut, Coffee, Play } from 'lucide-react'
+import { SignIn, SignOut, Coffee, Play } from '@phosphor-icons/react'
 import { Timer } from './Timer'
 import { GeoIndicator } from './GeoIndicator'
 import { useGeolocation } from '../../hooks/useGeolocation'
@@ -103,7 +103,7 @@ export function PointageWidget() {
             disabled={loading || geoLoading}
             className="h-[54px] rounded-[10px] border-2 border-green-border bg-green-bg text-green font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#D3EDDF] disabled:opacity-50"
           >
-            {loading ? <span className="w-5 h-5 border-2 border-green border-t-transparent rounded-full animate-spin" /> : <LogIn size={18} />}
+            {loading ? <span className="w-5 h-5 border-2 border-green border-t-transparent rounded-full animate-spin" /> : <SignIn size={18} />}
             Pointer l'arrivée
           </button>
         ) : isEnPause ? (
@@ -121,7 +121,7 @@ export function PointageWidget() {
               disabled={loading || geoLoading}
               className="h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#F0DEDE] disabled:opacity-50"
             >
-              {loading ? <span className="w-5 h-5 border-2 border-red border-t-transparent rounded-full animate-spin" /> : <LogOut size={18} />}
+              {loading ? <span className="w-5 h-5 border-2 border-red border-t-transparent rounded-full animate-spin" /> : <SignOut size={18} />}
               Pointer le départ
             </button>
           </>
@@ -132,7 +132,7 @@ export function PointageWidget() {
               disabled={loading || geoLoading}
               className="h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#F0DEDE] disabled:opacity-50"
             >
-              {loading ? <span className="w-5 h-5 border-2 border-red border-t-transparent rounded-full animate-spin" /> : <LogOut size={18} />}
+              {loading ? <span className="w-5 h-5 border-2 border-red border-t-transparent rounded-full animate-spin" /> : <SignOut size={18} />}
               Pointer le départ
             </button>
             <button

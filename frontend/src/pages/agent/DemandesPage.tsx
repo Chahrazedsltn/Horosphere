@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { PlusCircle } from 'lucide-react'
+import { PlusCircle } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { PlusCircle, Pencil, Trash2 } from 'lucide-react'
+import { PlusCircle, PencilSimple, Trash } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
@@ -79,8 +79,8 @@ export default function UsersPage() {
             { key: 'dateCreation', header: 'Depuis', render: (u) => u.dateCreation ? <span className="font-mono text-[12px]">{format(new Date(u.dateCreation), 'dd/MM/yyyy')}</span> : '—' },
             { key: 'actions', header: '', align: 'right', render: (u) => (
               <div className="flex gap-1.5 justify-end">
-                <Button variant="ghost" size="sm" icon={<Pencil size={13} />} onClick={() => openEdit(u)}>Modifier</Button>
-                <Button variant="danger" size="sm" icon={<Trash2 size={13} />} onClick={() => handleDelete(u)}>Sup.</Button>
+                <Button variant="ghost" size="sm" icon={<PencilSimple size={13} />} onClick={() => openEdit(u)}>Modifier</Button>
+                <Button variant="danger" size="sm" icon={<Trash size={13} />} onClick={() => handleDelete(u)}>Sup.</Button>
               </div>
             )},
           ]}

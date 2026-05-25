@@ -1,5 +1,5 @@
 import React from 'react'
-import { MapPin, AlertTriangle, Loader } from 'lucide-react'
+import { MapPin, Warning, SpinnerGap } from '@phosphor-icons/react'
 import type { GeoPosition } from '../../types'
 
 interface GeoIndicatorProps {
@@ -14,7 +14,7 @@ export function GeoIndicator({ position, loading, error, nearestSite, inZone }: 
   if (loading) {
     return (
       <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface2 text-text3 text-[13px]">
-        <Loader size={14} className="animate-spin" />
+        <SpinnerGap size={14} className="animate-spin" />
         Localisation en cours...
       </div>
     )
@@ -23,7 +23,7 @@ export function GeoIndicator({ position, loading, error, nearestSite, inZone }: 
   if (error) {
     return (
       <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-bg border border-amber-border text-amber text-[13px]">
-        <AlertTriangle size={14} />
+        <Warning size={14} />
         {error}
       </div>
     )
