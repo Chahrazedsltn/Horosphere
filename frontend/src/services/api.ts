@@ -11,7 +11,7 @@ const api = axios.create({
 // ─── Intercepteur requête : injecte le JWT ───────────────────────
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token')
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -26,7 +26,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
-      localStorage.removeItem('user')
+      sessionStorage.removeItem('token')
       window.location.href = '/login'
     }
     return Promise.reject(error)

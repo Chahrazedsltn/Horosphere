@@ -49,9 +49,8 @@ export default function LoginPage() {
 
     try {
       const res = await authService.login(email, password)
-      localStorage.setItem('token', res.token)
       const user = await authService.me()
-      setAuth(user, res.token)
+      setAuth(user, res.token, remember)
 
       if (user.role === 'ADMIN' || user.role === 'RH') {
         navigate('/rh')
