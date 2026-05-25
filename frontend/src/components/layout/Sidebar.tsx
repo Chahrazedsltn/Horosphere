@@ -88,7 +88,7 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="p-2 border-t border-border">
+      <div className="py-2 border-t border-border">
         <SidebarItem icon={Gear} label="Paramètres" to="/profil" />
         <button
           onClick={handleLogout}
