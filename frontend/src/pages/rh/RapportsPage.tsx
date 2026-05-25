@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FilePdf, FileXls, DownloadSimple } from '@phosphor-icons/react'
+import { FilePdf, FileXls, DownloadSimple, ChartBar, Folder } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input, Select } from '../../components/ui/Input'
@@ -44,7 +44,7 @@ export default function RapportsPage() {
   return (
     <div className="space-y-5">
       {/* Formulaire */}
-      <Card title="Générer un rapport" icon="📊">
+      <Card title="Générer un rapport" icon={<ChartBar size={14} />}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <Input
             label="Date début"
@@ -90,7 +90,7 @@ export default function RapportsPage() {
       </Card>
 
       {/* Documents générés */}
-      <Card title="Documents générés" icon="📁">
+      <Card title="Documents générés" icon={<Folder size={14} />}>
         {docs.length === 0 ? (
           <div className="text-center py-8 text-text3 text-[13px]">Aucun document généré.</div>
         ) : (

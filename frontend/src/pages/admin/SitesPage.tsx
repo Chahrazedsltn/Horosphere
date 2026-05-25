@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { PlusCircle, PencilSimple, Trash, MapPin, MagnifyingGlass } from '@phosphor-icons/react'
+import { PlusCircle, PencilSimple, Trash, MapPin, MagnifyingGlass, MapTrifold } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
@@ -201,7 +201,7 @@ export default function SitesPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         {/* Carte principale */}
-        <Card title="Carte des sites" icon="🗺">
+        <Card title="Carte des sites" icon={<MapTrifold size={14} />}>
           {import.meta.env.VITE_GOOGLE_MAPS_API_KEY ? (
             <div ref={mapRef} className="w-full h-[350px] rounded-md" />
           ) : (

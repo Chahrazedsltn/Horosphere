@@ -5,7 +5,7 @@ import { useUiStore } from '../../store/ui.store'
 import { authService } from '../../services/auth.service'
 import {
   House, Clock, ClipboardText, FolderOpen,
-  SquaresFour, ClipboardCheck, ChartBar,
+  SquaresFour, CheckSquare, ChartBar,
   Users, MapPin, Gear, SignOut,
   type Icon,
 } from '@phosphor-icons/react'
@@ -24,7 +24,7 @@ const navItems: NavItem[] = [
   { icon: FolderOpen,    label: 'Mes Documents',  to: '/documents'      },
   // RH
   { icon: SquaresFour,   label: 'Vue RH',         to: '/rh',            roles: ['RH', 'ADMIN'] },
-  { icon: ClipboardCheck,label: 'Validation',     to: '/rh/validation', roles: ['RH', 'ADMIN'] },
+  { icon: CheckSquare,   label: 'Validation',     to: '/rh/validation', roles: ['RH', 'ADMIN'] },
   { icon: ChartBar,      label: 'Rapports',       to: '/rh/rapports',   roles: ['RH', 'ADMIN'] },
   // Admin
   { icon: Users,  label: 'Utilisateurs',  to: '/admin/users', roles: ['ADMIN'] },

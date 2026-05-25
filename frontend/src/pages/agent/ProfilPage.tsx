@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { User, Lock } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
@@ -31,7 +32,7 @@ export default function ProfilPage() {
   return (
     <div className="max-w-2xl space-y-5">
       {/* Infos */}
-      <Card title="Informations personnelles" icon="👤">
+      <Card title="Informations personnelles" icon={<User size={14} />}>
         <div className="flex items-center gap-5 mb-5">
           <div className="w-[52px] h-[52px] rounded-full bg-accent-light border-2 border-accent-mid flex items-center justify-center text-[18px] font-bold text-accent">
             {initials}
@@ -57,7 +58,7 @@ export default function ProfilPage() {
       </Card>
 
       {/* Mot de passe */}
-      <Card title="Changer le mot de passe" icon="🔒">
+      <Card title="Changer le mot de passe" icon={<Lock size={14} />}>
         {msg && (
           <div className={`px-3 py-2 rounded-lg text-[13px] mb-4 border ${
             msg.type === 'success' ? 'bg-green-bg border-green-border text-green' : 'bg-red-bg border-red-border text-red'

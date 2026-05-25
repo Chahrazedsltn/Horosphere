@@ -1,4 +1,5 @@
 import React from 'react'
+import { Gear } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import ProfilPage from '../agent/ProfilPage'
 
@@ -6,7 +7,7 @@ export default function ParametresPage() {
   return (
     <div className="space-y-5">
       <ProfilPage />
-      <Card title="Informations système" icon="⚙">
+      <Card title="Informations système" icon={<Gear size={14} />}>
         <div className="grid grid-cols-2 gap-4 text-[13px]">
           <div>
             <div className="text-[11px] font-semibold text-text3 uppercase tracking-wide mb-1">Version</div>

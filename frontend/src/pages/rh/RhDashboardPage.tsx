@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Clock, Warning } from '@phosphor-icons/react'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { Table } from '../../components/ui/Table'
@@ -45,7 +46,7 @@ export default function RhDashboardPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         {/* Pointages du jour */}
-        <Card title="Pointages du jour" icon="◷">
+        <Card title="Pointages du jour" icon={<Clock size={14} />}>
           <Table
             columns={[
               { key: 'utilisateur', header: 'Employé', render: (p) => `${p.utilisateur?.prenom ?? ''} ${p.utilisateur?.nom ?? ''}` },
@@ -60,7 +61,7 @@ export default function RhDashboardPage() {
         </Card>
 
         {/* Anomalies récentes */}
-        <Card title="Anomalies récentes" icon="⚠">
+        <Card title="Anomalies récentes" icon={<Warning size={14} />}>
           <Table
             columns={[
               { key: 'utilisateur', header: 'Employé', render: (p) => `${p.utilisateur?.prenom ?? ''} ${p.utilisateur?.nom ?? ''}` },

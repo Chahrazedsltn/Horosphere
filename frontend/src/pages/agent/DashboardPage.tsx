@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { Clock, CalendarBlank } from '@phosphor-icons/react'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { PointageWidget } from '../../components/pointage/PointageWidget'
@@ -46,12 +47,12 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Pointage */}
-        <Card title="Pointage du jour" icon="◷">
+        <Card title="Pointage du jour" icon={<Clock size={14} />}>
           <PointageWidget />
         </Card>
 
         {/* Calendrier */}
-        <Card title={`${now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}`} icon="📅">
+        <Card title={`${now.toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}`} icon={<CalendarBlank size={14} />}>
           <MonthCalendar
             year={now.getFullYear()}
             month={now.getMonth()}
