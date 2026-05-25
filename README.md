@@ -51,8 +51,9 @@ docker compose exec api php bin/console doctrine:fixtures:load --no-interaction
 
 | Email | Mot de passe | Rôle |
 |-------|-------------|------|
-| admin@horosphere.fr | Admin1234! | ADMIN |
+| admin@horosphere.fr | admin@horosphere.fr  | ADMIN |
 | rh@horosphere.fr | Rh1234! | RH |
+
 | agent1@horosphere.fr | Agent1234! | AGENT |
 | agent2@horosphere.fr | Agent1234! | AGENT |
 | agent3@horosphere.fr | Agent1234! | AGENT |
