@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth.service'
 import { useAuthStore } from '../store/auth.store'
@@ -13,6 +13,34 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const { setAuth } = useAuthStore()
   const navigate = useNavigate()
+
+  const slides = [
+    {
+      title: 'Gérez vos présences,\nsimplement.',
+      desc: 'Pointage, absences et équipes\ndans une interface unifiée.',
+    },
+    {
+      title: 'Géofencing GPS\nen temps réel.',
+      desc: 'Validez automatiquement les pointages\nselon la localisation de vos agents.',
+    },
+    {
+      title: 'Rapports et exports\nen un clic.',
+      desc: 'Générez vos bilans RH en CSV ou PDF\net suivez les indicateurs clés.',
+    },
+  ]
+  const [slide, setSlide] = useState(0)
+  const [fading, setFading] = useState(false)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setFading(true)
+      setTimeout(() => {
+        setSlide(s => (s + 1) % slides.length)
+        setFading(false)
+      }, 300)
+    }, 4000)
+    return () => clearInterval(timer)
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,21 +97,32 @@ export default function LoginPage() {
           <span className="text-white font-bold text-[16px] tracking-tight">Horosphere</span>
         </div>
 
-        {/* Tagline */}
+        {/* Slides */}
         <div className="z-10">
-          <h2 className="text-white font-bold text-[26px] leading-snug mb-3">
-            Gérez vos présences,<br />simplement.
-          </h2>
-          <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.42)' }}>
-            Pointage, absences et équipes<br />dans une interface unifiée.
-          </p>
+          <div style={{ opacity: fading ? 0 : 1, transition: 'opacity 0.3s ease' }}>
+            <h2 className="text-white font-bold text-[26px] leading-snug mb-3" style={{ whiteSpace: 'pre-line' }}>
+              {slides[slide].title}
+            </h2>
+            <p className="text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.42)', whiteSpace: 'pre-line' }}>
+              {slides[slide].desc}
+            </p>
+          </div>
         </div>
 
-        {/* Dots */}
+        {/* Dots indicateurs */}
         <div className="flex items-center gap-1.5 z-10">
-          <div className="w-[6px] h-[6px] rounded-full bg-accent-mid" />
-          <div className="w-[6px] h-[6px] rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }} />
-          <div className="w-[6px] h-[6px] rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }} />
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => { setFading(true); setTimeout(() => { setSlide(i); setFading(false) }, 300) }}
+              className="rounded-full transition-all duration-300"
+              style={{
+                width: i === slide ? '18px' : '6px',
+                height: '6px',
+                background: i === slide ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.2)',
+              }}
+            />
+          ))}
         </div>
       </div>
 
