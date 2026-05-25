@@ -49,6 +49,7 @@ export default function LoginPage() {
 
     try {
       const res = await authService.login(email, password)
+      sessionStorage.setItem('token', res.token)
       const user = await authService.me()
       setAuth(user, res.token, remember)
 
