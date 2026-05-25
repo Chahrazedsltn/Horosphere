@@ -92,7 +92,7 @@ export function Sidebar() {
         <SidebarItem icon={Gear} label="Paramètres" to="/profil" />
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-2.5 px-3 py-2 mx-0 my-0.5 rounded-[7px] text-[13.5px] font-medium text-red hover:bg-red-bg transition-colors"
+          className="flex items-center gap-2.5 px-3 py-[9px] mx-2 my-0.5 rounded-[7px] text-[13.5px] font-medium text-red hover:bg-red-bg transition-colors"
         >
           <span className="w-[18px] h-[18px] rounded-[5px] bg-surface2 grid place-items-center text-red">
             <SignOut size={11} />
