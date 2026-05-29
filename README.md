@@ -1,5 +1,8 @@
 # Horosphere — Gestion des présences par géofencing GPS
 
+[![CI — Horosphere](https://github.com/Chahrazedsltn/Horosphere/actions/workflows/ci.yml/badge.svg)](https://github.com/Chahrazedsltn/Horosphere/actions/workflows/ci.yml)
+[![Tag](https://img.shields.io/github/v/tag/Chahrazedsltn/Horosphere?label=version&color=blue)](https://github.com/Chahrazedsltn/Horosphere/releases/tag/v0.5-beta)
+
 Application web full-stack de gestion des pointages et présences avec géofencing GPS.
 
 ## Stack technique

@@ -759,6 +759,124 @@ def build_pdf():
     pdf.set_draw_color(0, 0, 0)
     pdf.set_line_width(0.2)
 
+    # ── 7. BILAN D'AVANCEMENT ──────────────────────────────────────────────
+    pdf.add_page()
+    pdf.section_title("7. BILAN D'AVANCEMENT - FIN MAI 2026")
+
+    pdf.set_font("Helvetica", "", 9)
+    pdf.set_text_color(60, 60, 60)
+    pdf.multi_cell(0, 5,
+        "Ce bilan fait le point sur l'etat du projet a la fin du Jalon 5 (29/05/2026), "
+        "par rapport au planning initial prevu en janvier 2026.")
+    pdf.ln(3)
+
+    # Fonctionnalites terminees
+    pdf.subsection_title("7.1 - Fonctionnalites implementees et testees")
+    done = [
+        "Authentification JWT (login, logout, 'Rester connecte', reset mot de passe par email)",
+        "Gestion des utilisateurs : CRUD complet (Admin), liste et detail (RH)",
+        "Gestion des sites geographiques : CRUD avec rayon de geofencing configurable",
+        "Pointage GPS (arrivee / depart) avec verification geofencing (formule Haversine)",
+        "Detection d'anomalies : alerte automatique si pointage ouvert > 10h (worker Symfony)",
+        "Gestion des demandes : conge, correction, absence - workflow de validation RH",
+        "Exports CSV et PDF par periode et par employe (RH/Admin)",
+        "Systeme d'alertes : notifications in-app, marquer lu / tout lire",
+        "Tableau de bord statistiques (agent + RH/Admin)",
+        "Integration API Google Maps (carte interactive sur la page Sites)",
+        "3 espaces distincts : Agent, RH, Admin avec permissions RBAC",
+        "Interface responsive (desktop + mobile) avec charte graphique coherente",
+        "CI/CD : GitHub Actions (tests PHPUnit + build frontend + build Docker)",
+        "Deploiement : Docker Compose complet (API, frontend, MariaDB, Nginx, Mailpit)",
+    ]
+    for item in done:
+        pdf.set_x(18)
+        pdf.set_font("Helvetica", "B", 8.5)
+        pdf.set_text_color(0, 150, 80)
+        pdf.cell(8, 5, "[OK]", ln=False)
+        pdf.set_font("Helvetica", "", 8.5)
+        pdf.set_text_color(40, 40, 40)
+        pdf.multi_cell(0, 5, item)
+
+    pdf.ln(3)
+
+    # Points restants pour juin
+    pdf.subsection_title("7.2 - Points a finaliser pour le Jalon 6 (juin 2026)")
+    todo = [
+        ("Validation server-side XSS",      "Ajouter strip_tags / Assert sur champs prenom/nom"),
+        ("Endpoints RGPD",                   "Implenter export donnees personnelles + suppression compte"),
+        ("Couverture tests AuthController",  "Passer de 17 % a 60 %+ (reset mdp, logout, refresh)"),
+        ("Audit dependances",               "Lancer composer audit + npm audit, corriger si CVE critique"),
+        ("Documentation finale (Jalon 6)",  "Consolider tous les chapitres du rapport final PDF"),
+        ("Deploiement production",           "Documenter la procedure de mise en prod (Docker Hub / VPS)"),
+    ]
+    pdf.set_font("Helvetica", "B", 8.5)
+    pdf.set_fill_color(255, 245, 225)
+    pdf.set_draw_color(200, 150, 50)
+    pdf.set_line_width(0.3)
+    pdf.set_x(18)
+    pdf.cell(60, 5.5, "Tache", fill=True, ln=False)
+    pdf.cell(0,  5.5, "Detail", fill=True, ln=True)
+    pdf.set_line_width(0.2)
+    for i, (tache, detail) in enumerate(todo):
+        pdf.set_fill_color(255, 252, 240) if i % 2 == 0 else pdf.set_fill_color(255, 255, 255)
+        pdf.set_x(18)
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_text_color(180, 100, 0)
+        pdf.cell(6, 5, "->", fill=True, ln=False)
+        pdf.set_font("Helvetica", "", 8)
+        pdf.set_text_color(40, 40, 40)
+        pdf.cell(54, 5, tache, fill=True, ln=False)
+        pdf.set_text_color(80, 80, 80)
+        pdf.cell(0,  5, detail, fill=True, ln=True)
+
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_draw_color(0, 0, 0)
+    pdf.ln(4)
+
+    # Planning
+    pdf.subsection_title("7.3 - Respect du planning")
+    planning_rows = [
+        ("Jalon 1 - Janv.", "CDCF",                    "Livre",  True),
+        ("Jalon 2 - Fev.",  "Methodologie + UX/UI",    "Livre",  True),
+        ("Jalon 3 - Mars",  "Modelisation BDD (MERISE)","Livre",  True),
+        ("Jalon 4 - Avr.",  "Architecture UML + dev",  "Livre",  True),
+        ("Jalon 5 - Mai",   "Beta + tests + securite",  "Livre",  True),
+        ("Jalon 6 - Juin",  "Prod + documentation finale","En cours", False),
+    ]
+    for jalon, contenu, statut, ok in planning_rows:
+        pdf.set_x(18)
+        pdf.set_font("Helvetica", "B", 8.5)
+        if ok:
+            pdf.set_text_color(0, 150, 80)
+            icon = "[OK]"
+        else:
+            pdf.set_text_color(0, 100, 180)
+            icon = "[->]"
+        pdf.cell(10, 5.5, icon, ln=False)
+        pdf.set_font("Helvetica", "B", 8.5)
+        pdf.set_text_color(15, 30, 60)
+        pdf.cell(28, 5.5, jalon, ln=False)
+        pdf.set_font("Helvetica", "", 8.5)
+        pdf.set_text_color(60, 60, 60)
+        pdf.cell(80, 5.5, contenu, ln=False)
+        if ok:
+            pdf.set_text_color(0, 150, 80)
+        else:
+            pdf.set_text_color(0, 100, 180)
+        pdf.set_font("Helvetica", "B", 8.5)
+        pdf.cell(0, 5.5, statut, ln=True)
+
+    pdf.ln(4)
+    pdf.set_font("Helvetica", "I", 8.5)
+    pdf.set_text_color(80, 80, 80)
+    pdf.multi_cell(0, 5,
+        "Conclusion : Le projet est en avance sur le planning initial. Toutes les "
+        "fonctionnalites principales sont implementees et testees a ce stade. "
+        "Le Jalon 6 sera consacre aux finitions (RGPD, couverture de tests, documentation finale) "
+        "et a la preparation de la soutenance.")
+
+    pdf.set_text_color(0, 0, 0)
+
     return pdf
 
 
