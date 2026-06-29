@@ -11,8 +11,15 @@ export default function LoginPage() {
   const [remember, setRemember] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const { setAuth } = useAuthStore()
+  const { setAuth, isAuthenticated, user } = useAuthStore()
   const navigate = useNavigate()
+
+  // Rediriger si déjà connecté
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(user.role === 'ADMIN' || user.role === 'RH' ? '/rh' : '/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, user, navigate])
 
   const slides = [
     {
@@ -179,9 +186,8 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <label className="flex items-center gap-2.5 cursor-pointer -mt-1">
+            <label onClick={() => setRemember(!remember)} className="flex items-center gap-2.5 cursor-pointer -mt-1">
               <div
-                onClick={() => setRemember(!remember)}
                 className={`w-4 h-4 rounded border-[1.5px] flex items-center justify-center transition-colors flex-shrink-0 ${
                   remember ? 'bg-accent border-accent' : 'bg-surface border-border2'
                 }`}
