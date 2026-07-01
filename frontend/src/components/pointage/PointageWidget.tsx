@@ -97,54 +97,46 @@ export function PointageWidget() {
 
       {/* Boutons */}
       <div className="flex flex-col gap-2.5">
-        {!isEnCours && !isEnPause ? (
+        {/* Arrivée / Reprise */}
+        {isEnPause ? (
           <button
-            onClick={handleArriver}
-            disabled={loading || geoLoading}
+            onClick={handleReprise}
+            disabled={loading}
             className="h-[54px] rounded-[10px] border-2 border-green-border bg-green-bg text-green font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#D3EDDF] disabled:opacity-50"
           >
-            {loading ? <span className="w-5 h-5 border-2 border-green border-t-transparent rounded-full animate-spin" /> : <SignIn size={18} />}
+            {loading ? <span className="w-5 h-5 border-2 border-green border-t-transparent rounded-full animate-spin" /> : <Play size={18} />}
+            Reprendre le travail
+          </button>
+        ) : (
+          <button
+            onClick={handleArriver}
+            disabled={loading || geoLoading || isEnCours}
+            className={`h-[54px] rounded-[10px] border-2 border-green-border bg-green-bg text-green font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#D3EDDF] disabled:opacity-50 ${isEnCours ? 'disabled:cursor-not-allowed' : ''}`}
+          >
+            {loading && !isEnCours ? <span className="w-5 h-5 border-2 border-green border-t-transparent rounded-full animate-spin" /> : <SignIn size={18} />}
             Pointer l'arrivée
           </button>
-        ) : isEnPause ? (
-          <>
-            <button
-              onClick={handleReprise}
-              disabled={loading}
-              className="h-[54px] rounded-[10px] border-2 border-green-border bg-green-bg text-green font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#D3EDDF] disabled:opacity-50"
-            >
-              {loading ? <span className="w-5 h-5 border-2 border-green border-t-transparent rounded-full animate-spin" /> : <Play size={18} />}
-              Reprendre le travail
-            </button>
-            <button
-              onClick={handlePartir}
-              disabled={loading || geoLoading}
-              className="h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#F0DEDE] disabled:opacity-50"
-            >
-              {loading ? <span className="w-5 h-5 border-2 border-red border-t-transparent rounded-full animate-spin" /> : <SignOut size={18} />}
-              Pointer le départ
-            </button>
-          </>
-        ) : (
-          <>
-            <button
-              onClick={handlePartir}
-              disabled={loading || geoLoading}
-              className="h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#F0DEDE] disabled:opacity-50"
-            >
-              {loading ? <span className="w-5 h-5 border-2 border-red border-t-transparent rounded-full animate-spin" /> : <SignOut size={18} />}
-              Pointer le départ
-            </button>
-            <button
-              onClick={handlePause}
-              disabled={loading}
-              className="h-[54px] rounded-[10px] border-2 border-amber-border bg-amber-bg text-amber font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#EDE4D2] disabled:opacity-50"
-            >
-              {loading ? <span className="w-5 h-5 border-2 border-amber border-t-transparent rounded-full animate-spin" /> : <Coffee size={18} />}
-              Prendre une pause
-            </button>
-          </>
         )}
+
+        {/* Pause */}
+        <button
+          onClick={handlePause}
+          disabled={loading || !isEnCours}
+          className={`h-[54px] rounded-[10px] border-2 border-amber-border bg-amber-bg text-amber font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#EDE4D2] disabled:opacity-50 ${!isEnCours ? 'disabled:cursor-not-allowed' : ''}`}
+        >
+          {loading && isEnCours ? <span className="w-5 h-5 border-2 border-amber border-t-transparent rounded-full animate-spin" /> : <Coffee size={18} />}
+          Prendre une pause
+        </button>
+
+        {/* Départ */}
+        <button
+          onClick={handlePartir}
+          disabled={loading || geoLoading || (!isEnCours && !isEnPause)}
+          className={`h-[54px] rounded-[10px] border-2 border-red-border bg-red-bg text-red font-bold text-[14px] flex items-center justify-center gap-2.5 transition-all hover:bg-[#F0DEDE] disabled:opacity-50 ${!isEnCours && !isEnPause ? 'disabled:cursor-not-allowed' : ''}`}
+        >
+          <SignOut size={18} />
+          Pointer le départ
+        </button>
       </div>
 
       {error && (
