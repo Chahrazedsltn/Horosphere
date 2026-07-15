@@ -31,6 +31,7 @@ export default function DemandesPage() {
     try {
       const d = await demandeService.creer(form)
       setDemandes((prev) => [d, ...prev])
+      setError(null)
       setModalOpen(false)
       setForm({ type_demande: 'CONGE', date_debut: '', date_fin: '', motif: '' })
     } catch {

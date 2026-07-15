@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useId } from 'react'
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string
@@ -6,15 +6,22 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   wrapperClass?: string
 }
 
-export function Input({ label, error, wrapperClass = '', className = '', ...props }: InputProps) {
+export function Input({ label, error, wrapperClass = '', className = '', id: externalId, ...props }: InputProps) {
+  const generatedId = useId()
+  const inputId = externalId ?? generatedId
+  const errorId = error ? `${inputId}-error` : undefined
+
   return (
     <div className={`mb-3.5 ${wrapperClass}`}>
       {label && (
-        <label className="block text-[12px] font-semibold text-text2 mb-1.5">
+        <label htmlFor={inputId} className="block text-[12px] font-semibold text-text2 mb-1.5">
           {label}
         </label>
       )}
       <input
+        id={inputId}
+        aria-describedby={errorId}
+        aria-invalid={error ? true : undefined}
         className={`
           w-full h-10 bg-surface border-[1.5px] rounded-md px-3.5
           text-[13.5px] text-text font-sans outline-none
@@ -26,7 +33,7 @@ export function Input({ label, error, wrapperClass = '', className = '', ...prop
         `}
         {...props}
       />
-      {error && <p className="text-[11px] text-red mt-1">{error}</p>}
+      {error && <p id={errorId} className="text-[11px] text-red mt-1">{error}</p>}
     </div>
   )
 }

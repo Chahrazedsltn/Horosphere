@@ -11,7 +11,9 @@ class PdfGeneratorService
     {
         $dir = dirname($filepath);
         if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+            if (!mkdir($dir, 0755, true) && !is_dir($dir)) {
+                throw new \RuntimeException(sprintf('Impossible de créer le répertoire "%s".', $dir));
+            }
         }
 
         $options = new Options();

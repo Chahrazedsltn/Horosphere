@@ -152,14 +152,22 @@ class DemandeController extends AbstractController
         $filename = sprintf('doc_%s_%s_%d.pdf', $typeDoc, date('Ymd_His'), $demande->getId());
         $filepath = $this->exportsDir . '/' . $filename;
 
-        $this->pdfGenerator->generateFromHtml($html, $filepath);
+        try {
+            $this->pdfGenerator->generateFromHtml($html, $filepath);
 
-        $document = new Document();
-        $document->setUtilisateur($employe);
-        $document->setTypeDocument(Document::TYPE_PDF);
-        $document->setCheminFichier($filepath);
-        $this->em->persist($document);
-        $this->em->flush();
+            $document = new Document();
+            $document->setUtilisateur($employe);
+            $document->setTypeDocument(Document::TYPE_PDF);
+            $document->setCheminFichier($filepath);
+            $this->em->persist($document);
+            $this->em->flush();
+        } catch (\Throwable $e) {
+            if (file_exists($filepath)) {
+                unlink($filepath);
+            }
+
+            return $this->json(['message' => 'Erreur lors de la génération du document.'], 500);
+        }
 
         return $this->json([
             'data' => [

@@ -44,7 +44,7 @@ export function PointageWidget() {
 
   const handlePartir = async () => {
     if (!position) { refresh(); return }
-    setLoading(true); setError(null)
+    setLoading(true); setError(null); setAvertissement(null)
     try {
       await pointageService.partir(position.latitude, position.longitude)
       setPointageEnCours(null)

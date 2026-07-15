@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
 import type { User } from '../types'
 
 // ─── Lecture synchrone du state persisté ────────────────────────
@@ -36,35 +37,44 @@ function persistState(state: Pick<AuthState, 'user' | 'token' | 'isAuthenticated
   }
 }
 
-export const useAuthStore = create<AuthState>()((set, get) => ({
-  user: persisted?.user ?? null,
-  token: persisted?.token ?? null,
-  isAuthenticated: persisted?.isAuthenticated ?? false,
-  remember: persisted?.remember ?? false,
+export const useAuthStore = create<AuthState>()(
+  devtools(
+    (set, get) => ({
+      user: persisted?.user ?? null,
+      token: persisted?.token ?? null,
+      isAuthenticated: persisted?.isAuthenticated ?? false,
+      remember: persisted?.remember ?? false,
 
-  setAuth: (user, token, remember = true) => {
-    if (remember) {
-      localStorage.setItem('token', token)
-      sessionStorage.removeItem('token')
-    } else {
-      sessionStorage.setItem('token', token)
-      localStorage.removeItem('token')
-    }
-    set({ user, token, isAuthenticated: true, remember })
-    persistState({ user, token, isAuthenticated: true, remember })
-  },
+      setAuth: (user, token, remember = true) => {
+        if (remember) {
+          localStorage.setItem('token', token)
+          sessionStorage.removeItem('token')
+        } else {
+          sessionStorage.setItem('token', token)
+          localStorage.removeItem('token')
+        }
+        set({ user, token, isAuthenticated: true, remember })
+        persistState({ user, token, isAuthenticated: true, remember })
+      },
 
-  logout: () => {
-    localStorage.removeItem('token')
-    sessionStorage.removeItem('token')
-    localStorage.removeItem('horosphere-auth')
-    sessionStorage.removeItem('horosphere-auth')
-    set({ user: null, token: null, isAuthenticated: false, remember: false })
-  },
+      logout: () => {
+        localStorage.removeItem('token')
+        sessionStorage.removeItem('token')
+        localStorage.removeItem('horosphere-auth')
+        sessionStorage.removeItem('horosphere-auth')
+        set({ user: null, token: null, isAuthenticated: false, remember: false })
+      },
 
-  updateUser: (user) => {
-    set({ user })
-    const s = get()
-    persistState({ user, token: s.token, isAuthenticated: s.isAuthenticated, remember: s.remember })
-  },
-}))
+      updateUser: (user) => {
+        set({ user })
+        const s = get()
+        persistState({ user, token: s.token, isAuthenticated: s.isAuthenticated, remember: s.remember })
+      },
+    }),
+    {
+      name: 'auth-store',
+      // Exclude token from DevTools serialization for security
+      serialize: { replacer: (key: string, value: unknown) => (key === 'token' ? '***' : value) },
+    },
+  ),
+)

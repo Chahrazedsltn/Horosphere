@@ -26,7 +26,7 @@ class AuditService
         $entry = new AuditLog(
             action: $action,
             utilisateurId: $acteur?->getId(),
-            utilisateurEmail: $acteur?->getEmail(),
+            utilisateurEmail: self::maskEmail($acteur?->getEmail()),
             cibleType: $cibleType,
             cibleId: $cibleId,
             details: $details,
@@ -34,5 +34,26 @@ class AuditService
         );
 
         $this->auditLogRepository->save($entry);
+    }
+
+    /**
+     * Masque un email pour le stockage en audit : "adm***@horosphere.fr"
+     */
+    public static function maskEmail(?string $email): ?string
+    {
+        if (null === $email || '' === $email) {
+            return $email;
+        }
+
+        $parts = explode('@', $email, 2);
+        if (count($parts) !== 2) {
+            return '***';
+        }
+
+        $local = $parts[0];
+        $domain = $parts[1];
+        $visible = min(3, strlen($local));
+
+        return substr($local, 0, $visible) . '***@' . $domain;
     }
 }

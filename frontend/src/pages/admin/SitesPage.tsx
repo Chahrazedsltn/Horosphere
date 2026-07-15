@@ -24,6 +24,7 @@ export default function SitesPage() {
   const [editing, setEditing] = useState<Site | null>(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState<Site | null>(null)
 
   // Carte principale
   const mapRef = useRef<HTMLDivElement>(null)
@@ -79,6 +80,11 @@ export default function SitesPage() {
         circlesRef.current.push(circle)
       })
     }).catch(console.error)
+
+    return () => {
+      circlesRef.current.forEach((c) => c.setMap(null))
+      circlesRef.current = []
+    }
   }, [sites])
 
   // Mini-carte dans le modal
@@ -185,10 +191,11 @@ export default function SitesPage() {
     } finally { setSaving(false) }
   }
 
-  const handleDelete = async (s: Site) => {
-    if (!confirm(`Supprimer le site "${s.nom}" ?`)) return
-    await siteService.supprimer(s.id)
-    setSites((prev) => prev.filter((x) => x.id !== s.id))
+  const handleDelete = async () => {
+    if (!deleteConfirm) return
+    await siteService.supprimer(deleteConfirm.id)
+    setSites((prev) => prev.filter((x) => x.id !== deleteConfirm.id))
+    setDeleteConfirm(null)
   }
 
   if (loading) return <LoadingSpinner />
@@ -237,7 +244,7 @@ export default function SitesPage() {
                 </div>
                 <div className="flex gap-1.5">
                   <Button variant="ghost" size="sm" icon={<PencilSimple size={13} />} onClick={() => openEdit(s)} />
-                  <Button variant="danger" size="sm" icon={<Trash size={13} />} onClick={() => handleDelete(s)} />
+                  <Button variant="danger" size="sm" icon={<Trash size={13} />} onClick={() => setDeleteConfirm(s)} />
                 </div>
               </div>
             </div>
@@ -329,6 +336,23 @@ export default function SitesPage() {
           </div>
           <span className="text-[13px] text-text2">Géofencing actif</span>
         </label>
+      </Modal>
+
+      <Modal
+        open={deleteConfirm !== null}
+        onClose={() => setDeleteConfirm(null)}
+        title="Confirmer la suppression"
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>Annuler</Button>
+            <Button variant="danger" onClick={handleDelete}>Supprimer</Button>
+          </>
+        }
+      >
+        <p className="text-[13px] text-text2">
+          Êtes-vous sûr de vouloir supprimer ce site ?
+        </p>
       </Modal>
     </div>
   )

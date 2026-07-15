@@ -10,10 +10,12 @@ export function useNotifications(): void {
   useEffect(() => {
     if (!isAuthenticated) return
 
+    let active = true
+
     const fetchCount = async () => {
       try {
         const { non_lues } = await alerteService.mesAlertes()
-        setAlertesNonLues(non_lues)
+        if (active) setAlertesNonLues(non_lues)
       } catch {
         // Silencieux
       }
@@ -21,6 +23,9 @@ export function useNotifications(): void {
 
     fetchCount()
     const interval = setInterval(fetchCount, 60_000) // Polling toutes les minutes
-    return () => clearInterval(interval)
+    return () => {
+      active = false
+      clearInterval(interval)
+    }
   }, [isAuthenticated, setAlertesNonLues])
 }

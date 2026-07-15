@@ -20,6 +20,7 @@ export default function UsersPage() {
   const [editing, setEditing] = useState<User | null>(null)
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
+  const [deleteConfirm, setDeleteConfirm] = useState<User | null>(null)
 
   useEffect(() => {
     userService.liste().then(setUsers).finally(() => setLoading(false))
@@ -46,10 +47,11 @@ export default function UsersPage() {
     } finally { setSaving(false) }
   }
 
-  const handleDelete = async (u: User) => {
-    if (!confirm(`Supprimer ${u.prenom} ${u.nom} ?`)) return
-    await userService.supprimer(u.id)
-    setUsers((prev) => prev.filter((x) => x.id !== u.id))
+  const handleDelete = async () => {
+    if (!deleteConfirm) return
+    await userService.supprimer(deleteConfirm.id)
+    setUsers((prev) => prev.filter((x) => x.id !== deleteConfirm.id))
+    setDeleteConfirm(null)
   }
 
   if (loading) return <LoadingSpinner />
@@ -80,7 +82,7 @@ export default function UsersPage() {
             { key: 'actions', header: '', align: 'right', render: (u) => (
               <div className="flex gap-1.5 justify-end">
                 <Button variant="ghost" size="sm" icon={<PencilSimple size={13} />} onClick={() => openEdit(u)}>Modifier</Button>
-                <Button variant="danger" size="sm" icon={<Trash size={13} />} onClick={() => handleDelete(u)}>Sup.</Button>
+                <Button variant="danger" size="sm" icon={<Trash size={13} />} onClick={() => setDeleteConfirm(u)}>Sup.</Button>
               </div>
             )},
           ]}
@@ -115,6 +117,23 @@ export default function UsersPage() {
           </Select>
           <Input label="Département" value={form.departement} onChange={(e) => setForm({ ...form, departement: e.target.value })} />
         </div>
+      </Modal>
+
+      <Modal
+        open={deleteConfirm !== null}
+        onClose={() => setDeleteConfirm(null)}
+        title="Confirmer la suppression"
+        size="sm"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setDeleteConfirm(null)}>Annuler</Button>
+            <Button variant="danger" onClick={handleDelete}>Supprimer</Button>
+          </>
+        }
+      >
+        <p className="text-[13px] text-text2">
+          Êtes-vous sûr de vouloir supprimer cet utilisateur ?
+        </p>
       </Modal>
     </div>
   )

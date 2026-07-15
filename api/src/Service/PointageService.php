@@ -129,7 +129,7 @@ class PointageService
 
         $pauseDebut = $pointage->getHeurePauseDebut();
         if (null !== $pauseDebut) {
-            $dureeMinutes = (int) ((new \DateTime())->getTimestamp() - $pauseDebut->getTimestamp()) / 60;
+            $dureeMinutes = (int) (((new \DateTime())->getTimestamp() - $pauseDebut->getTimestamp()) / 60);
             $pointage->setDureesPauseMinutes($pointage->getDureesPauseMinutes() + $dureeMinutes);
         }
 
