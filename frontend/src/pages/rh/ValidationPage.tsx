@@ -16,6 +16,7 @@ export default function ValidationPage() {
   const [generating, setGenerating] = useState<number | null>(null)
   const [filter, setFilter] = useState('ALL')
   const [docSuccess, setDocSuccess] = useState<{ id: number; url: string } | null>(null)
+  const [docError, setDocError] = useState<number | null>(null)
 
   useEffect(() => {
     demandeService.liste()
@@ -33,12 +34,14 @@ export default function ValidationPage() {
 
   const handleGenDoc = async (demande: Demande, typeDoc: string) => {
     setGenerating(demande.id)
+    setDocError(null)
     try {
       const doc = await demandeService.genererDocument(demande.id, typeDoc)
       setDocSuccess({ id: demande.id, url: doc.downloadUrl })
       setTimeout(() => setDocSuccess(null), 8000)
     } catch {
-      // silently fail
+      setDocError(demande.id)
+      setTimeout(() => setDocError(null), 5000)
     } finally {
       setGenerating(null)
     }
@@ -115,6 +118,13 @@ export default function ValidationPage() {
                     >
                       <DownloadSimple size={13} /> Télécharger
                     </button>
+                  </div>
+                )}
+
+                {docError === d.id && (
+                  <div className="mt-2 px-3 py-2 rounded-lg bg-red-bg border border-red-border text-red text-[12px] flex items-center gap-2">
+                    <XCircle size={14} weight="bold" />
+                    Erreur lors de la génération du document.
                   </div>
                 )}
 

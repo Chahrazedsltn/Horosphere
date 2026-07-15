@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const { user, logout } = useAuthStore()
-  const { sidebarOpen } = useUiStore()
+  const { sidebarOpen, setSidebarOpen } = useUiStore()
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -83,26 +83,26 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-3 px-2">
         <SidebarSection label="Navigation" />
-        {agentItems.map((item) => <SidebarItem key={item.to} {...item} />)}
+        {agentItems.map((item) => <SidebarItem key={item.to} {...item} onNavigate={() => setSidebarOpen(false)} />)}
 
         {(user?.role === 'RH' || user?.role === 'ADMIN') && (
           <>
             <SidebarSection label="Espace RH" />
-            {rhItems.map((item) => <SidebarItem key={item.to} {...item} />)}
+            {rhItems.map((item) => <SidebarItem key={item.to} {...item} onNavigate={() => setSidebarOpen(false)} />)}
           </>
         )}
 
         {user?.role === 'ADMIN' && (
           <>
             <SidebarSection label="Administration" />
-            {adminItems.map((item) => <SidebarItem key={item.to} {...item} />)}
+            {adminItems.map((item) => <SidebarItem key={item.to} {...item} onNavigate={() => setSidebarOpen(false)} />)}
           </>
         )}
       </nav>
 
       {/* Footer */}
       <div className="px-2 py-3" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-        <SidebarItem icon={Gear} label="Paramètres" to="/admin/params" />
+        <SidebarItem icon={Gear} label="Paramètres" to="/admin/params" onNavigate={() => setSidebarOpen(false)} />
 
         <button
           onClick={handleLogout}
@@ -162,9 +162,9 @@ function SidebarSection({ label }: { label: string }) {
   )
 }
 
-function SidebarItem({ icon: Icon, label, to }: NavItem) {
+function SidebarItem({ icon: Icon, label, to, onNavigate }: NavItem & { onNavigate?: () => void }) {
   return (
-    <NavLink to={to}>
+    <NavLink to={to} onClick={onNavigate}>
       {({ isActive }) => (
         <div
           className="flex items-center gap-2.5 px-3 py-2 my-0.5 rounded-lg text-[13px] font-medium transition-all duration-150 cursor-pointer"

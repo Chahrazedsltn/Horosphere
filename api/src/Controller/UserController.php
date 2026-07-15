@@ -40,21 +40,11 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'detail', methods: ['GET'])]
-    #[IsGranted('ROLE_RH')]
-    public function detail(User $user): JsonResponse
-    {
-        return $this->json([
-            'data'    => $this->serializeUser($user),
-            'message' => 'OK',
-        ]);
-    }
-
     #[Route('', name: 'creer', methods: ['POST'])]
     #[IsGranted('ROLE_ADMIN')]
     public function creer(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true) ?? [];
 
         if (!isset($data['email'], $data['password'], $data['prenom'], $data['nom'])) {
             return $this->json(['message' => 'Champs obligatoires : email, password, prenom, nom.'], 422);
@@ -77,68 +67,6 @@ class UserController extends AbstractController
             'data'    => $this->serializeUser($user),
             'message' => 'Utilisateur créé.',
         ], 201);
-    }
-
-    #[Route('/{id}', name: 'modifier', methods: ['PUT', 'PATCH'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function modifier(User $user, Request $request): JsonResponse
-    {
-        $data = json_decode($request->getContent(), true);
-        $this->hydrateUser($user, $data);
-
-        if (isset($data['password']) && !empty($data['password'])) {
-            $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
-            $user->setMotDePasse($hashedPassword);
-        }
-
-        $this->em->flush();
-
-        return $this->json([
-            'data'    => $this->serializeUser($user),
-            'message' => 'Utilisateur mis à jour.',
-        ]);
-    }
-
-    #[Route('/{id}', name: 'supprimer', methods: ['DELETE'])]
-    #[IsGranted('ROLE_ADMIN')]
-    public function supprimer(User $user, #[CurrentUser] User $currentUser): JsonResponse
-    {
-        if ($user->getId() === $currentUser->getId()) {
-            return $this->json(['message' => 'Impossible de supprimer votre propre compte.'], 422);
-        }
-
-        $this->userRepository->remove($user);
-
-        return $this->json(['message' => 'Utilisateur supprimé.']);
-    }
-
-    #[Route('/{id}/password', name: 'changer_mot_de_passe', methods: ['PUT'])]
-    public function changerMotDePasse(User $user, Request $request, #[CurrentUser] User $currentUser): JsonResponse
-    {
-        if ($user->getId() !== $currentUser->getId()) {
-            return $this->json(['message' => 'Vous ne pouvez modifier que votre propre mot de passe.'], 403);
-        }
-
-        $data = json_decode($request->getContent(), true) ?? [];
-        $currentPassword = (string) ($data['current_password'] ?? '');
-        $newPassword     = (string) ($data['new_password'] ?? '');
-
-        if ('' === $currentPassword || '' === $newPassword) {
-            return $this->json(['message' => 'Mot de passe actuel et nouveau mot de passe requis.'], 422);
-        }
-
-        if (!$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
-            return $this->json(['message' => 'Mot de passe actuel incorrect.'], 422);
-        }
-
-        if (strlen($newPassword) < 8) {
-            return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.'], 422);
-        }
-
-        $user->setMotDePasse($this->passwordHasher->hashPassword($user, $newPassword));
-        $this->em->flush();
-
-        return $this->json(['message' => 'Mot de passe mis à jour avec succès.']);
     }
 
     #[Route('/stats/dashboard', name: 'stats_dashboard', methods: ['GET'])]
@@ -168,8 +96,16 @@ class UserController extends AbstractController
     #[IsGranted('ROLE_RH')]
     public function statsEmployes(Request $request): JsonResponse
     {
-        $mois  = $request->query->get('mois', (int) date('m'));
-        $annee = $request->query->get('annee', (int) date('Y'));
+        $mois  = (int) $request->query->get('mois', (int) date('m'));
+        $annee = (int) $request->query->get('annee', (int) date('Y'));
+
+        if ($mois < 1 || $mois > 12) {
+            return $this->json(['message' => 'Mois invalide (1-12).'], 422);
+        }
+
+        if ($annee < 2000 || $annee > 2100) {
+            return $this->json(['message' => 'Année invalide (2000-2100).'], 422);
+        }
 
         $debut = new \DateTime(sprintf('%d-%02d-01', $annee, $mois));
         $fin   = (clone $debut)->modify('last day of this month');
@@ -217,12 +153,89 @@ class UserController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/password', name: 'changer_mot_de_passe', methods: ['PUT'])]
+    public function changerMotDePasse(User $user, Request $request, #[CurrentUser] User $currentUser): JsonResponse
+    {
+        if ($user->getId() !== $currentUser->getId()) {
+            return $this->json(['message' => 'Vous ne pouvez modifier que votre propre mot de passe.'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true) ?? [];
+        $currentPassword = (string) ($data['current_password'] ?? '');
+        $newPassword     = (string) ($data['new_password'] ?? '');
+
+        if ('' === $currentPassword || '' === $newPassword) {
+            return $this->json(['message' => 'Mot de passe actuel et nouveau mot de passe requis.'], 422);
+        }
+
+        if (!$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
+            return $this->json(['message' => 'Mot de passe actuel incorrect.'], 422);
+        }
+
+        if (strlen($newPassword) < 8) {
+            return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.'], 422);
+        }
+
+        $user->setMotDePasse($this->passwordHasher->hashPassword($user, $newPassword));
+        $this->em->flush();
+
+        return $this->json(['message' => 'Mot de passe mis à jour avec succès.']);
+    }
+
+    #[Route('/{id}', name: 'detail', methods: ['GET'])]
+    #[IsGranted('ROLE_RH')]
+    public function detail(User $user): JsonResponse
+    {
+        return $this->json([
+            'data'    => $this->serializeUser($user),
+            'message' => 'OK',
+        ]);
+    }
+
+    #[Route('/{id}', name: 'modifier', methods: ['PUT', 'PATCH'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function modifier(User $user, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $this->hydrateUser($user, $data);
+
+        if (isset($data['password']) && !empty($data['password'])) {
+            $hashedPassword = $this->passwordHasher->hashPassword($user, $data['password']);
+            $user->setMotDePasse($hashedPassword);
+        }
+
+        $this->em->flush();
+
+        return $this->json([
+            'data'    => $this->serializeUser($user),
+            'message' => 'Utilisateur mis à jour.',
+        ]);
+    }
+
+    #[Route('/{id}', name: 'supprimer', methods: ['DELETE'])]
+    #[IsGranted('ROLE_ADMIN')]
+    public function supprimer(User $user, #[CurrentUser] User $currentUser): JsonResponse
+    {
+        if ($user->getId() === $currentUser->getId()) {
+            return $this->json(['message' => 'Impossible de supprimer votre propre compte.'], 422);
+        }
+
+        $this->userRepository->remove($user);
+
+        return $this->json(['message' => 'Utilisateur supprimé.']);
+    }
+
     private function hydrateUser(User $user, array $data): void
     {
         if (isset($data['email']))       $user->setEmail($data['email']);
         if (isset($data['prenom']))      $user->setPrenom($data['prenom']);
         if (isset($data['nom']))         $user->setNom($data['nom']);
-        if (isset($data['role']))        $user->setRole($data['role']);
+        if (isset($data['role'])) {
+            $validRoles = [User::ROLE_AGENT, User::ROLE_RH, User::ROLE_ADMIN];
+            if (in_array($data['role'], $validRoles, true)) {
+                $user->setRole($data['role']);
+            }
+        }
         if (isset($data['departement'])) $user->setDepartement($data['departement']);
         if (isset($data['consentement_rgpd'])) $user->setConsentementRgpd((bool) $data['consentement_rgpd']);
     }

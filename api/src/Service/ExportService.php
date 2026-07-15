@@ -92,7 +92,9 @@ class ExportService
             $this->logger->info('[ExportService] Gotenberg indisponible, utilisation de DOMPDF.');
             $this->pdfGenerator->generateFromHtml($html, $filepath);
         } else {
-            file_put_contents($filepath, $pdfContent);
+            if (false === file_put_contents($filepath, $pdfContent)) {
+                throw new \RuntimeException('Impossible d\'écrire le fichier PDF.');
+            }
         }
 
         return $this->creerDocument($user, Document::TYPE_PDF, $filepath);

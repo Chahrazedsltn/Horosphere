@@ -32,8 +32,11 @@ export default function AlertesPage() {
 
   const handleMarquerLue = async (id: number) => {
     const updated = await alerteService.marquerLue(id)
-    setAlertes((prev) => prev.map((a) => a.id === id ? updated : a))
-    setAlertesNonLues(alertes.filter((a) => !a.estLue && a.id !== id).length)
+    setAlertes((prev) => {
+      const next = prev.map((a) => a.id === id ? updated : a)
+      setAlertesNonLues(next.filter((a) => !a.estLue).length)
+      return next
+    })
   }
 
   const handleToutLire = async () => {

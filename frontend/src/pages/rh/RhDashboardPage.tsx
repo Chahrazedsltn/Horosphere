@@ -58,7 +58,7 @@ export default function RhDashboardPage() {
     const lastDay = new Date(annee, mois, 0).getDate()
     const fin = `${annee}-${String(mois).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
     try {
-      const p = await pointageService.liste({ date_debut: debut, date_fin: fin, utilisateur_id: emp.id } as any)
+      const p = await pointageService.liste({ date_debut: debut, date_fin: fin, utilisateur_id: emp.id })
       setEmployePointages(p)
     } catch {
       setEmployePointages([])

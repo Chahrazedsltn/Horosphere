@@ -15,6 +15,12 @@ interface TableProps<T> {
   loading?: boolean
 }
 
+const alignClass = {
+  left: 'text-left',
+  center: 'text-center',
+  right: 'text-right',
+} as const
+
 export function Table<T>({ columns, data, keyExtractor, emptyMessage = 'Aucune donnée', loading = false }: TableProps<T>) {
   return (
     <div className="w-full overflow-x-auto">
@@ -24,7 +30,7 @@ export function Table<T>({ columns, data, keyExtractor, emptyMessage = 'Aucune d
             {columns.map((col) => (
               <th
                 key={col.key}
-                className={`px-3.5 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.6px] text-text3 font-mono bg-surface2 border-b border-border first:rounded-tl-md last:rounded-tr-md text-${col.align ?? 'left'}`}
+                className={`px-3.5 py-2.5 text-left text-[11px] font-semibold uppercase tracking-[0.6px] text-text3 font-mono bg-surface2 border-b border-border first:rounded-tl-md last:rounded-tr-md ${alignClass[col.align ?? 'left']}`}
               >
                 {col.header}
               </th>
@@ -53,7 +59,7 @@ export function Table<T>({ columns, data, keyExtractor, emptyMessage = 'Aucune d
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={`px-3.5 py-2.5 text-[13px] text-text2 border-b border-border last-of-type:border-b-0 text-${col.align ?? 'left'}`}
+                    className={`px-3.5 py-2.5 text-[13px] text-text2 border-b border-border last-of-type:border-b-0 ${alignClass[col.align ?? 'left']}`}
                   >
                     {col.render ? col.render(item) : String((item as Record<string, unknown>)[col.key] ?? '')}
                   </td>

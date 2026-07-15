@@ -18,11 +18,18 @@ class DemandeService
 
     public function soumettre(User $user, array $data): Demande
     {
+        $dateDebut = new \DateTime($data['date_debut']);
+        $dateFin   = new \DateTime($data['date_fin']);
+
+        if ($dateDebut > $dateFin) {
+            throw new \InvalidArgumentException('La date de début doit être antérieure ou égale à la date de fin.');
+        }
+
         $demande = new Demande();
         $demande->setUtilisateur($user);
         $demande->setTypeDemande($data['type_demande']);
-        $demande->setDateDebut(new \DateTime($data['date_debut']));
-        $demande->setDateFin(new \DateTime($data['date_fin']));
+        $demande->setDateDebut($dateDebut);
+        $demande->setDateFin($dateFin);
         $demande->setMotif($data['motif'] ?? null);
 
         $errors = $this->validator->validate($demande);

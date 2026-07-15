@@ -63,7 +63,7 @@ class DemandeController extends AbstractController
     #[Route('', name: 'creer', methods: ['POST'])]
     public function creer(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true) ?? [];
 
         if (!isset($data['type_demande'], $data['date_debut'], $data['date_fin'])) {
             return $this->json(['message' => 'Champs obligatoires manquants.'], 422);
@@ -85,7 +85,7 @@ class DemandeController extends AbstractController
     #[IsGranted('ROLE_RH')]
     public function traiter(Demande $demande, Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true) ?? [];
         $decision = $data['decision'] ?? null;
 
         if (!in_array($decision, [Demande::STATUT_APPROUVEE, Demande::STATUT_REJETEE], true)) {

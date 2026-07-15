@@ -27,7 +27,7 @@ class PointageController extends AbstractController
     #[Route('/arriver', name: 'arriver', methods: ['POST'])]
     public function arriver(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true) ?? [];
 
         $lat = isset($data['latitude'])  ? (float) $data['latitude']  : null;
         $lon = isset($data['longitude']) ? (float) $data['longitude'] : null;
@@ -61,7 +61,7 @@ class PointageController extends AbstractController
     #[Route('/partir', name: 'partir', methods: ['POST'])]
     public function partir(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true) ?? [];
 
         $lat = isset($data['latitude'])  ? (float) $data['latitude']  : null;
         $lon = isset($data['longitude']) ? (float) $data['longitude'] : null;

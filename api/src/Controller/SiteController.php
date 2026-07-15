@@ -45,7 +45,7 @@ class SiteController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function creer(Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true) ?? [];
 
         if (isset($data['rayon_metres'])) {
             $rayon = (int) $data['rayon_metres'];
@@ -74,7 +74,7 @@ class SiteController extends AbstractController
     #[IsGranted('ROLE_ADMIN')]
     public function modifier(Site $site, Request $request): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
+        $data = json_decode($request->getContent(), true) ?? [];
 
         if (isset($data['rayon_metres'])) {
             $rayon = (int) $data['rayon_metres'];

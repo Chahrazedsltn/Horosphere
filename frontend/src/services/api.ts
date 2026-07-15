@@ -27,6 +27,8 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
       localStorage.removeItem('token')
       sessionStorage.removeItem('token')
+      localStorage.removeItem('horosphere-auth')
+      sessionStorage.removeItem('horosphere-auth')
       window.location.href = '/login'
     }
     return Promise.reject(error)

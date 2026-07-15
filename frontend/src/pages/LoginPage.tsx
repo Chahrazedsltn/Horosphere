@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authService } from '../services/auth.service'
 import { useAuthStore } from '../store/auth.store'
@@ -37,17 +37,23 @@ export default function LoginPage() {
   ]
   const [slide, setSlide] = useState(0)
   const [fading, setFading] = useState(false)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  useEffect(() => {
-    const timer = setInterval(() => {
+  const startCarousel = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current)
+    intervalRef.current = setInterval(() => {
       setFading(true)
       setTimeout(() => {
         setSlide(s => (s + 1) % slides.length)
         setFading(false)
       }, 300)
     }, 4000)
-    return () => clearInterval(timer)
-  }, [])
+  }, [slides.length])
+
+  useEffect(() => {
+    startCarousel()
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
+  }, [startCarousel])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -121,7 +127,7 @@ export default function LoginPage() {
           {slides.map((_, i) => (
             <button
               key={i}
-              onClick={() => { setFading(true); setTimeout(() => { setSlide(i); setFading(false) }, 300) }}
+              onClick={() => { setFading(true); setTimeout(() => { setSlide(i); setFading(false) }, 300); startCarousel() }}
               className="rounded-full transition-all duration-300"
               style={{
                 width: i === slide ? '18px' : '6px',
