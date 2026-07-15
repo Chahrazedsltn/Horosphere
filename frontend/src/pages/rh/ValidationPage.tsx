@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { CheckCircle, XCircle } from '@phosphor-icons/react'
+import { CheckCircle, XCircle, FilePdf, DownloadSimple } from '@phosphor-icons/react'
+import api from '../../services/api'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { StatutDemandeBadge, TypeDemandeBadge } from '../../components/ui/Badge'
@@ -12,7 +13,9 @@ export default function ValidationPage() {
   const [demandes, setDemandes] = useState<Demande[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<number | null>(null)
+  const [generating, setGenerating] = useState<number | null>(null)
   const [filter, setFilter] = useState('ALL')
+  const [docSuccess, setDocSuccess] = useState<{ id: number; url: string } | null>(null)
 
   useEffect(() => {
     demandeService.liste()
@@ -26,6 +29,19 @@ export default function ValidationPage() {
       const updated = await demandeService.traiter(id, decision)
       setDemandes((prev) => prev.map((d) => d.id === id ? updated : d))
     } finally { setProcessing(null) }
+  }
+
+  const handleGenDoc = async (demande: Demande, typeDoc: string) => {
+    setGenerating(demande.id)
+    try {
+      const doc = await demandeService.genererDocument(demande.id, typeDoc)
+      setDocSuccess({ id: demande.id, url: doc.downloadUrl })
+      setTimeout(() => setDocSuccess(null), 8000)
+    } catch {
+      // silently fail
+    } finally {
+      setGenerating(null)
+    }
   }
 
   const filtered = demandes.filter((d) => filter === 'ALL' || d.statut === filter)
@@ -77,6 +93,67 @@ export default function ValidationPage() {
                   <span className="text-text3 ml-2 text-[12px]">({d.dureeJours} jour(s))</span>
                 </div>
                 {d.motif && <p className="text-[12px] text-text3 mt-1 italic">"{d.motif}"</p>}
+
+                {/* Notification document généré */}
+                {docSuccess?.id === d.id && (
+                  <div className="mt-2 px-3 py-2 rounded-lg bg-green-bg border border-green-border text-green text-[12px] flex items-center gap-2">
+                    <CheckCircle size={14} weight="bold" />
+                    Document généré !
+                    <button
+                      onClick={async () => {
+                        const downloadPath = docSuccess.url.replace(/^\/api/, '')
+                        const res = await api.get(downloadPath, { responseType: 'blob' })
+                        const blob = new Blob([res.data], { type: 'application/pdf' })
+                        const url = window.URL.createObjectURL(blob)
+                        const a = document.createElement('a')
+                        a.href = url
+                        a.download = 'document.pdf'
+                        a.click()
+                        window.URL.revokeObjectURL(url)
+                      }}
+                      className="ml-auto flex items-center gap-1 font-semibold underline cursor-pointer bg-transparent border-none text-green"
+                    >
+                      <DownloadSimple size={13} /> Télécharger
+                    </button>
+                  </div>
+                )}
+
+                {/* Boutons documents pour les demandes traitées */}
+                {(d.statut === 'APPROUVEE' || d.statut === 'REJETEE') && (
+                  <div className="flex gap-2 mt-3 flex-wrap">
+                    {d.statut === 'APPROUVEE' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        icon={<FilePdf size={14} />}
+                        loading={generating === d.id}
+                        onClick={() => handleGenDoc(d, 'accord_conge')}
+                      >
+                        Accord de {d.typeDemande === 'CONGE' ? 'congé' : 'demande'}
+                      </Button>
+                    )}
+                    {d.statut === 'REJETEE' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        icon={<FilePdf size={14} />}
+                        loading={generating === d.id}
+                        onClick={() => handleGenDoc(d, 'refus_conge')}
+                      >
+                        Notification de refus
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      icon={<FilePdf size={14} />}
+                      loading={generating === d.id}
+                      onClick={() => handleGenDoc(d, 'attestation')}
+                    >
+                      Attestation
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {d.statut === 'EN_ATTENTE' && (

@@ -33,10 +33,13 @@ class PointageRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('p')
             ->where('p.utilisateur = :user')
-            ->andWhere('p.statut = :statut')
+            ->andWhere('p.statut IN (:statuts)')
+            ->andWhere('p.dateJour = :today')
             ->setParameter('user', $user)
-            ->setParameter('statut', Pointage::STATUT_EN_COURS)
+            ->setParameter('statuts', [Pointage::STATUT_EN_COURS, Pointage::STATUT_HORS_ZONE])
+            ->setParameter('today', new \DateTime('today'))
             ->getQuery()
+            ->setMaxResults(1)
             ->getOneOrNullResult();
     }
 
@@ -61,8 +64,10 @@ class PointageRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('p')
             ->where('p.utilisateur = :user')
             ->andWhere('p.statut = :statut')
+            ->andWhere('p.dateJour = :today')
             ->setParameter('user', $user)
             ->setParameter('statut', Pointage::STATUT_EN_PAUSE)
+            ->setParameter('today', new \DateTime('today'))
             ->getQuery()
             ->getOneOrNullResult();
     }
@@ -72,9 +77,9 @@ class PointageRepository extends ServiceEntityRepository
         $limit = new \DateTime("-{$heures} hours");
 
         return $this->createQueryBuilder('p')
-            ->where('p.statut = :statut')
+            ->where('p.statut IN (:statuts)')
             ->andWhere('p.heureArrivee < :limit')
-            ->setParameter('statut', Pointage::STATUT_EN_COURS)
+            ->setParameter('statuts', [Pointage::STATUT_EN_COURS, Pointage::STATUT_HORS_ZONE])
             ->setParameter('limit', $limit)
             ->getQuery()
             ->getResult();

@@ -106,11 +106,14 @@ export default function RapportsPage() {
                   <div className="text-[13px] font-medium text-text truncate">{doc.fileName}</div>
                   <div className="text-[11px] text-text3 font-mono">{format(new Date(doc.dateCreation), 'dd/MM/yyyy à HH:mm')}</div>
                 </div>
-                <a href={documentService.downloadUrl(doc)} download>
-                  <Button variant="ghost" size="sm" icon={<DownloadSimple size={14} />}>
-                    Télécharger
-                  </Button>
-                </a>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  icon={<DownloadSimple size={14} />}
+                  onClick={() => documentService.download(doc)}
+                >
+                  Télécharger
+                </Button>
               </div>
             ))}
           </div>

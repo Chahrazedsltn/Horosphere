@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { useNotifications } from '../../hooks/useNotifications'
+import { useUiStore } from '../../store/ui.store'
 
 const pageTitles: Record<string, string> = {
   '/dashboard':       'Tableau de bord',
@@ -23,13 +24,18 @@ export function Layout() {
   useNotifications()
   const location = useLocation()
   const title = pageTitles[location.pathname] ?? 'Horosphere'
+  const { theme } = useUiStore()
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   return (
     <div className="min-h-screen bg-bg">
       <Sidebar />
-      <div className="md:ml-[220px] flex flex-col min-h-screen">
+      <div className="md:ml-[225px] flex flex-col min-h-screen">
         <Topbar title={title} />
-        <main className="flex-1 p-7">
+        <main className="flex-1 p-6">
           <Outlet />
         </main>
       </div>

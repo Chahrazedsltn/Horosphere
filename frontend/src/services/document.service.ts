@@ -20,4 +20,17 @@ export const documentService = {
   downloadUrl(doc: Document): string {
     return `${import.meta.env.VITE_API_URL || '/api'}${doc.downloadUrl}`
   },
+
+  async download(doc: Document): Promise<void> {
+    const path = doc.downloadUrl.replace(/^\/api/, '')
+    const res = await api.get(path, { responseType: 'blob' })
+    const mimeType = doc.typeDocument === 'PDF' ? 'application/pdf' : 'text/csv'
+    const blob = new Blob([res.data], { type: mimeType })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = doc.fileName
+    a.click()
+    window.URL.revokeObjectURL(url)
+  },
 }

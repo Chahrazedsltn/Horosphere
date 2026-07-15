@@ -52,11 +52,19 @@ class DocumentController extends AbstractController
 
         if (false === $realPath || false === $exportsReal
             || !str_starts_with($realPath, $exportsReal . DIRECTORY_SEPARATOR)
+            || !is_file($realPath)
         ) {
             return $this->json(['message' => 'Fichier introuvable.'], 404);
         }
 
+        $mimeType = match (strtoupper($document->getTypeDocument())) {
+            'PDF'   => 'application/pdf',
+            'CSV'   => 'text/csv; charset=utf-8',
+            default => 'application/octet-stream',
+        };
+
         $response = new BinaryFileResponse($realPath);
+        $response->headers->set('Content-Type', $mimeType);
         $response->setContentDisposition(
             ResponseHeaderBag::DISPOSITION_ATTACHMENT,
             $document->getFileName(),
@@ -104,6 +112,10 @@ class DocumentController extends AbstractController
             $fin   = new \DateTime($data['date_fin']);
         } catch (\Exception) {
             return $this->json(['message' => 'Format de date invalide (YYYY-MM-DD).'], 422);
+        }
+
+        if ($fin->diff($debut)->days > 366) {
+            return $this->json(['message' => 'La plage de dates ne peut pas dépasser 1 an.'], 422);
         }
 
         $document = match ($type) {

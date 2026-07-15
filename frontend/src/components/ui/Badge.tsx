@@ -35,6 +35,7 @@ export function StatutPointageBadge({ statut }: { statut: string }) {
     ANOMALIE:  { label: 'Anomalie',  variant: 'red'   },
     HORS_ZONE: { label: 'Hors zone', variant: 'amber' },
     EN_COURS:  { label: 'En cours',  variant: 'blue'  },
+    EN_PAUSE:  { label: 'En pause',  variant: 'gray'  },
   }
   const { label, variant } = map[statut] ?? { label: statut, variant: 'gray' }
   return <Badge variant={variant} dot>{label}</Badge>

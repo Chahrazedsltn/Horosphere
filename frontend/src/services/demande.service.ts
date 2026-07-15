@@ -26,4 +26,9 @@ export const demandeService = {
     const res = await api.put(`/demandes/${id}/traiter`, { decision })
     return res.data.data
   },
+
+  async genererDocument(id: number, typeDocument: string): Promise<{ id: number; fileName: string; downloadUrl: string }> {
+    const res = await api.post(`/demandes/${id}/document`, { type_document: typeDocument })
+    return res.data.data
+  },
 }

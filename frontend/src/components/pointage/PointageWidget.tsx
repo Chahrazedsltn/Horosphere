@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { SignIn, SignOut, Coffee, Play } from '@phosphor-icons/react'
+import { SignIn, SignOut, Coffee, Play, Warning } from '@phosphor-icons/react'
 import { Timer } from './Timer'
 import { GeoIndicator } from './GeoIndicator'
 import { useGeolocation } from '../../hooks/useGeolocation'
@@ -12,6 +12,7 @@ export function PointageWidget() {
   const [sites, setSites] = useState<Site[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [avertissement, setAvertissement] = useState<string | null>(null)
   const { position, loading: geoLoading, error: geoError, refresh } = useGeolocation()
 
   const nearestSite = position ? findNearestSite(position.latitude, position.longitude, sites) : null
@@ -31,10 +32,11 @@ export function PointageWidget() {
 
   const handleArriver = async () => {
     if (!position) { refresh(); return }
-    setLoading(true); setError(null)
+    setLoading(true); setError(null); setAvertissement(null)
     try {
-      const p = await pointageService.arriver(position.latitude, position.longitude)
-      setPointageEnCours(p)
+      const result = await pointageService.arriver(position.latitude, position.longitude)
+      setPointageEnCours(result.pointage)
+      if (result.avertissement) setAvertissement(result.avertissement)
     } catch {
       setError('Erreur lors du pointage arrivée.')
     } finally { setLoading(false) }
@@ -71,7 +73,7 @@ export function PointageWidget() {
     } finally { setLoading(false) }
   }
 
-  const isEnCours = pointageEnCours?.statut === 'EN_COURS'
+  const isEnCours = pointageEnCours?.statut === 'EN_COURS' || pointageEnCours?.statut === 'HORS_ZONE'
   const isEnPause = pointageEnCours?.statut === 'EN_PAUSE'
 
   return (
@@ -92,6 +94,14 @@ export function PointageWidget() {
       {isEnPause && (
         <div className="px-3 py-2 rounded-lg bg-amber-bg border border-amber-border text-amber text-[12px] text-center font-medium">
           En pause · {pointageEnCours?.dureesPauseMinutes ?? 0} min de pause cumulées
+        </div>
+      )}
+
+      {/* Avertissement jour férié */}
+      {avertissement && (
+        <div className="px-3 py-2 rounded-lg bg-amber-bg border border-amber-border text-amber text-[12px] text-center font-medium flex items-center justify-center gap-2">
+          <Warning size={14} weight="bold" />
+          {avertissement}
         </div>
       )}
 

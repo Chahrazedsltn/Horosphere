@@ -2,34 +2,82 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Base design tokens (Option C — Light content + Dark sidebar) ─── */
 :root {
-  --bg: #F2F4F6;
-  --surface: #FFFFFF;
-  --surface2: #EDF0F3;
-  --border: #D4DAE2;
-  --border2: #BBC5CF;
-  --text: #2C3038;
-  --text2: #5D5C61;
-  --text3: #909AA6;
-  --accent: #557A95;
-  --accent-light: #DAE8F0;
-  --accent-mid: #7395AE;
-  --green: #2D8E5E;
-  --green-bg: #E7F4EE;
-  --green-border: #A5D5BE;
-  --red: #B84444;
-  --red-bg: #F7EDEC;
-  --red-border: #DFA8A8;
-  --amber: #9B6417;
-  --amber-bg: #F7F0E4;
-  --amber-border: #D4B47A;
-  --sidebar-w: 220px;
-  --topbar-h: 60px;
-  --radius: 10px;
-  --shadow: 0 2px 12px rgba(50,60,75,0.08);
-  --shadow-lg: 0 8px 32px rgba(50,60,75,0.13);
+  /* Content area */
+  --bg:       #f8fafc;
+  --surface:  #ffffff;
+  --surface2: #f1f5f9;
+  --border:   #e2e8f0;
+  --border2:  #cbd5e1;
+  --text:     #0f172a;
+  --text2:    #475569;
+  --text3:    #94a3b8;
+
+  /* Sidebar — overridden per theme */
+  --sidebar-bg:        #0f172a;
+  --sidebar-active-bg: #2563eb;
+
+  /* Accent — overridden per theme */
+  --accent:        #2563eb;
+  --accent-light:  #eff6ff;
+  --accent-mid:    #3b82f6;
+  --accent-border: #bfdbfe;
+  --accent-shadow: rgba(37,99,235,0.25);
+
+  /* Status colors — constant across all themes */
+  --green:        #16a34a;
+  --green-bg:     #f0fdf4;
+  --green-border: #bbf7d0;
+  --red:          #dc2626;
+  --red-bg:       #fef2f2;
+  --red-border:   #fecaca;
+  --amber:        #ca8a04;
+  --amber-bg:     #fefce8;
+  --amber-border: #fde68a;
+
+  /* Layout */
+  --sidebar-w: 225px;
+  --topbar-h:  60px;
+  --radius:    12px;
+  --shadow:    0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-lg: 0 8px 30px rgba(15,23,42,0.10);
 }
 
+/* ─── Theme : Ardoise + Bleu Électrique (default) ─── */
+[data-theme="slate-blue"] {
+  --sidebar-bg:        #0f172a;
+  --sidebar-active-bg: #2563eb;
+  --accent:            #2563eb;
+  --accent-light:      #eff6ff;
+  --accent-mid:        #3b82f6;
+  --accent-border:     #bfdbfe;
+  --accent-shadow:     rgba(37,99,235,0.25);
+}
+
+/* ─── Theme : Navy + Émeraude ─── */
+[data-theme="navy-emerald"] {
+  --sidebar-bg:        #0c1829;
+  --sidebar-active-bg: #059669;
+  --accent:            #059669;
+  --accent-light:      #ecfdf5;
+  --accent-mid:        #10b981;
+  --accent-border:     #d1fae5;
+  --accent-shadow:     rgba(5,150,105,0.25);
+}
+
+/* ─── Theme : Charbon + Orange ─── */
+[data-theme="charcoal-orange"] {
+  --sidebar-bg:        #1c1917;
+  --sidebar-active-bg: #ea580c;
+  --accent:            #ea580c;
+  --accent-light:      #fff7ed;
+  --accent-mid:        #f97316;
+  --accent-border:     #fed7aa;
+  --accent-shadow:     rgba(234,88,12,0.25);
+}
+
+/* ─── Reset & base ─── */
 * {
   margin: 0;
   padding: 0;
@@ -43,8 +91,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--surface2); }
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-mid); }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* ─── Animations ─── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Button accent hover (theme-aware) ─── */
+.btn-accent-hover { transition: filter 0.15s ease; }
+.btn-accent-hover:hover:not(:disabled) { filter: brightness(1.12); }

@@ -112,6 +112,35 @@ class UserController extends AbstractController
         return $this->json(['message' => 'Utilisateur supprimé.']);
     }
 
+    #[Route('/{id}/password', name: 'changer_mot_de_passe', methods: ['PUT'])]
+    public function changerMotDePasse(User $user, Request $request, #[CurrentUser] User $currentUser): JsonResponse
+    {
+        if ($user->getId() !== $currentUser->getId()) {
+            return $this->json(['message' => 'Vous ne pouvez modifier que votre propre mot de passe.'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true) ?? [];
+        $currentPassword = (string) ($data['current_password'] ?? '');
+        $newPassword     = (string) ($data['new_password'] ?? '');
+
+        if ('' === $currentPassword || '' === $newPassword) {
+            return $this->json(['message' => 'Mot de passe actuel et nouveau mot de passe requis.'], 422);
+        }
+
+        if (!$this->passwordHasher->isPasswordValid($user, $currentPassword)) {
+            return $this->json(['message' => 'Mot de passe actuel incorrect.'], 422);
+        }
+
+        if (strlen($newPassword) < 8) {
+            return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.'], 422);
+        }
+
+        $user->setMotDePasse($this->passwordHasher->hashPassword($user, $newPassword));
+        $this->em->flush();
+
+        return $this->json(['message' => 'Mot de passe mis à jour avec succès.']);
+    }
+
     #[Route('/stats/dashboard', name: 'stats_dashboard', methods: ['GET'])]
     #[IsGranted('ROLE_RH')]
     public function statsDashboard(): JsonResponse
@@ -131,6 +160,59 @@ class UserController extends AbstractController
                     ? round(($presentsAujourdhui / $totalEmployes) * 100, 1)
                     : 0,
             ],
+            'message' => 'OK',
+        ]);
+    }
+
+    #[Route('/stats/employes', name: 'stats_employes', methods: ['GET'])]
+    #[IsGranted('ROLE_RH')]
+    public function statsEmployes(Request $request): JsonResponse
+    {
+        $mois  = $request->query->get('mois', (int) date('m'));
+        $annee = $request->query->get('annee', (int) date('Y'));
+
+        $debut = new \DateTime(sprintf('%d-%02d-01', $annee, $mois));
+        $fin   = (clone $debut)->modify('last day of this month');
+
+        $agents = $this->userRepository->findByRole(User::ROLE_AGENT);
+        $result = [];
+
+        foreach ($agents as $agent) {
+            $pointages = $this->pointageRepository->findByPeriode($agent, $debut, $fin);
+
+            $totalMinutes = 0;
+            $joursPresents = [];
+            $anomalies = 0;
+
+            foreach ($pointages as $p) {
+                $duree = $p->getDureeMinutes();
+                if (null !== $duree) {
+                    $totalMinutes += $duree;
+                }
+                if (in_array($p->getStatut(), ['VALIDE', 'EN_COURS'], true)) {
+                    $joursPresents[$p->getDateJour()->format('Y-m-d')] = true;
+                }
+                if ($p->isEstAnomalie()) {
+                    $anomalies++;
+                }
+            }
+
+            $result[] = [
+                'id'             => $agent->getId(),
+                'prenom'         => $agent->getPrenom(),
+                'nom'            => $agent->getNom(),
+                'departement'    => $agent->getDepartement(),
+                'initiales'      => $agent->getInitials(),
+                'heures_total'   => round($totalMinutes / 60, 1),
+                'minutes_total'  => $totalMinutes,
+                'jours_presents' => count($joursPresents),
+                'anomalies'      => $anomalies,
+                'total_pointages' => count($pointages),
+            ];
+        }
+
+        return $this->json([
+            'data'    => $result,
             'message' => 'OK',
         ]);
     }

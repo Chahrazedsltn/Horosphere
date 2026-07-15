@@ -15,13 +15,18 @@ export default function ProfilPage() {
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!passwords.current) { setMsg({ type: 'error', text: 'Veuillez saisir votre mot de passe actuel.' }); return }
     if (passwords.new !== passwords.confirm) { setMsg({ type: 'error', text: 'Les mots de passe ne correspondent pas.' }); return }
+    if (passwords.new.length < 8) { setMsg({ type: 'error', text: 'Le nouveau mot de passe doit contenir au moins 8 caractères.' }); return }
     setSaving(true)
     try {
-      await api.put(`/users/${user?.id}`, { password: passwords.new })
+      await api.put(`/users/${user?.id}/password`, { current_password: passwords.current, new_password: passwords.new })
       setMsg({ type: 'success', text: 'Mot de passe mis à jour.' })
       setPasswords({ current: '', new: '', confirm: '' })
-    } catch { setMsg({ type: 'error', text: 'Erreur lors de la mise à jour.' }) }
+    } catch (err: any) {
+      const message = err?.response?.data?.message ?? 'Erreur lors de la mise à jour.'
+      setMsg({ type: 'error', text: message })
+    }
     finally { setSaving(false) }
   }
 
@@ -67,6 +72,7 @@ export default function ProfilPage() {
           </div>
         )}
         <form onSubmit={handlePasswordChange} className="space-y-0">
+          <Input label="Mot de passe actuel" type="password" value={passwords.current} onChange={(e) => setPasswords({ ...passwords, current: e.target.value })} required />
           <Input label="Nouveau mot de passe" type="password" value={passwords.new} onChange={(e) => setPasswords({ ...passwords, new: e.target.value })} required />
           <Input label="Confirmer le mot de passe" type="password" value={passwords.confirm} onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })} required />
           <Button type="submit" loading={saving}>Mettre à jour</Button>

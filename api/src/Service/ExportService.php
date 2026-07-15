@@ -9,17 +9,19 @@ use App\Repository\PointageRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use App\Service\PdfGeneratorService;
 
 class ExportService
 {
     private string $exportsDir;
 
     public function __construct(
-        private readonly PointageRepository  $pointageRepository,
-        private readonly DocumentRepository  $documentRepository,
+        private readonly PointageRepository    $pointageRepository,
+        private readonly DocumentRepository    $documentRepository,
         private readonly EntityManagerInterface $em,
-        private readonly HttpClientInterface $httpClient,
-        private readonly LoggerInterface     $logger,
+        private readonly HttpClientInterface   $httpClient,
+        private readonly LoggerInterface       $logger,
+        private readonly PdfGeneratorService   $pdfGenerator,
         string $exportsDir,
         private readonly string $gotenbergUrl,
     ) {
@@ -83,18 +85,12 @@ class ExportService
         );
         $filepath = $this->exportsDir . '/' . $filename;
 
-        // Tentative de génération via Gotenberg
+        // Tentative de génération via Gotenberg, fallback DOMPDF
         $pdfContent = $this->convertHtmlToPdfViaGotenberg($html);
 
         if (null === $pdfContent) {
-            // Fallback : sauvegarde HTML si Gotenberg indisponible
-            $this->logger->warning('[ExportService] Gotenberg indisponible, fallback HTML.');
-            $handle = fopen($filepath, 'w');
-            if (false === $handle) {
-                throw new \RuntimeException('Impossible de créer le fichier de rapport.');
-            }
-            fwrite($handle, $html);
-            fclose($handle);
+            $this->logger->info('[ExportService] Gotenberg indisponible, utilisation de DOMPDF.');
+            $this->pdfGenerator->generateFromHtml($html, $filepath);
         } else {
             file_put_contents($filepath, $pdfContent);
         }

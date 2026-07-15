@@ -1,10 +1,16 @@
 import React, { useMemo } from 'react'
 import type { Pointage } from '../../types'
 
+interface JourFerie {
+  date: string
+  nom: string
+}
+
 interface MonthCalendarProps {
   year: number
   month: number // 0-indexed
   pointages: Pointage[]
+  joursFeries?: JourFerie[]
 }
 
 function getDaysInMonth(year: number, month: number) {
@@ -18,7 +24,7 @@ function getFirstDayOfWeek(year: number, month: number) {
 
 const WEEKDAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
-export function MonthCalendar({ year, month, pointages }: MonthCalendarProps) {
+export function MonthCalendar({ year, month, pointages, joursFeries = [] }: MonthCalendarProps) {
   const today = new Date()
   const daysInMonth = getDaysInMonth(year, month)
   const firstDay = getFirstDayOfWeek(year, month)
@@ -35,6 +41,14 @@ export function MonthCalendar({ year, month, pointages }: MonthCalendarProps) {
     }
     return map
   }, [pointages])
+
+  const ferieMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    for (const jf of joursFeries) {
+      map[jf.date] = jf.nom
+    }
+    return map
+  }, [joursFeries])
 
   const cells: Array<{ day: number | null }> = []
   for (let i = 0; i < firstDay; i++) cells.push({ day: null })
@@ -63,28 +77,34 @@ export function MonthCalendar({ year, month, pointages }: MonthCalendarProps) {
           const status = pointageMap[dateStr]
           const weekday = new Date(year, month, cell.day).getDay()
           const isWeekend = weekday === 0 || weekday === 6
+          const nomFerie = ferieMap[dateStr]
+          const isFerie = !!nomFerie
 
           let cellClass = 'bg-surface border border-border text-text2'
           if (isToday) cellClass = 'bg-accent border-accent text-white font-bold'
           else if (status === 'anomalie') cellClass = 'bg-amber-bg border-amber-border text-amber font-semibold'
           else if (status === 'present') cellClass = 'bg-accent-light border-accent-mid text-accent font-semibold'
+          else if (isFerie) cellClass = 'bg-violet-100 border-violet-300 text-violet-700 dark:bg-violet-900/30 dark:border-violet-700 dark:text-violet-300 font-semibold'
           else if (isWeekend) cellClass = 'bg-surface2 border-border text-text3'
+
+          const titleText = isFerie ? `${dateStr} — ${nomFerie}` : dateStr
 
           return (
             <div
               key={idx}
               className={`aspect-square rounded-md border flex flex-col items-center justify-center cursor-pointer hover:border-accent-mid transition-colors ${cellClass}`}
-              title={dateStr}
+              title={titleText}
             >
               <span className="text-[11px] font-mono">{cell.day}</span>
               {status === 'present' && !isToday && <span className="w-1 h-1 rounded-full bg-current mt-0.5 opacity-70" />}
+              {isFerie && !isToday && <span className="w-1.5 h-1.5 rounded-full bg-violet-500 dark:bg-violet-400 mt-0.5" />}
             </div>
           )
         })}
       </div>
 
       {/* Légende */}
-      <div className="flex items-center gap-4 mt-3 text-[11px] text-text3">
+      <div className="flex items-center gap-4 mt-3 text-[11px] text-text3 flex-wrap">
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded bg-accent" /> Aujourd'hui
         </span>
@@ -93,6 +113,9 @@ export function MonthCalendar({ year, month, pointages }: MonthCalendarProps) {
         </span>
         <span className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded bg-amber-bg border border-amber-border" /> Anomalie
+        </span>
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded bg-violet-100 border border-violet-300 dark:bg-violet-900/30 dark:border-violet-700" /> Jour férié
         </span>
       </div>
     </div>

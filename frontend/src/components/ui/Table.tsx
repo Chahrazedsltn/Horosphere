@@ -49,7 +49,7 @@ export function Table<T>({ columns, data, keyExtractor, emptyMessage = 'Aucune d
             </tr>
           ) : (
             data.map((item) => (
-              <tr key={keyExtractor(item)} className="hover:bg-[#F3F6F9] transition-colors">
+              <tr key={keyExtractor(item)} className="hover:bg-surface2 transition-colors">
                 {columns.map((col) => (
                   <td
                     key={col.key}

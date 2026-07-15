@@ -25,7 +25,10 @@ class PointageService
      */
     public function pointer(User $user, float $lat, float $lon): Pointage
     {
-        // Vérifier s'il n'y a pas déjà un pointage en cours
+        // Clôturer les anciens pointages encore ouverts (jours précédents)
+        $this->cloturerAnciensPointages($user);
+
+        // Vérifier s'il n'y a pas déjà un pointage en cours aujourd'hui
         $enCours = $this->pointageRepository->findEnCoursByUtilisateur($user);
         if (null !== $enCours) {
             return $enCours; // Retourner le pointage existant
@@ -137,6 +140,36 @@ class PointageService
         $this->em->flush();
 
         return $pointage;
+    }
+
+    /**
+     * Clôture les pointages des jours précédents restés ouverts.
+     */
+    private function cloturerAnciensPointages(User $user): void
+    {
+        $anciens = $this->pointageRepository->createQueryBuilder('p')
+            ->where('p.utilisateur = :user')
+            ->andWhere('p.statut IN (:statuts)')
+            ->andWhere('p.dateJour < :today')
+            ->setParameter('user', $user)
+            ->setParameter('statuts', [Pointage::STATUT_EN_COURS, Pointage::STATUT_HORS_ZONE, Pointage::STATUT_EN_PAUSE])
+            ->setParameter('today', new \DateTime('today'))
+            ->getQuery()
+            ->getResult();
+
+        foreach ($anciens as $pointage) {
+            $pointage->setStatut(Pointage::STATUT_ANOMALIE);
+            $pointage->setEstAnomalie(true);
+            if (null === $pointage->getHeureDepart()) {
+                $fin = (clone $pointage->getHeureArrivee())->setTime(23, 59, 59);
+                $pointage->setHeureDepart($fin);
+            }
+            $this->em->persist($pointage);
+        }
+
+        if (!empty($anciens)) {
+            $this->em->flush();
+        }
     }
 
     /**

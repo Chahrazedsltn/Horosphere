@@ -15,6 +15,7 @@ export default function DemandesPage() {
   const [loading, setLoading] = useState(true)
   const [modalOpen, setModalOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({ type_demande: 'CONGE', date_debut: '', date_fin: '', motif: '' })
 
   useEffect(() => {
@@ -26,12 +27,15 @@ export default function DemandesPage() {
   const handleSubmit = async () => {
     if (!form.date_debut || !form.date_fin) return
     setSubmitting(true)
+    setError(null)
     try {
       const d = await demandeService.creer(form)
       setDemandes((prev) => [d, ...prev])
       setModalOpen(false)
       setForm({ type_demande: 'CONGE', date_debut: '', date_fin: '', motif: '' })
-    } catch { /* erreur silencieuse */ }
+    } catch {
+      setError('Erreur lors de la création de la demande. Veuillez réessayer.')
+    }
     finally { setSubmitting(false) }
   }
 
@@ -72,15 +76,20 @@ export default function DemandesPage() {
 
       <Modal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={() => { setModalOpen(false); setError(null) }}
         title="Nouvelle demande"
         footer={
           <>
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>Annuler</Button>
+            <Button variant="ghost" onClick={() => { setModalOpen(false); setError(null) }}>Annuler</Button>
             <Button onClick={handleSubmit} loading={submitting}>Soumettre</Button>
           </>
         }
       >
+        {error && (
+          <div className="px-3 py-2 rounded-lg text-[13px] mb-3 border bg-red-bg border-red-border text-red">
+            {error}
+          </div>
+        )}
         <Select
           label="Type de demande"
           value={form.type_demande}
