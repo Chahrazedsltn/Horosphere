@@ -54,7 +54,6 @@ export const pointageService = {
 
   async compteurs(): Promise<{
     conges_total: number; conges_pris: number; conges_restants: number;
-    rtt_total: number; rtt_pris: number; rtt_restants: number;
     absences_annee: number;
   }> {
     const res = await api.get('/pointages/compteurs')

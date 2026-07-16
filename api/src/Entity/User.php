@@ -58,9 +58,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'integer', options: ['default' => 25])]
     private int $soldeConges = 25;
 
-    #[ORM\Column(type: 'integer', options: ['default' => 10])]
-    private int $soldeRtt = 10;
-
     #[ORM\OneToMany(mappedBy: 'utilisateur', targetEntity: Pointage::class, orphanRemoval: true)]
     private Collection $pointages;
 
@@ -134,9 +131,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getSoldeConges(): int { return $this->soldeConges; }
     public function setSoldeConges(int $soldeConges): static { $this->soldeConges = $soldeConges; return $this; }
-
-    public function getSoldeRtt(): int { return $this->soldeRtt; }
-    public function setSoldeRtt(int $soldeRtt): static { $this->soldeRtt = $soldeRtt; return $this; }
 
     public function getFullName(): string { return trim($this->prenom . ' ' . $this->nom); }
 

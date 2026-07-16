@@ -57,7 +57,6 @@ class AppFixtures extends Fixture
         $admin->setConsentementRgpd(true);
         $admin->setMotDePasse($this->passwordHasher->hashPassword($admin, 'Admin1234!'));
         $admin->setSoldeConges(25);
-        $admin->setSoldeRtt(10);
         $manager->persist($admin);
 
         // ─── RH ─────────────────────────────────────────────────
@@ -70,7 +69,6 @@ class AppFixtures extends Fixture
         $rh->setConsentementRgpd(true);
         $rh->setMotDePasse($this->passwordHasher->hashPassword($rh, 'Rh1234!'));
         $rh->setSoldeConges(25);
-        $rh->setSoldeRtt(10);
         $manager->persist($rh);
 
         // ─── Agents ─────────────────────────────────────────────
@@ -85,7 +83,6 @@ class AppFixtures extends Fixture
         $agent1->setConsentementRgpd(true);
         $agent1->setMotDePasse($this->passwordHasher->hashPassword($agent1, 'Agent1234!'));
         $agent1->setSoldeConges(25);
-        $agent1->setSoldeRtt(10);
         $manager->persist($agent1);
         $agents[] = $agent1;
 
@@ -98,7 +95,6 @@ class AppFixtures extends Fixture
         $agent2->setConsentementRgpd(true);
         $agent2->setMotDePasse($this->passwordHasher->hashPassword($agent2, 'Agent1234!'));
         $agent2->setSoldeConges(25);
-        $agent2->setSoldeRtt(10);
         $manager->persist($agent2);
         $agents[] = $agent2;
 
@@ -111,7 +107,6 @@ class AppFixtures extends Fixture
         $agent3->setConsentementRgpd(true);
         $agent3->setMotDePasse($this->passwordHasher->hashPassword($agent3, 'Agent1234!'));
         $agent3->setSoldeConges(25);
-        $agent3->setSoldeRtt(10);
         $manager->persist($agent3);
         $agents[] = $agent3;
 

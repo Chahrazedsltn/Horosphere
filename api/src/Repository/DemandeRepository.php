@@ -80,7 +80,7 @@ class DemandeRepository extends ServiceEntityRepository
     }
 
     /**
-     * Count all approved absence days (CONGE + RTT + ABSENCE) for a user in a given year.
+     * Count all approved absence days (CONGE + ABSENCE) for a user in a given year.
      */
     public function countAbsencesAnnee(User $user, int $annee): int
     {
@@ -94,7 +94,7 @@ class DemandeRepository extends ServiceEntityRepository
             ->andWhere('d.dateDebut >= :debut')
             ->andWhere('d.dateDebut <= :fin')
             ->setParameter('user', $user)
-            ->setParameter('types', [Demande::TYPE_CONGE, Demande::TYPE_RTT, Demande::TYPE_ABSENCE])
+            ->setParameter('types', [Demande::TYPE_CONGE, Demande::TYPE_ABSENCE])
             ->setParameter('statut', Demande::STATUT_APPROUVEE)
             ->setParameter('debut', $debut)
             ->setParameter('fin', $fin)

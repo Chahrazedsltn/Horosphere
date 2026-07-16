@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Clock, CalendarBlank, HandWaving, ChartBar, Umbrella, ArrowsClockwise, CalendarX } from '@phosphor-icons/react'
+import { Clock, CalendarBlank, HandWaving, ChartBar, Umbrella, CalendarX } from '@phosphor-icons/react'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { PointageWidget } from '../../components/pointage/PointageWidget'
@@ -19,7 +19,6 @@ export default function DashboardPage() {
   const [joursFeries, setJoursFeries] = useState<{ date: string; nom: string }[]>([])
   const [compteurs, setCompteurs] = useState<{
     conges_total: number; conges_pris: number; conges_restants: number;
-    rtt_total: number; rtt_pris: number; rtt_restants: number;
     absences_annee: number;
   } | null>(null)
   const [loading, setLoading] = useState(true)
@@ -100,7 +99,7 @@ export default function DashboardPage() {
 
       {/* Mes compteurs */}
       {compteurs && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <CounterCard
             icon={<Umbrella size={16} weight="fill" />}
             label="Congés"
@@ -109,15 +108,6 @@ export default function DashboardPage() {
             restants={compteurs.conges_restants}
             color="var(--accent)"
             bgColor="var(--accent-light)"
-          />
-          <CounterCard
-            icon={<ArrowsClockwise size={16} weight="bold" />}
-            label="RTT"
-            pris={compteurs.rtt_pris}
-            total={compteurs.rtt_total}
-            restants={compteurs.rtt_restants}
-            color="var(--green)"
-            bgColor="var(--green-bg)"
           />
           <div className="bg-surface border border-border rounded-2xl p-5 flex items-center gap-4">
             <div

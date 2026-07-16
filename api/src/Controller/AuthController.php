@@ -57,7 +57,6 @@ class AuthController extends AbstractController
                 'departement' => $user->getDepartement(),
                 'initiales'   => $user->getInitials(),
                 'soldeConges' => $user->getSoldeConges(),
-                'soldeRtt'    => $user->getSoldeRtt(),
             ],
             'message' => 'OK',
         ]);

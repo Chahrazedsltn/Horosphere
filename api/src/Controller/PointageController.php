@@ -274,8 +274,6 @@ class PointageController extends AbstractController
 
         $congesTotal    = $user->getSoldeConges();
         $congesPris     = $this->demandeRepository->countJoursApprouves($user, Demande::TYPE_CONGE, $annee);
-        $rttTotal       = $user->getSoldeRtt();
-        $rttPris        = $this->demandeRepository->countJoursApprouves($user, Demande::TYPE_RTT, $annee);
         $absencesAnnee  = $this->demandeRepository->countAbsencesAnnee($user, $annee);
 
         return $this->json([
@@ -283,9 +281,6 @@ class PointageController extends AbstractController
                 'conges_total'    => $congesTotal,
                 'conges_pris'     => $congesPris,
                 'conges_restants' => $congesTotal - $congesPris,
-                'rtt_total'       => $rttTotal,
-                'rtt_pris'        => $rttPris,
-                'rtt_restants'    => $rttTotal - $rttPris,
                 'absences_annee'  => $absencesAnnee,
             ],
             'message' => 'OK',

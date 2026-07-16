@@ -15,7 +15,7 @@ const steps: Step[] = [
     title: 'Bienvenue sur Horosphere !',
     description:
       'Horosphere est votre outil de gestion du temps et des presences. ' +
-      'Depuis votre tableau de bord, vous pouvez pointer vos heures, suivre vos compteurs de conges et RTT, ' +
+      'Depuis votre tableau de bord, vous pouvez pointer vos heures, suivre vos compteurs de conges, ' +
       'et consulter votre calendrier mensuel en un coup d\'oeil.',
   },
   {
