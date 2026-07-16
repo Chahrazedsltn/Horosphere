@@ -11,12 +11,12 @@ use App\Service\AuditService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route('/api/auth', name: 'api_auth_')]
@@ -86,17 +86,11 @@ class AuthController extends AbstractController
             $tokenEntity = new PasswordResetToken($email);
             $this->resetTokenRepository->save($tokenEntity);
 
-            $resetUrl = $this->generateUrl(
-                'app_reset_password_frontend',
-                ['token' => $tokenEntity->getToken()],
-                UrlGeneratorInterface::ABSOLUTE_URL,
-            );
-
-            // On reconstruit l'URL frontend (pas Symfony) depuis APP_FRONTEND_URL
             $frontendUrl = $_SERVER['APP_FRONTEND_URL'] ?? $_ENV['APP_FRONTEND_URL'] ?? 'http://localhost';
             $resetUrl    = rtrim($frontendUrl, '/') . '/reinitialiser-mot-de-passe?token=' . $tokenEntity->getToken();
 
             $email_message = (new TemplatedEmail())
+                ->from('noreply@horosphere.fr')
                 ->to($user->getEmail())
                 ->subject('Horosphere — Réinitialisation de votre mot de passe')
                 ->htmlTemplate('email/reset_password.html.twig')
@@ -176,5 +170,124 @@ class AuthController extends AbstractController
         $this->resetTokenRepository->purgeExpired();
 
         return $this->json(['message' => 'Mot de passe réinitialisé avec succès.']);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  RGPD — Droit à la portabilité (Article 20)                        */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * GET /api/auth/mes-donnees
+     * Retourne toutes les données personnelles de l'utilisateur connecté.
+     */
+    #[Route('/mes-donnees', name: 'mes_donnees', methods: ['GET'])]
+    public function mesDonnees(#[CurrentUser] ?User $user): JsonResponse
+    {
+        if (null === $user) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        $this->auditService->log(
+            AuditLog::ACTION_RGPD_EXPORT,
+            $user,
+            'User',
+            $user->getId(),
+            ['action' => 'export_donnees_personnelles'],
+        );
+
+        return $this->json([
+            'data' => [
+                'utilisateur' => [
+                    'id'           => $user->getId(),
+                    'email'        => $user->getEmail(),
+                    'prenom'       => $user->getPrenom(),
+                    'nom'          => $user->getNom(),
+                    'role'         => $user->getRole(),
+                    'departement'  => $user->getDepartement(),
+                    'dateCreation' => $user->getDateCreation()?->format('Y-m-d H:i:s'),
+                ],
+                'pointages' => array_map(static fn ($p) => [
+                    'id'            => $p->getId(),
+                    'date'          => $p->getDateJour()?->format('Y-m-d'),
+                    'heureArrivee'  => $p->getHeureArrivee()?->format('H:i:s'),
+                    'heureDepart'   => $p->getHeureDepart()?->format('H:i:s'),
+                    'dureeMinutes'  => $p->getDureeMinutes(),
+                    'site'          => $p->getSite()?->getNom(),
+                    'statut'        => $p->getStatut(),
+                ], $user->getPointages()->toArray()),
+                'demandes' => array_map(static fn ($d) => [
+                    'id'           => $d->getId(),
+                    'type'         => $d->getTypeDemande(),
+                    'dateDebut'    => $d->getDateDebut()?->format('Y-m-d'),
+                    'dateFin'      => $d->getDateFin()?->format('Y-m-d'),
+                    'motif'        => $d->getMotif(),
+                    'statut'       => $d->getStatut(),
+                    'dateCreation' => $d->getDateCreation()?->format('Y-m-d H:i:s'),
+                ], $user->getDemandes()->toArray()),
+                'alertes' => array_map(static fn ($a) => [
+                    'id'           => $a->getId(),
+                    'type'         => $a->getTypeAlerte(),
+                    'message'      => $a->getMessage(),
+                    'dateCreation' => $a->getDateCreation()?->format('Y-m-d H:i:s'),
+                ], $user->getAlertes()->toArray()),
+            ],
+            'message' => 'Export RGPD — données personnelles.',
+        ]);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /*  RGPD — Droit à l'effacement (Article 17)                          */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * DELETE /api/auth/mon-compte
+     * Anonymise le compte et supprime les données personnelles associées.
+     */
+    #[Route('/mon-compte', name: 'mon_compte_supprimer', methods: ['DELETE'])]
+    public function supprimerMonCompte(#[CurrentUser] ?User $user): JsonResponse
+    {
+        if (null === $user) {
+            return $this->json(['message' => 'Non authentifié'], 401);
+        }
+
+        $userId    = $user->getId();
+        $userEmail = $user->getEmail();
+
+        // 1. Supprimer les alertes
+        foreach ($user->getAlertes() as $alerte) {
+            $this->em->remove($alerte);
+        }
+
+        // 2. Supprimer les documents (entité + fichier physique)
+        $filesystem = new Filesystem();
+        foreach ($user->getDocuments() as $document) {
+            $chemin = $document->getCheminFichier();
+            if (null !== $chemin && $filesystem->exists($chemin)) {
+                $filesystem->remove($chemin);
+            }
+            $this->em->remove($document);
+        }
+
+        // 3. Anonymiser l'utilisateur (conservation pour intégrité référentielle)
+        $user->setEmail('anonyme_' . $userId . '@deleted.horosphere.fr');
+        $user->setPrenom('Utilisateur');
+        $user->setNom('Supprimé');
+        $user->setPassword(bin2hex(random_bytes(32)));
+        $user->setDepartement(null);
+        $user->setConsentementRgpd(false);
+        $user->setRole(User::ROLE_AGENT);
+
+        $this->em->flush();
+
+        // 4. Tracer dans l'audit log (après flush pour garantir la persistance)
+        $this->auditService->log(
+            AuditLog::ACTION_RGPD_EFFACEMENT,
+            null, // l'utilisateur est anonymisé, on log sans acteur
+            'User',
+            $userId,
+            ['email_origine' => AuditService::maskEmail($userEmail), 'action' => 'effacement_compte'],
+        );
+
+        return $this->json(['message' => 'Compte supprimé conformément au RGPD.']);
     }
 }

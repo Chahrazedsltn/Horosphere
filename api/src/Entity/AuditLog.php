@@ -22,6 +22,8 @@ class AuditLog
     public const ACTION_RESET_PASSWORD     = 'auth.reset_password';
     public const ACTION_PAUSE_DEBUT        = 'pointage.pause_debut';
     public const ACTION_PAUSE_FIN          = 'pointage.pause_fin';
+    public const ACTION_RGPD_EFFACEMENT   = 'rgpd.effacement';
+    public const ACTION_RGPD_EXPORT       = 'rgpd.export';
 
     #[ORM\Id]
     #[ORM\GeneratedValue]
