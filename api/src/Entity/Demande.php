@@ -47,6 +47,9 @@ class Demande
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $motif = null;
 
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $justificatif = null;
+
     #[ORM\Column(type: 'datetime_immutable')]
     private ?\DateTimeImmutable $dateCreation = null;
 
@@ -77,6 +80,9 @@ class Demande
 
     public function getMotif(): ?string { return $this->motif; }
     public function setMotif(?string $motif): static { $this->motif = $motif; return $this; }
+
+    public function getJustificatif(): ?string { return $this->justificatif; }
+    public function setJustificatif(?string $justificatif): static { $this->justificatif = $justificatif; return $this; }
 
     public function getDateCreation(): ?\DateTimeImmutable { return $this->dateCreation; }
 

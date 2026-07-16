@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Clock, Warning, Users, X } from '@phosphor-icons/react'
+import { Clock, Warning, Users, X, CalendarBlank } from '@phosphor-icons/react'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { Table } from '../../components/ui/Table'
@@ -7,7 +7,8 @@ import { Badge, StatutPointageBadge } from '../../components/ui/Badge'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { userService, type EmployeStats } from '../../services/user.service'
 import { pointageService } from '../../services/pointage.service'
-import type { DashboardStats, Pointage } from '../../types'
+import { demandeService } from '../../services/demande.service'
+import type { DashboardStats, Pointage, Demande } from '../../types'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
 
@@ -20,6 +21,7 @@ export default function RhDashboardPage() {
   const [todayPointages, setTodayPointages] = useState<Pointage[]>([])
   const [anomalies, setAnomalies] = useState<Pointage[]>([])
   const [employeStats, setEmployeStats] = useState<EmployeStats[]>([])
+  const [demandes, setDemandes] = useState<Demande[]>([])
   const [loading, setLoading] = useState(true)
 
   // Détail employé
@@ -37,12 +39,14 @@ export default function RhDashboardPage() {
       userService.statsDashboard(),
       pointageService.liste({ date_debut: today, date_fin: today }),
       userService.statsEmployes(mois, annee),
+      demandeService.liste(),
     ])
-      .then(([s, p, es]) => {
+      .then(([s, p, es, dem]) => {
         setStats(s)
         setTodayPointages(p)
         setAnomalies(p.filter((x) => x.estAnomalie))
         setEmployeStats(es)
+        setDemandes(dem)
       })
       .finally(() => setLoading(false))
   }, [mois, annee])
@@ -243,6 +247,9 @@ export default function RhDashboardPage() {
         </div>
       </Card>
 
+      {/* Planning absences/congés */}
+      <PlanningAbsences demandes={demandes} />
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         {/* Pointages du jour */}
         <Card title="Pointages du jour" icon={<Clock size={14} />}>
@@ -274,5 +281,84 @@ export default function RhDashboardPage() {
         </Card>
       </div>
     </div>
+  )
+}
+
+const TYPE_COLORS: Record<string, { bg: string; border: string; text: string; label: string }> = {
+  CONGE:      { bg: 'bg-emerald-50', border: 'border-emerald-300', text: 'text-emerald-700', label: 'Conge' },
+  ABSENCE:    { bg: 'bg-rose-50', border: 'border-rose-300', text: 'text-rose-700', label: 'Absence' },
+  CORRECTION: { bg: 'bg-sky-50', border: 'border-sky-300', text: 'text-sky-700', label: 'Correction' },
+  AUTRE:      { bg: 'bg-gray-50', border: 'border-gray-300', text: 'text-gray-600', label: 'Autre' },
+}
+
+function PlanningAbsences({ demandes }: { demandes: Demande[] }) {
+  const now = new Date()
+  const approved = demandes.filter((d) => d.statut === 'APPROUVEE')
+
+  // Absences en cours ou à venir (dateFin >= aujourd'hui)
+  const todayStr = format(now, 'yyyy-MM-dd')
+  const current = approved.filter((d) => d.dateFin >= todayStr).sort((a, b) => a.dateDebut.localeCompare(b.dateDebut))
+
+  // Absences actives aujourd'hui
+  const activeToday = approved.filter((d) => d.dateDebut <= todayStr && d.dateFin >= todayStr)
+
+  if (current.length === 0 && activeToday.length === 0) return null
+
+  return (
+    <Card title="Planning absences et conges" icon={<CalendarBlank size={14} />}>
+      {activeToday.length > 0 && (
+        <div className="mb-4">
+          <div className="text-[11px] font-semibold text-text3 uppercase tracking-wide mb-2">Absents aujourd'hui</div>
+          <div className="flex flex-wrap gap-2">
+            {activeToday.map((d) => {
+              const c = TYPE_COLORS[d.typeDemande] ?? TYPE_COLORS.AUTRE
+              return (
+                <div key={d.id} className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${c.bg} ${c.border}`}>
+                  <span className={`text-[12px] font-semibold ${c.text}`}>
+                    {d.utilisateur?.prenom} {d.utilisateur?.nom}
+                  </span>
+                  <span className={`text-[10px] font-mono ${c.text} opacity-70`}>{c.label}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {current.length > 0 && (
+        <div>
+          <div className="text-[11px] font-semibold text-text3 uppercase tracking-wide mb-2">
+            {activeToday.length > 0 ? 'A venir' : 'Absences planifiees'}
+          </div>
+          <div className="space-y-1.5">
+            {current.slice(0, 8).map((d) => {
+              const c = TYPE_COLORS[d.typeDemande] ?? TYPE_COLORS.AUTRE
+              const isActive = d.dateDebut <= todayStr && d.dateFin >= todayStr
+              return (
+                <div key={d.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg border ${isActive ? c.bg + ' ' + c.border : 'bg-surface border-border'}`}>
+                  <div className={`w-1.5 h-8 rounded-full flex-shrink-0 ${isActive ? c.bg.replace('50', '400') : 'bg-border2'}`}
+                    style={{ background: isActive ? undefined : 'var(--border2)' }}
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] font-medium text-text">
+                      {d.utilisateur?.prenom} {d.utilisateur?.nom}
+                    </div>
+                    <div className="text-[11px] text-text3">
+                      {c.label} — {d.motif || 'Pas de motif'}
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-[12px] font-mono text-text2">
+                      {format(new Date(d.dateDebut), 'dd/MM')} — {format(new Date(d.dateFin), 'dd/MM')}
+                    </div>
+                    <div className="text-[10px] text-text3">{d.dureeJours} jour(s)</div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </Card>
   )
 }

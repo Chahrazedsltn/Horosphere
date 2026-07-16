@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react'
-import { CheckCircle, XCircle, FilePdf, DownloadSimple } from '@phosphor-icons/react'
+import { CheckCircle, XCircle, FilePdf, DownloadSimple, Paperclip, PlusCircle } from '@phosphor-icons/react'
 import api from '../../services/api'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
+import { Modal } from '../../components/ui/Modal'
+import { Input, Select, Textarea } from '../../components/ui/Input'
 import { StatutDemandeBadge, TypeDemandeBadge } from '../../components/ui/Badge'
 import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
 import { demandeService } from '../../services/demande.service'
-import type { Demande } from '../../types'
+import { userService } from '../../services/user.service'
+import type { Demande, User } from '../../types'
 import { format } from 'date-fns'
 
 export default function ValidationPage() {
@@ -17,11 +20,17 @@ export default function ValidationPage() {
   const [filter, setFilter] = useState('ALL')
   const [docSuccess, setDocSuccess] = useState<{ id: number; url: string } | null>(null)
   const [docError, setDocError] = useState<number | null>(null)
+  const [absenceModalOpen, setAbsenceModalOpen] = useState(false)
+  const [absenceSubmitting, setAbsenceSubmitting] = useState(false)
+  const [absenceError, setAbsenceError] = useState<string | null>(null)
+  const [users, setUsers] = useState<User[]>([])
+  const [absenceForm, setAbsenceForm] = useState({ utilisateur_id: '', type_demande: 'ABSENCE', date_debut: '', date_fin: '', motif: '' })
 
   useEffect(() => {
     demandeService.liste()
       .then(setDemandes)
       .finally(() => setLoading(false))
+    userService.liste().then(setUsers)
   }, [])
 
   const handle = async (id: number, decision: 'APPROUVEE' | 'REJETEE') => {
@@ -47,12 +56,41 @@ export default function ValidationPage() {
     }
   }
 
+  const handleAbsenceSubmit = async () => {
+    if (!absenceForm.utilisateur_id || !absenceForm.date_debut || !absenceForm.date_fin) return
+    setAbsenceSubmitting(true)
+    setAbsenceError(null)
+    try {
+      const d = await demandeService.creerParRh({
+        utilisateur_id: Number(absenceForm.utilisateur_id),
+        type_demande: absenceForm.type_demande,
+        date_debut: absenceForm.date_debut,
+        date_fin: absenceForm.date_fin,
+        motif: absenceForm.motif || undefined,
+      })
+      setDemandes((prev) => [d, ...prev])
+      setAbsenceModalOpen(false)
+      setAbsenceForm({ utilisateur_id: '', type_demande: 'ABSENCE', date_debut: '', date_fin: '', motif: '' })
+    } catch {
+      setAbsenceError('Erreur lors de la déclaration. Veuillez réessayer.')
+    } finally {
+      setAbsenceSubmitting(false)
+    }
+  }
+
   const filtered = demandes.filter((d) => filter === 'ALL' || d.statut === filter)
 
   if (loading) return <LoadingSpinner />
 
   return (
     <div className="space-y-5">
+      {/* Actions */}
+      <div className="flex justify-end">
+        <Button icon={<PlusCircle size={16} />} onClick={() => setAbsenceModalOpen(true)}>
+          Déclarer une absence
+        </Button>
+      </div>
+
       {/* Filtres */}
       <div className="flex gap-2 flex-wrap">
         {[['ALL', 'Toutes'], ['EN_ATTENTE', 'En attente'], ['APPROUVEE', 'Approuvées'], ['REJETEE', 'Rejetées']].map(([val, label]) => (
@@ -96,6 +134,14 @@ export default function ValidationPage() {
                   <span className="text-text3 ml-2 text-[12px]">({d.dureeJours} jour(s))</span>
                 </div>
                 {d.motif && <p className="text-[12px] text-text3 mt-1 italic">"{d.motif}"</p>}
+                {d.justificatif && (
+                  <button
+                    onClick={() => demandeService.downloadJustificatif(d.id, d.justificatif!)}
+                    className="mt-1.5 inline-flex items-center gap-1 text-[12px] text-accent font-medium hover:underline cursor-pointer bg-transparent border-none"
+                  >
+                    <Paperclip size={13} /> {d.justificatif}
+                  </button>
+                )}
 
                 {/* Notification document généré */}
                 {docSuccess?.id === d.id && (
@@ -192,6 +238,47 @@ export default function ValidationPage() {
           </div>
         ))
       )}
+
+      <Modal
+        open={absenceModalOpen}
+        onClose={() => { setAbsenceModalOpen(false); setAbsenceError(null) }}
+        title="Déclarer une absence"
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => { setAbsenceModalOpen(false); setAbsenceError(null) }}>Annuler</Button>
+            <Button onClick={handleAbsenceSubmit} loading={absenceSubmitting}>Déclarer</Button>
+          </>
+        }
+      >
+        {absenceError && (
+          <div className="px-3 py-2 rounded-lg text-[13px] mb-3 border bg-red-bg border-red-border text-red">
+            {absenceError}
+          </div>
+        )}
+        <Select
+          label="Employé"
+          value={absenceForm.utilisateur_id}
+          onChange={(e) => setAbsenceForm({ ...absenceForm, utilisateur_id: e.target.value })}
+        >
+          <option value="">-- Sélectionner --</option>
+          {users.map((u) => (
+            <option key={u.id} value={u.id}>{u.prenom} {u.nom}</option>
+          ))}
+        </Select>
+        <Select
+          label="Type"
+          value={absenceForm.type_demande}
+          onChange={(e) => setAbsenceForm({ ...absenceForm, type_demande: e.target.value })}
+        >
+          <option value="ABSENCE">Absence</option>
+          <option value="CONGE">Congé</option>
+        </Select>
+        <div className="grid grid-cols-2 gap-3">
+          <Input label="Date début" type="date" value={absenceForm.date_debut} onChange={(e) => setAbsenceForm({ ...absenceForm, date_debut: e.target.value })} />
+          <Input label="Date fin" type="date" value={absenceForm.date_fin} onChange={(e) => setAbsenceForm({ ...absenceForm, date_fin: e.target.value })} />
+        </div>
+        <Textarea label="Motif (optionnel)" value={absenceForm.motif} onChange={(e) => setAbsenceForm({ ...absenceForm, motif: e.target.value })} placeholder="Raison de l'absence..." />
+      </Modal>
     </div>
   )
 }

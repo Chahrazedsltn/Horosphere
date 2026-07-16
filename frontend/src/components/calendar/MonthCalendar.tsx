@@ -1,9 +1,15 @@
 import React, { useMemo } from 'react'
-import type { Pointage } from '../../types'
+import type { Pointage, Demande } from '../../types'
 
 interface JourFerie {
   date: string
   nom: string
+}
+
+export type CalendarEvent = {
+  date: string
+  type: 'conge' | 'absence' | 'correction' | 'autre'
+  label: string
 }
 
 interface MonthCalendarProps {
@@ -11,6 +17,7 @@ interface MonthCalendarProps {
   month: number // 0-indexed
   pointages: Pointage[]
   joursFeries?: JourFerie[]
+  demandes?: Demande[]
 }
 
 function getDaysInMonth(year: number, month: number) {
@@ -24,7 +31,14 @@ function getFirstDayOfWeek(year: number, month: number) {
 
 const WEEKDAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim']
 
-export function MonthCalendar({ year, month, pointages, joursFeries = [] }: MonthCalendarProps) {
+const TYPE_LABELS: Record<string, string> = {
+  CONGE: 'Congé',
+  ABSENCE: 'Absence',
+  CORRECTION: 'Correction',
+  AUTRE: 'Autre',
+}
+
+export function MonthCalendar({ year, month, pointages, joursFeries = [], demandes = [] }: MonthCalendarProps) {
   const today = new Date()
   const daysInMonth = getDaysInMonth(year, month)
   const firstDay = getFirstDayOfWeek(year, month)
@@ -49,6 +63,20 @@ export function MonthCalendar({ year, month, pointages, joursFeries = [] }: Mont
     }
     return map
   }, [joursFeries])
+
+  const demandeMap = useMemo(() => {
+    const map: Record<string, { type: string; label: string }> = {}
+    const approved = demandes.filter((d) => d.statut === 'APPROUVEE')
+    for (const d of approved) {
+      const start = new Date(d.dateDebut)
+      const end = new Date(d.dateFin)
+      for (let dt = new Date(start); dt <= end; dt.setDate(dt.getDate() + 1)) {
+        const key = `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
+        map[key] = { type: d.typeDemande, label: TYPE_LABELS[d.typeDemande] ?? d.typeDemande }
+      }
+    }
+    return map
+  }, [demandes])
 
   const cells: Array<{ day: number | null }> = []
   for (let i = 0; i < firstDay; i++) cells.push({ day: null })
@@ -79,15 +107,25 @@ export function MonthCalendar({ year, month, pointages, joursFeries = [] }: Mont
           const isWeekend = weekday === 0 || weekday === 6
           const nomFerie = ferieMap[dateStr]
           const isFerie = !!nomFerie
+          const demande = demandeMap[dateStr]
+          const isConge = demande?.type === 'CONGE'
+          const isAbsence = demande?.type === 'ABSENCE'
+          const hasDemande = !!demande
 
           let cellClass = 'bg-surface border border-border text-text2'
           if (isToday) cellClass = 'bg-accent border-accent text-white font-bold'
           else if (status === 'anomalie') cellClass = 'bg-amber-bg border-amber-border text-amber font-semibold'
+          else if (isConge) cellClass = 'bg-emerald-50 border-emerald-300 text-emerald-700 font-semibold'
+          else if (isAbsence) cellClass = 'bg-rose-50 border-rose-300 text-rose-700 font-semibold'
+          else if (hasDemande) cellClass = 'bg-sky-50 border-sky-300 text-sky-700 font-semibold'
           else if (status === 'present') cellClass = 'bg-accent-light border-accent-mid text-accent font-semibold'
-          else if (isFerie) cellClass = 'bg-violet-100 border-violet-300 text-violet-700 dark:bg-violet-900/30 dark:border-violet-700 dark:text-violet-300 font-semibold'
+          else if (isFerie) cellClass = 'bg-violet-100 border-violet-300 text-violet-700 font-semibold'
           else if (isWeekend) cellClass = 'bg-surface2 border-border text-text3'
 
-          const titleText = isFerie ? `${dateStr} — ${nomFerie}` : dateStr
+          let titleText = dateStr
+          if (isFerie) titleText = `${dateStr} — ${nomFerie}`
+          if (hasDemande) titleText = `${dateStr} — ${demande.label}`
+          if (isFerie && hasDemande) titleText = `${dateStr} — ${nomFerie} / ${demande.label}`
 
           return (
             <div
@@ -96,26 +134,35 @@ export function MonthCalendar({ year, month, pointages, joursFeries = [] }: Mont
               title={titleText}
             >
               <span className="text-[11px] font-mono">{cell.day}</span>
-              {status === 'present' && !isToday && <span className="w-1 h-1 rounded-full bg-current mt-0.5 opacity-70" />}
-              {isFerie && !isToday && <span className="w-1.5 h-1.5 rounded-full bg-violet-500 dark:bg-violet-400 mt-0.5" />}
+              {status === 'present' && !hasDemande && !isToday && <span className="w-1 h-1 rounded-full bg-current mt-0.5 opacity-70" />}
+              {isConge && !isToday && <span className="text-[7px] font-bold mt-0.5 leading-none">C</span>}
+              {isAbsence && !isToday && <span className="text-[7px] font-bold mt-0.5 leading-none">A</span>}
+              {hasDemande && !isConge && !isAbsence && !isToday && <span className="w-1 h-1 rounded-full bg-current mt-0.5 opacity-70" />}
+              {isFerie && !hasDemande && !isToday && <span className="w-1.5 h-1.5 rounded-full bg-violet-500 mt-0.5" />}
             </div>
           )
         })}
       </div>
 
       {/* Légende */}
-      <div className="flex items-center gap-4 mt-3 text-[11px] text-text3 flex-wrap">
-        <span className="flex items-center gap-1.5">
+      <div className="flex items-center gap-3 mt-3 text-[10px] text-text3 flex-wrap">
+        <span className="flex items-center gap-1">
           <span className="w-3 h-3 rounded bg-accent" /> Aujourd'hui
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1">
           <span className="w-3 h-3 rounded bg-accent-light border border-accent-mid" /> Présent
         </span>
-        <span className="flex items-center gap-1.5">
+        <span className="flex items-center gap-1">
+          <span className="w-3 h-3 rounded bg-emerald-50 border border-emerald-300" /> Congé
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-3 h-3 rounded bg-rose-50 border border-rose-300" /> Absence
+        </span>
+        <span className="flex items-center gap-1">
           <span className="w-3 h-3 rounded bg-amber-bg border border-amber-border" /> Anomalie
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded bg-violet-100 border border-violet-300 dark:bg-violet-900/30 dark:border-violet-700" /> Jour férié
+        <span className="flex items-center gap-1">
+          <span className="w-3 h-3 rounded bg-violet-100 border border-violet-300" /> Férié
         </span>
       </div>
     </div>

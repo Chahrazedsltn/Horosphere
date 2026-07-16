@@ -14,8 +14,10 @@ use App\Service\PdfGeneratorService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -63,15 +65,55 @@ class DemandeController extends AbstractController
     #[Route('', name: 'creer', methods: ['POST'])]
     public function creer(Request $request, #[CurrentUser] User $user): JsonResponse
     {
-        $data = json_decode($request->getContent(), true) ?? [];
+        $data = [
+            'type_demande' => $request->request->get('type_demande'),
+            'date_debut'   => $request->request->get('date_debut'),
+            'date_fin'     => $request->request->get('date_fin'),
+            'motif'        => $request->request->get('motif'),
+        ];
 
         if (!isset($data['type_demande'], $data['date_debut'], $data['date_fin'])) {
             return $this->json(['message' => 'Champs obligatoires manquants.'], 422);
         }
 
+        // Handle file upload
+        $file = $request->files->get('justificatif');
+        $justificatifFilename = null;
+
+        if (null !== $file) {
+            $allowedMimes = ['application/pdf', 'image/jpeg', 'image/png'];
+            if (!in_array($file->getMimeType(), $allowedMimes, true)) {
+                return $this->json(['message' => 'Type de fichier non autorisé. Formats acceptés : PDF, JPG, PNG.'], 422);
+            }
+
+            if ($file->getSize() > 5 * 1024 * 1024) {
+                return $this->json(['message' => 'Le fichier ne doit pas dépasser 5 Mo.'], 422);
+            }
+
+            $justificatifsDir = $this->exportsDir . '/justificatifs';
+            if (!is_dir($justificatifsDir)) {
+                mkdir($justificatifsDir, 0775, true);
+            }
+
+            $justificatifFilename = sprintf('%s_%s.%s', uniqid('just_', true), date('Ymd'), $file->guessExtension());
+            $file->move($justificatifsDir, $justificatifFilename);
+        }
+
         try {
             $demande = $this->demandeService->soumettre($user, $data);
+
+            if (null !== $justificatifFilename) {
+                $demande->setJustificatif($justificatifFilename);
+                $this->em->flush();
+            }
         } catch (\Exception $e) {
+            // Clean up uploaded file on error
+            if (null !== $justificatifFilename) {
+                $path = $this->exportsDir . '/justificatifs/' . $justificatifFilename;
+                if (file_exists($path)) {
+                    unlink($path);
+                }
+            }
             return $this->json(['message' => $e->getMessage()], 422);
         }
 
@@ -79,6 +121,61 @@ class DemandeController extends AbstractController
             'data'    => $this->serializeDemande($demande),
             'message' => 'Demande soumise avec succès.',
         ], 201);
+    }
+
+    #[Route('/rh', name: 'creer_rh', methods: ['POST'])]
+    #[IsGranted('ROLE_RH')]
+    public function creerParRh(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+
+        if (!isset($data['utilisateur_id'], $data['type_demande'], $data['date_debut'], $data['date_fin'])) {
+            return $this->json(['message' => 'Champs obligatoires manquants.'], 422);
+        }
+
+        $employe = $this->em->getRepository(User::class)->find($data['utilisateur_id']);
+        if (null === $employe) {
+            return $this->json(['message' => 'Utilisateur introuvable.'], 404);
+        }
+
+        try {
+            $demande = $this->demandeService->soumettre($employe, $data);
+            $demande->setStatut(Demande::STATUT_APPROUVEE);
+            $this->em->flush();
+        } catch (\Exception $e) {
+            return $this->json(['message' => $e->getMessage()], 422);
+        }
+
+        return $this->json([
+            'data'    => $this->serializeDemande($demande),
+            'message' => 'Absence enregistrée avec succès.',
+        ], 201);
+    }
+
+    #[Route('/{id}/justificatif', name: 'download_justificatif', methods: ['GET'])]
+    public function downloadJustificatif(Demande $demande, #[CurrentUser] User $user): BinaryFileResponse|JsonResponse
+    {
+        $filename = $demande->getJustificatif();
+        if (null === $filename) {
+            return $this->json(['message' => 'Aucun justificatif attaché à cette demande.'], 404);
+        }
+
+        // Check permissions: owner or RH
+        $isOwner = $demande->getUtilisateur()?->getId() === $user->getId();
+        $isRh    = in_array('ROLE_RH', $user->getRoles(), true);
+        if (!$isOwner && !$isRh) {
+            return $this->json(['message' => 'Accès refusé.'], 403);
+        }
+
+        $filepath = $this->exportsDir . '/justificatifs/' . $filename;
+        if (!file_exists($filepath)) {
+            return $this->json(['message' => 'Fichier introuvable.'], 404);
+        }
+
+        $response = new BinaryFileResponse($filepath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_INLINE, $filename);
+
+        return $response;
     }
 
     #[Route('/{id}/traiter', name: 'traiter', methods: ['PUT', 'PATCH'])]
@@ -361,16 +458,21 @@ class DemandeController extends AbstractController
 
     private function serializeDemande(Demande $d): array
     {
+        $justificatif    = $d->getJustificatif();
+        $justificatifUrl = null !== $justificatif ? '/api/demandes/' . $d->getId() . '/justificatif' : null;
+
         return [
-            'id'           => $d->getId(),
-            'typeDemande'  => $d->getTypeDemande(),
-            'statut'       => $d->getStatut(),
-            'dateDebut'    => $d->getDateDebut()?->format('Y-m-d'),
-            'dateFin'      => $d->getDateFin()?->format('Y-m-d'),
-            'dureeJours'   => $d->getDureeJours(),
-            'motif'        => $d->getMotif(),
-            'dateCreation' => $d->getDateCreation()?->format('Y-m-d\TH:i:s'),
-            'utilisateur'  => $d->getUtilisateur() ? [
+            'id'              => $d->getId(),
+            'typeDemande'     => $d->getTypeDemande(),
+            'statut'          => $d->getStatut(),
+            'dateDebut'       => $d->getDateDebut()?->format('Y-m-d'),
+            'dateFin'         => $d->getDateFin()?->format('Y-m-d'),
+            'dureeJours'      => $d->getDureeJours(),
+            'motif'           => $d->getMotif(),
+            'justificatif'    => $justificatif,
+            'justificatifUrl' => $justificatifUrl,
+            'dateCreation'    => $d->getDateCreation()?->format('Y-m-d\TH:i:s'),
+            'utilisateur'     => $d->getUtilisateur() ? [
                 'id'     => $d->getUtilisateur()->getId(),
                 'prenom' => $d->getUtilisateur()->getPrenom(),
                 'nom'    => $d->getUtilisateur()->getNom(),

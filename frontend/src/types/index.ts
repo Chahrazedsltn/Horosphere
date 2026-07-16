@@ -43,6 +43,8 @@ export interface Demande {
   dateFin: string
   dureeJours?: number
   motif?: string
+  justificatif?: string
+  justificatifUrl?: string
   dateCreation: string
   utilisateur?: Pick<User, 'id' | 'prenom' | 'nom' | 'email'>
 }

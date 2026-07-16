@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { PlusCircle } from '@phosphor-icons/react'
+import React, { useEffect, useRef, useState } from 'react'
+import { PlusCircle, Paperclip, DownloadSimple } from '@phosphor-icons/react'
 import { Card } from '../../components/ui/Card'
 import { Button } from '../../components/ui/Button'
 import { Modal } from '../../components/ui/Modal'
@@ -17,6 +17,8 @@ export default function DemandesPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState({ type_demande: 'CONGE', date_debut: '', date_fin: '', motif: '' })
+  const [file, setFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     demandeService.liste()
@@ -29,11 +31,12 @@ export default function DemandesPage() {
     setSubmitting(true)
     setError(null)
     try {
-      const d = await demandeService.creer(form)
+      const d = await demandeService.creer(form, file || undefined)
       setDemandes((prev) => [d, ...prev])
       setError(null)
       setModalOpen(false)
       setForm({ type_demande: 'CONGE', date_debut: '', date_fin: '', motif: '' })
+      setFile(null)
     } catch {
       setError('Erreur lors de la création de la demande. Veuillez réessayer.')
     }
@@ -69,6 +72,14 @@ export default function DemandesPage() {
                   <span className="text-text3 ml-2">({d.dureeJours} jour(s))</span>
                 </div>
                 {d.motif && <p className="text-[12px] text-text3 mt-1">{d.motif}</p>}
+                {d.justificatif && (
+                  <button
+                    onClick={() => demandeService.downloadJustificatif(d.id, d.justificatif!)}
+                    className="mt-1.5 inline-flex items-center gap-1 text-[12px] text-accent font-medium hover:underline cursor-pointer bg-transparent border-none"
+                  >
+                    <Paperclip size={13} /> {d.justificatif}
+                  </button>
+                )}
               </div>
             </div>
           </Card>
@@ -106,6 +117,33 @@ export default function DemandesPage() {
           <Input label="Date fin" type="date" value={form.date_fin} onChange={(e) => setForm({ ...form, date_fin: e.target.value })} />
         </div>
         <Textarea label="Motif (optionnel)" value={form.motif} onChange={(e) => setForm({ ...form, motif: e.target.value })} placeholder="Précisez la raison de votre demande..." />
+        <div className="mb-3.5">
+          <label className="block text-[12px] font-semibold text-text2 mb-1.5">Justificatif (optionnel)</label>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.jpg,.jpeg,.png"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md border-[1.5px] border-border bg-surface text-[13px] text-text2 font-medium hover:bg-surface2 transition-colors cursor-pointer"
+          >
+            <Paperclip size={14} />
+            {file ? file.name : 'Choisir un fichier'}
+          </button>
+          {file && (
+            <button
+              type="button"
+              onClick={() => { setFile(null); if (fileInputRef.current) fileInputRef.current.value = '' }}
+              className="ml-2 text-[12px] text-text3 hover:text-red cursor-pointer bg-transparent border-none"
+            >
+              Supprimer
+            </button>
+          )}
+        </div>
       </Modal>
     </div>
   )

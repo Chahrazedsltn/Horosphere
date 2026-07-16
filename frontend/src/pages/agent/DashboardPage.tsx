@@ -123,6 +123,7 @@ export default function DashboardPage() {
               month={now.getMonth()}
               pointages={pointages}
               joursFeries={joursFeries}
+              demandes={demandes}
             />
           </Card>
         </div>
