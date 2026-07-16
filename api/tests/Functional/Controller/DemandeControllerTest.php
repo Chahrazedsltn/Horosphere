@@ -27,14 +27,15 @@ class DemandeControllerTest extends WebTestCase
     {
         $token  = $this->getJwtToken($agentEmail, $agentPassword);
         $client = static::createClient();
-        $client->request('POST', '/api/demandes', [], [],
-            ['CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer ' . $token],
-            json_encode([
+        $client->request('POST', '/api/demandes',
+            [
                 'type_demande' => Demande::TYPE_CONGE,
                 'date_debut'   => date('Y-m-d', strtotime('+100 days')),
                 'date_fin'     => date('Y-m-d', strtotime('+110 days')),
                 'motif'        => 'Test CI auto',
-            ]),
+            ],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token],
         );
         $id = json_decode($client->getResponse()->getContent(), true)['data']['id'];
         static::ensureKernelShutdown();
@@ -100,14 +101,15 @@ class DemandeControllerTest extends WebTestCase
     {
         $token  = $this->getJwtToken('agent3@horosphere.fr', 'Agent1234!');
         $client = static::createClient();
-        $client->request('POST', '/api/demandes', [], [],
-            ['CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer ' . $token],
-            json_encode([
+        $client->request('POST', '/api/demandes',
+            [
                 'type_demande' => Demande::TYPE_CONGE,
                 'date_debut'   => date('Y-m-d', strtotime('+30 days')),
                 'date_fin'     => date('Y-m-d', strtotime('+35 days')),
                 'motif'        => 'Congés été CI',
-            ]),
+            ],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token],
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_CREATED);
@@ -120,9 +122,10 @@ class DemandeControllerTest extends WebTestCase
     {
         $token  = $this->getJwtToken('agent1@horosphere.fr', 'Agent1234!');
         $client = static::createClient();
-        $client->request('POST', '/api/demandes', [], [],
-            ['CONTENT_TYPE' => 'application/json', 'HTTP_AUTHORIZATION' => 'Bearer ' . $token],
-            json_encode(['type_demande' => Demande::TYPE_CONGE]),
+        $client->request('POST', '/api/demandes',
+            ['type_demande' => Demande::TYPE_CONGE],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer ' . $token],
         );
 
         $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
