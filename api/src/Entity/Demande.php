@@ -12,6 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 class Demande
 {
     public const TYPE_CONGE      = 'CONGE';
+    public const TYPE_RTT        = 'RTT';
     public const TYPE_CORRECTION = 'CORRECTION';
     public const TYPE_ABSENCE    = 'ABSENCE';
     public const TYPE_AUTRE      = 'AUTRE';
@@ -30,7 +31,7 @@ class Demande
     private ?User $utilisateur = null;
 
     #[ORM\Column(type: 'string', length: 20)]
-    #[Assert\Choice(choices: [self::TYPE_CONGE, self::TYPE_CORRECTION, self::TYPE_ABSENCE, self::TYPE_AUTRE])]
+    #[Assert\Choice(choices: [self::TYPE_CONGE, self::TYPE_RTT, self::TYPE_CORRECTION, self::TYPE_ABSENCE, self::TYPE_AUTRE])]
     private ?string $typeDemande = null;
 
     #[ORM\Column(type: 'string', length: 20, options: ['default' => 'EN_ATTENTE'])]

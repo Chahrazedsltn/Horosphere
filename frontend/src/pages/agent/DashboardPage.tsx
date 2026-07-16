@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Clock, CalendarBlank, HandWaving, ChartBar } from '@phosphor-icons/react'
+import { Clock, CalendarBlank, HandWaving, ChartBar, Umbrella, ArrowsClockwise, CalendarX } from '@phosphor-icons/react'
 import { StatCard } from '../../components/ui/StatCard'
 import { Card } from '../../components/ui/Card'
 import { PointageWidget } from '../../components/pointage/PointageWidget'
@@ -17,6 +17,11 @@ export default function DashboardPage() {
   const [pointages, setPointages] = useState<Pointage[]>([])
   const [demandes, setDemandes] = useState<Demande[]>([])
   const [joursFeries, setJoursFeries] = useState<{ date: string; nom: string }[]>([])
+  const [compteurs, setCompteurs] = useState<{
+    conges_total: number; conges_pris: number; conges_restants: number;
+    rtt_total: number; rtt_pris: number; rtt_restants: number;
+    absences_annee: number;
+  } | null>(null)
   const [loading, setLoading] = useState(true)
   const now = new Date()
 
@@ -25,8 +30,9 @@ export default function DashboardPage() {
       pointageService.mesPointages(),
       demandeService.liste(),
       pointageService.joursFeries(now.getFullYear()),
+      pointageService.compteurs(),
     ])
-      .then(([p, d, jf]) => { setPointages(p); setDemandes(d); setJoursFeries(jf) })
+      .then(([p, d, jf, c]) => { setPointages(p); setDemandes(d); setJoursFeries(jf); setCompteurs(c) })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [])
@@ -92,6 +98,46 @@ export default function DashboardPage() {
         />
       </div>
 
+      {/* Mes compteurs */}
+      {compteurs && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CounterCard
+            icon={<Umbrella size={16} weight="fill" />}
+            label="Congés"
+            pris={compteurs.conges_pris}
+            total={compteurs.conges_total}
+            restants={compteurs.conges_restants}
+            color="var(--accent)"
+            bgColor="var(--accent-light)"
+          />
+          <CounterCard
+            icon={<ArrowsClockwise size={16} weight="bold" />}
+            label="RTT"
+            pris={compteurs.rtt_pris}
+            total={compteurs.rtt_total}
+            restants={compteurs.rtt_restants}
+            color="var(--green)"
+            bgColor="var(--green-bg)"
+          />
+          <div className="bg-surface border border-border rounded-2xl p-5 flex items-center gap-4">
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'var(--amber-bg)', color: 'var(--amber)' }}
+            >
+              <CalendarX size={18} weight="fill" />
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-[0.7px]" style={{ color: 'var(--text3)' }}>
+                Absences cette année
+              </div>
+              <div className="text-[24px] font-bold leading-none mt-1" style={{ color: 'var(--amber)' }}>
+                {compteurs.absences_annee}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Heures de la semaine */}
       <Card title="Heures cette semaine" icon={<ChartBar size={14} />}>
         <WeeklyHours pointages={pointages} />
@@ -138,6 +184,34 @@ function getGreeting(): string {
   if (h < 12) return 'Bonjour'
   if (h < 18) return 'Bon après-midi'
   return 'Bonsoir'
+}
+
+function CounterCard({ icon, label, pris, total, restants, color, bgColor }: {
+  icon: React.ReactNode; label: string; pris: number; total: number;
+  restants: number; color: string; bgColor: string
+}) {
+  const pct = total > 0 ? Math.round((pris / total) * 100) : 0
+  return (
+    <div className="bg-surface border border-border rounded-2xl p-5">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: bgColor, color }}>
+          {icon}
+        </div>
+        <div>
+          <div className="text-[11px] font-semibold uppercase tracking-[0.7px]" style={{ color: 'var(--text3)' }}>{label}</div>
+          <div className="text-[13px] font-bold" style={{ color }}>
+            {pris} / {total} <span className="font-normal text-[11px]" style={{ color: 'var(--text3)' }}>pris</span>
+          </div>
+        </div>
+      </div>
+      <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: bgColor }}>
+        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: color }} />
+      </div>
+      <div className="mt-2 text-[12px] font-semibold" style={{ color }}>
+        {restants} restants
+      </div>
+    </div>
+  )
 }
 
 const JOURS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven']

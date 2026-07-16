@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useUiStore } from '../../store/ui.store'
+import { OnboardingGuide } from '../onboarding/OnboardingGuide'
 
 const pageTitles: Record<string, string> = {
   '/dashboard':       'Tableau de bord',
@@ -39,6 +40,7 @@ export function Layout() {
           <Outlet />
         </main>
       </div>
+      <OnboardingGuide />
     </div>
   )
 }

@@ -49,6 +49,66 @@ class DemandeRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    /**
+     * Count approved days for a given user, type, and year.
+     */
+    public function countJoursApprouves(User $user, string $type, int $annee): int
+    {
+        $debut = new \DateTime("$annee-01-01");
+        $fin   = new \DateTime("$annee-12-31");
+
+        $demandes = $this->createQueryBuilder('d')
+            ->where('d.utilisateur = :user')
+            ->andWhere('d.typeDemande = :type')
+            ->andWhere('d.statut = :statut')
+            ->andWhere('d.dateDebut >= :debut')
+            ->andWhere('d.dateDebut <= :fin')
+            ->setParameter('user', $user)
+            ->setParameter('type', $type)
+            ->setParameter('statut', Demande::STATUT_APPROUVEE)
+            ->setParameter('debut', $debut)
+            ->setParameter('fin', $fin)
+            ->getQuery()
+            ->getResult();
+
+        $total = 0;
+        foreach ($demandes as $demande) {
+            $total += $demande->getDureeJours();
+        }
+
+        return $total;
+    }
+
+    /**
+     * Count all approved absence days (CONGE + RTT + ABSENCE) for a user in a given year.
+     */
+    public function countAbsencesAnnee(User $user, int $annee): int
+    {
+        $debut = new \DateTime("$annee-01-01");
+        $fin   = new \DateTime("$annee-12-31");
+
+        $demandes = $this->createQueryBuilder('d')
+            ->where('d.utilisateur = :user')
+            ->andWhere('d.typeDemande IN (:types)')
+            ->andWhere('d.statut = :statut')
+            ->andWhere('d.dateDebut >= :debut')
+            ->andWhere('d.dateDebut <= :fin')
+            ->setParameter('user', $user)
+            ->setParameter('types', [Demande::TYPE_CONGE, Demande::TYPE_RTT, Demande::TYPE_ABSENCE])
+            ->setParameter('statut', Demande::STATUT_APPROUVEE)
+            ->setParameter('debut', $debut)
+            ->setParameter('fin', $fin)
+            ->getQuery()
+            ->getResult();
+
+        $total = 0;
+        foreach ($demandes as $demande) {
+            $total += $demande->getDureeJours();
+        }
+
+        return $total;
+    }
+
     public function save(Demande $demande, bool $flush = true): void
     {
         $this->getEntityManager()->persist($demande);

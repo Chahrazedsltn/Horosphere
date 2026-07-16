@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Demande;
 use App\Entity\User;
+use App\Repository\DemandeRepository;
 use App\Repository\PointageRepository;
 use App\Service\GeofencingService;
 use App\Service\JoursFeriesService;
@@ -20,6 +22,7 @@ class PointageController extends AbstractController
     public function __construct(
         private readonly PointageService      $pointageService,
         private readonly PointageRepository   $pointageRepository,
+        private readonly DemandeRepository    $demandeRepository,
         private readonly GeofencingService    $geofencingService,
         private readonly JoursFeriesService   $joursFeriesService,
     ) {}
@@ -259,6 +262,31 @@ class PointageController extends AbstractController
                 'presents_aujourd_hui' => count($presentsAujourdhui),
                 'anomalies_en_cours'   => count(array_filter($anomalies, fn ($p) => !$p->isComplete())),
                 'total_pointages_jour' => count($todayPointages),
+            ],
+            'message' => 'OK',
+        ]);
+    }
+
+    #[Route('/compteurs', name: 'compteurs', methods: ['GET'])]
+    public function compteurs(#[CurrentUser] User $user): JsonResponse
+    {
+        $annee = (int) date('Y');
+
+        $congesTotal    = $user->getSoldeConges();
+        $congesPris     = $this->demandeRepository->countJoursApprouves($user, Demande::TYPE_CONGE, $annee);
+        $rttTotal       = $user->getSoldeRtt();
+        $rttPris        = $this->demandeRepository->countJoursApprouves($user, Demande::TYPE_RTT, $annee);
+        $absencesAnnee  = $this->demandeRepository->countAbsencesAnnee($user, $annee);
+
+        return $this->json([
+            'data' => [
+                'conges_total'    => $congesTotal,
+                'conges_pris'     => $congesPris,
+                'conges_restants' => $congesTotal - $congesPris,
+                'rtt_total'       => $rttTotal,
+                'rtt_pris'        => $rttPris,
+                'rtt_restants'    => $rttTotal - $rttPris,
+                'absences_annee'  => $absencesAnnee,
             ],
             'message' => 'OK',
         ]);
