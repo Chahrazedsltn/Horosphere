@@ -34,6 +34,7 @@ security:
         - { path: ^/api/auth/refresh, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/mot-de-passe-oublie, roles: PUBLIC_ACCESS }
         - { path: ^/api/auth/reinitialiser-mot-de-passe, roles: PUBLIC_ACCESS }
+        - { path: ^/api/health, roles: PUBLIC_ACCESS }
         - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/api/users, roles: ROLE_RH }
         - { path: ^/api, roles: ROLE_USER }
