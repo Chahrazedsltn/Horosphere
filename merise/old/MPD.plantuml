@@ -1,0 +1,158 @@
+@startuml MPD_Horosphere
+title Modèle Physique de Données (MPD) — Horosphere\nSGBD cible : MariaDB 10.11
+
+hide circle
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam nodesep 80
+skinparam ranksep 60
+
+skinparam entity {
+  BackgroundColor #FFF8E1
+  BorderColor #E65100
+  FontColor #000000
+}
+
+' ─────────────────────────────────────────
+'  TABLE : utilisateur
+' ─────────────────────────────────────────
+entity "utilisateur" as U {
+  * id              : INT UNSIGNED AUTO_INCREMENT  <<PK>>
+  --
+  email             : VARCHAR(180)    NOT NULL UNIQUE
+  mot_de_passe      : VARCHAR(255)    NOT NULL
+  prenom            : VARCHAR(100)    NOT NULL
+  nom               : VARCHAR(100)    NOT NULL
+  role              : ENUM('AGENT','RH','ADMIN')   NOT NULL  DEFAULT 'AGENT'
+  departement       : VARCHAR(100)    NULL
+  date_creation     : DATETIME        NOT NULL  DEFAULT CURRENT_TIMESTAMP
+  consentement_rgpd : TINYINT(1)      NOT NULL  DEFAULT 0
+  solde_conges      : INT             NOT NULL  DEFAULT 25
+}
+
+' ─────────────────────────────────────────
+'  TABLE : site
+' ─────────────────────────────────────────
+entity "site" as S {
+  * id              : INT UNSIGNED AUTO_INCREMENT  <<PK>>
+  --
+  nom               : VARCHAR(100)     NOT NULL
+  adresse           : VARCHAR(255)     NOT NULL
+  latitude          : DECIMAL(10, 8)   NOT NULL
+  longitude         : DECIMAL(11, 8)   NOT NULL
+  rayon_metres      : INT UNSIGNED     NOT NULL  DEFAULT 200
+  geofencing_actif  : TINYINT(1)       NOT NULL  DEFAULT 1
+}
+
+' ─────────────────────────────────────────
+'  TABLE : pointage
+' ─────────────────────────────────────────
+entity "pointage" as P {
+  * id                    : INT UNSIGNED AUTO_INCREMENT  <<PK>>
+  --
+  utilisateur_id          : INT UNSIGNED     NOT NULL    <<FK>>
+  site_id                 : INT UNSIGNED     NULL        <<FK>>
+  --
+  date_jour               : DATE             NOT NULL
+  heure_arrivee           : DATETIME         NOT NULL
+  heure_depart            : DATETIME         NULL
+  statut                  : ENUM('EN_COURS','EN_PAUSE','VALIDE','HORS_ZONE','ANOMALIE')  NOT NULL  DEFAULT 'EN_COURS'
+  coordonnees_gps         : VARCHAR(255)     NULL
+  est_anomalie            : TINYINT(1)       NOT NULL  DEFAULT 0
+  heure_pause_debut       : DATETIME         NULL
+  durees_pause_minutes    : INT UNSIGNED     NOT NULL  DEFAULT 0
+}
+
+' ─────────────────────────────────────────
+'  TABLE : demande
+' ─────────────────────────────────────────
+entity "demande" as D {
+  * id              : INT UNSIGNED AUTO_INCREMENT  <<PK>>
+  --
+  utilisateur_id    : INT UNSIGNED     NOT NULL    <<FK>>
+  --
+  type_demande      : ENUM('CONGE','CORRECTION','ABSENCE','AUTRE')  NOT NULL
+  statut            : ENUM('EN_ATTENTE','APPROUVEE','REJETEE')      NOT NULL  DEFAULT 'EN_ATTENTE'
+  date_debut        : DATE             NOT NULL
+  date_fin          : DATE             NOT NULL
+  motif             : TEXT             NULL
+  justificatif      : VARCHAR(255)     NULL
+  date_creation     : DATETIME         NOT NULL  DEFAULT CURRENT_TIMESTAMP
+}
+
+' ─────────────────────────────────────────
+'  TABLE : document
+' ─────────────────────────────────────────
+entity "document" as DOC {
+  * id              : INT UNSIGNED AUTO_INCREMENT  <<PK>>
+  --
+  utilisateur_id    : INT UNSIGNED     NOT NULL    <<FK>>
+  --
+  type_document     : ENUM('CSV','PDF')  NOT NULL
+  chemin_fichier    : VARCHAR(255)     NOT NULL
+  date_creation     : DATETIME         NOT NULL  DEFAULT CURRENT_TIMESTAMP
+}
+
+' ─────────────────────────────────────────
+'  TABLE : alerte
+' ─────────────────────────────────────────
+entity "alerte" as A {
+  * id              : INT UNSIGNED AUTO_INCREMENT  <<PK>>
+  --
+  utilisateur_id    : INT UNSIGNED     NOT NULL    <<FK>>
+  pointage_id       : INT UNSIGNED     NULL        <<FK>>
+  --
+  type_alerte       : ENUM('OUBLI_DEPART','HORS_ZONE','ECART_HORAIRE')  NOT NULL
+  message           : TEXT             NOT NULL
+  date_creation     : DATETIME         NOT NULL  DEFAULT CURRENT_TIMESTAMP
+  est_lue           : TINYINT(1)       NOT NULL  DEFAULT 0
+}
+
+' ─────────────────────────────────────────
+'  TABLE : audit_log
+' ─────────────────────────────────────────
+entity "audit_log" as AL {
+  * id                : INT UNSIGNED AUTO_INCREMENT  <<PK>>
+  --
+  action              : VARCHAR(60)      NOT NULL
+  utilisateur_id      : INT UNSIGNED     NULL
+  utilisateur_email   : VARCHAR(100)     NULL
+  cible_type          : VARCHAR(60)      NULL
+  cible_id            : INT UNSIGNED     NULL
+  details             : JSON             NULL
+  ip_address          : VARCHAR(45)      NULL
+  created_at          : DATETIME         NOT NULL  DEFAULT CURRENT_TIMESTAMP
+  --
+  INDEX idx_audit_action   (action)
+  INDEX idx_audit_user     (utilisateur_id)
+  INDEX idx_audit_date     (created_at)
+}
+
+' ─────────────────────────────────────────
+'  TABLE : password_reset_token
+' ─────────────────────────────────────────
+entity "password_reset_token" as PRT {
+  * id              : INT UNSIGNED AUTO_INCREMENT  <<PK>>
+  --
+  email             : VARCHAR(180)     NOT NULL
+  token             : VARCHAR(64)      NOT NULL  UNIQUE
+  expires_at        : DATETIME         NOT NULL
+  used_at           : DATETIME         NULL
+  created_at        : DATETIME         NOT NULL  DEFAULT CURRENT_TIMESTAMP
+  --
+  INDEX idx_reset_token (token)
+}
+
+' ─────────────────────────────────────────
+'  CLÉS ÉTRANGÈRES
+' ─────────────────────────────────────────
+
+U ||--o{ P    : "utilisateur_id\nON DELETE RESTRICT\nON UPDATE CASCADE"
+S |o--o{ P    : "site_id\nON DELETE SET NULL\nON UPDATE CASCADE"
+U ||--o{ D    : "utilisateur_id\nON DELETE CASCADE\nON UPDATE CASCADE"
+U ||--o{ DOC  : "utilisateur_id\nON DELETE CASCADE\nON UPDATE CASCADE"
+U ||--o{ A    : "utilisateur_id\nON DELETE CASCADE\nON UPDATE CASCADE"
+P |o--o{ A    : "pointage_id\nON DELETE SET NULL\nON UPDATE CASCADE"
+
+@enduml

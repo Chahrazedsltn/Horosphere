@@ -16,6 +16,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
@@ -29,6 +30,8 @@ class AuthController extends AbstractController
         private readonly MailerInterface              $mailer,
         private readonly AuditService                 $auditService,
         private readonly EntityManagerInterface       $em,
+        private readonly RateLimiterFactory           $authLoginLimiter,
+        private readonly RateLimiterFactory           $passwordResetLimiter,
     ) {}
 
     /**
@@ -70,6 +73,11 @@ class AuthController extends AbstractController
     #[Route('/mot-de-passe-oublie', name: 'mot_de_passe_oublie', methods: ['POST'])]
     public function motDePasseOublie(Request $request): JsonResponse
     {
+        $limiter = $this->passwordResetLimiter->create($request->getClientIp() ?? 'unknown');
+        if (false === $limiter->consume()->isAccepted()) {
+            return $this->json(['message' => 'Trop de tentatives. Veuillez réessayer dans quelques minutes.'], 429);
+        }
+
         $data  = json_decode($request->getContent(), true) ?? [];
         $email = trim((string) ($data['email'] ?? ''));
 
@@ -120,6 +128,11 @@ class AuthController extends AbstractController
     #[Route('/reinitialiser-mot-de-passe', name: 'reinitialiser_mot_de_passe', methods: ['POST'])]
     public function reinitialiserMotDePasse(Request $request): JsonResponse
     {
+        $limiter = $this->passwordResetLimiter->create($request->getClientIp() ?? 'unknown');
+        if (false === $limiter->consume()->isAccepted()) {
+            return $this->json(['message' => 'Trop de tentatives. Veuillez réessayer dans quelques minutes.'], 429);
+        }
+
         $data              = json_decode($request->getContent(), true) ?? [];
         $token             = trim((string) ($data['token'] ?? ''));
         $nouveauMotDePasse = (string) ($data['nouveau_mot_de_passe'] ?? '');
@@ -128,8 +141,8 @@ class AuthController extends AbstractController
             return $this->json(['message' => 'Token et nouveau mot de passe requis.'], 422);
         }
 
-        if (strlen($nouveauMotDePasse) < 8) {
-            return $this->json(['message' => 'Le mot de passe doit contenir au moins 8 caractères.'], 422);
+        if (strlen($nouveauMotDePasse) < 12) {
+            return $this->json(['message' => 'Le mot de passe doit contenir au moins 12 caractères.'], 422);
         }
 
         if (!preg_match('/[A-Z]/', $nouveauMotDePasse)

@@ -17,8 +17,12 @@ export default function ResetPasswordPage() {
     e.preventDefault()
     setError(null)
 
-    if (password.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères.')
+    if (password.length < 12) {
+      setError('Le mot de passe doit contenir au moins 12 caractères.')
+      return
+    }
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[\W_]/.test(password)) {
+      setError('Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un caractère spécial.')
       return
     }
     if (password !== confirm) {
@@ -74,7 +78,7 @@ export default function ResetPasswordPage() {
           <>
             <h1 className="text-[20px] font-bold text-text mb-1.5">Nouveau mot de passe</h1>
             <p className="text-[13px] text-text3 mb-7">
-              Choisissez un nouveau mot de passe sécurisé (8 caractères minimum).
+              Choisissez un nouveau mot de passe sécurisé (12 caractères minimum, avec majuscule, minuscule, chiffre et caractère spécial).
             </p>
 
             {error && (

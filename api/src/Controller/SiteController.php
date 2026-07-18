@@ -22,6 +22,7 @@ class SiteController extends AbstractController
     ) {}
 
     #[Route('', name: 'liste', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function liste(): JsonResponse
     {
         $sites = $this->siteRepository->findAll();
@@ -33,6 +34,7 @@ class SiteController extends AbstractController
     }
 
     #[Route('/{id}', name: 'detail', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function detail(Site $site): JsonResponse
     {
         return $this->json([

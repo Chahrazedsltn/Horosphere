@@ -214,6 +214,16 @@ class PointageController extends AbstractController
             return $this->json(['message' => 'Format de date ou heure invalide.'], 422);
         }
 
+        $now = new \DateTime();
+        if ($date > $now) {
+            return $this->json(['message' => 'Impossible de créer un pointage pour une date future.'], 422);
+        }
+
+        $maxPast = (new \DateTime())->modify('-30 days');
+        if ($date < $maxPast) {
+            return $this->json(['message' => 'Impossible de créer un pointage pour une date de plus de 30 jours.'], 422);
+        }
+
         if ($depart <= $arrive) {
             return $this->json(['message' => 'L\'heure de départ doit être après l\'heure d\'arrivée.'], 422);
         }

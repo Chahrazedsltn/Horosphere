@@ -100,6 +100,9 @@ class DocumentController extends AbstractController
         $user = $currentUser;
 
         if (isset($data['utilisateur_id'])) {
+            if (!$this->isGranted('ROLE_RH')) {
+                return $this->json(['message' => 'Accès refusé.'], 403);
+            }
             $targetUser = $this->em->find(User::class, (int) $data['utilisateur_id']);
             if (null === $targetUser) {
                 return $this->json(['message' => 'Utilisateur introuvable.'], 404);

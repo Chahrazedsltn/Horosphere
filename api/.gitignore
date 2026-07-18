@@ -9,6 +9,12 @@
 /vendor/
 ###< symfony/framework-bundle ###
 
+###> security ###
+# Ne jamais commiter les fichiers contenant des secrets réels
+/.env.local
+/.env.*.local
+###< security ###
+
 ###> lexik/jwt-authentication-bundle ###
 /config/jwt/*.pem
 ###< lexik/jwt-authentication-bundle ###

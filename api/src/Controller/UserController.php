@@ -172,8 +172,18 @@ class UserController extends AbstractController
             return $this->json(['message' => 'Mot de passe actuel incorrect.'], 422);
         }
 
-        if (strlen($newPassword) < 8) {
-            return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.'], 422);
+        if (strlen($newPassword) < 12) {
+            return $this->json(['message' => 'Le nouveau mot de passe doit contenir au moins 12 caractères.'], 422);
+        }
+
+        if (!preg_match('/[A-Z]/', $newPassword)
+            || !preg_match('/[a-z]/', $newPassword)
+            || !preg_match('/[0-9]/', $newPassword)
+            || !preg_match('/[\W_]/', $newPassword)
+        ) {
+            return $this->json([
+                'message' => 'Le mot de passe doit contenir une majuscule, une minuscule, un chiffre et un caractère spécial.',
+            ], 422);
         }
 
         $user->setMotDePasse($this->passwordHasher->hashPassword($user, $newPassword));

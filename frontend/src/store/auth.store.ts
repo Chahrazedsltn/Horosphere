@@ -2,10 +2,10 @@ import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import type { User } from '../types'
 
-// ─── Lecture synchrone du state persisté ────────────────────────
+// ─── Lecture synchrone du state persisté (sessionStorage uniquement) ──
 function loadPersistedAuth() {
   try {
-    const raw = localStorage.getItem('horosphere-auth') ?? sessionStorage.getItem('horosphere-auth')
+    const raw = sessionStorage.getItem('horosphere-auth')
     if (!raw) return null
     const { state } = JSON.parse(raw)
     if (state?.isAuthenticated && state?.token && state?.user) return state
@@ -19,22 +19,15 @@ interface AuthState {
   user: User | null
   token: string | null
   isAuthenticated: boolean
-  remember: boolean
-  setAuth: (user: User, token: string, remember?: boolean) => void
+  setAuth: (user: User, token: string) => void
   logout: () => void
   updateUser: (user: User) => void
 }
 
-// ─── Persist helper : écrit dans le bon storage ─────────────────
-function persistState(state: Pick<AuthState, 'user' | 'token' | 'isAuthenticated' | 'remember'>) {
+// ─── Persist helper : sessionStorage uniquement (pas de localStorage) ──
+function persistState(state: Pick<AuthState, 'user' | 'token' | 'isAuthenticated'>) {
   const value = JSON.stringify({ state, version: 0 })
-  if (state.remember) {
-    localStorage.setItem('horosphere-auth', value)
-    sessionStorage.removeItem('horosphere-auth')
-  } else {
-    sessionStorage.setItem('horosphere-auth', value)
-    localStorage.removeItem('horosphere-auth')
-  }
+  sessionStorage.setItem('horosphere-auth', value)
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -43,32 +36,26 @@ export const useAuthStore = create<AuthState>()(
       user: persisted?.user ?? null,
       token: persisted?.token ?? null,
       isAuthenticated: persisted?.isAuthenticated ?? false,
-      remember: persisted?.remember ?? false,
 
-      setAuth: (user, token, remember = true) => {
-        if (remember) {
-          localStorage.setItem('token', token)
-          sessionStorage.removeItem('token')
-        } else {
-          sessionStorage.setItem('token', token)
-          localStorage.removeItem('token')
-        }
-        set({ user, token, isAuthenticated: true, remember })
-        persistState({ user, token, isAuthenticated: true, remember })
+      setAuth: (user, token) => {
+        sessionStorage.setItem('token', token)
+        set({ user, token, isAuthenticated: true })
+        persistState({ user, token, isAuthenticated: true })
       },
 
       logout: () => {
-        localStorage.removeItem('token')
         sessionStorage.removeItem('token')
-        localStorage.removeItem('horosphere-auth')
         sessionStorage.removeItem('horosphere-auth')
-        set({ user: null, token: null, isAuthenticated: false, remember: false })
+        // Clean up legacy localStorage keys if they exist
+        localStorage.removeItem('token')
+        localStorage.removeItem('horosphere-auth')
+        set({ user: null, token: null, isAuthenticated: false })
       },
 
       updateUser: (user) => {
         set({ user })
         const s = get()
-        persistState({ user, token: s.token, isAuthenticated: s.isAuthenticated, remember: s.remember })
+        persistState({ user, token: s.token, isAuthenticated: s.isAuthenticated })
       },
     }),
     {

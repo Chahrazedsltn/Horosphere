@@ -1,0 +1,126 @@
+@startuml MCD_Horosphere
+title Modèle Conceptuel de Données (MCD) — Horosphere
+
+hide circle
+skinparam linetype ortho
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+
+skinparam entity {
+  BackgroundColor #DDEEFF
+  BorderColor #336699
+  FontColor #000000
+}
+
+' ─────────────────────────────────────────
+'  ENTITÉS
+' ─────────────────────────────────────────
+
+entity "UTILISATEUR" as U {
+  <u>id_utilisateur</u>
+  --
+  email
+  mot_de_passe
+  prenom
+  nom
+  role
+  departement
+  date_creation
+  consentement_rgpd
+  solde_conges
+}
+
+entity "SITE" as S {
+  <u>id_site</u>
+  --
+  nom
+  adresse
+  latitude
+  longitude
+  rayon_metres
+  geofencing_actif
+}
+
+entity "POINTAGE" as P {
+  <u>id_pointage</u>
+  --
+  date_jour
+  heure_arrivee
+  heure_depart
+  statut
+  coordonnees_gps
+  est_anomalie
+  heure_pause_debut
+  durees_pause_minutes
+}
+
+entity "DEMANDE" as D {
+  <u>id_demande</u>
+  --
+  type_demande
+  statut
+  date_debut
+  date_fin
+  motif
+  justificatif
+  date_creation
+}
+
+entity "DOCUMENT" as DOC {
+  <u>id_document</u>
+  --
+  type_document
+  chemin_fichier
+  date_creation
+}
+
+entity "ALERTE" as A {
+  <u>id_alerte</u>
+  --
+  type_alerte
+  message
+  date_creation
+  est_lue
+}
+
+entity "AUDIT_LOG" as AL {
+  <u>id_audit_log</u>
+  --
+  action
+  utilisateur_email
+  cible_type
+  cible_id
+  details
+  ip_address
+  created_at
+}
+
+entity "PASSWORD_RESET_TOKEN" as PRT {
+  <u>id_token</u>
+  --
+  email
+  token
+  expires_at
+  used_at
+  created_at
+}
+
+' ─────────────────────────────────────────
+'  ASSOCIATIONS (notation Merise : min,max)
+'  La cardinalité est écrite DU CÔTÉ de l'entité concernée
+'
+'  Lecture :
+'    UTILISATEUR (0,n) ─── EFFECTUE ─── POINTAGE (1,1)
+'    → un utilisateur effectue 0 à n pointages
+'    → un pointage appartient à exactement 1 utilisateur
+' ─────────────────────────────────────────
+
+U "0,n" -- "1,1" P : EFFECTUE >
+S "0,n" -- "0,1" P : CONCERNE >
+U "0,n" -- "1,1" D : SOUMET >
+U "0,n" -- "1,1" DOC : POSSÈDE >
+U "0,n" -- "1,1" A : REÇOIT >
+P "0,n" -- "0,1" A : GÉNÈRE >
+U "0,n" -- "0,1" AL : DÉCLENCHE >
+
+@enduml

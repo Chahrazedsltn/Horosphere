@@ -81,9 +81,27 @@ class DemandeController extends AbstractController
         $justificatifFilename = null;
 
         if (null !== $file) {
-            $allowedMimes = ['application/pdf', 'image/jpeg', 'image/png'];
-            if (!in_array($file->getMimeType(), $allowedMimes, true)) {
+            $allowedMimes      = ['application/pdf', 'image/jpeg', 'image/png'];
+            $allowedExtensions = ['pdf', 'jpg', 'jpeg', 'png'];
+
+            $mime = $file->getMimeType();
+            $ext  = strtolower($file->getClientOriginalExtension());
+
+            if (!in_array($mime, $allowedMimes, true) || !in_array($ext, $allowedExtensions, true)) {
                 return $this->json(['message' => 'Type de fichier non autorisé. Formats acceptés : PDF, JPG, PNG.'], 422);
+            }
+
+            // Vérification des magic bytes (signature du fichier)
+            $handle     = fopen($file->getPathname(), 'rb');
+            $magicBytes = $handle ? fread($handle, 8) : '';
+            if ($handle) { fclose($handle); }
+
+            $validMagic = str_starts_with($magicBytes, '%PDF')                              // PDF
+                || str_starts_with($magicBytes, "\xFF\xD8\xFF")                              // JPEG
+                || str_starts_with($magicBytes, "\x89PNG");                                  // PNG
+
+            if (!$validMagic) {
+                return $this->json(['message' => 'Le contenu du fichier ne correspond pas au format déclaré.'], 422);
             }
 
             if ($file->getSize() > 5 * 1024 * 1024) {
@@ -167,8 +185,15 @@ class DemandeController extends AbstractController
             return $this->json(['message' => 'Accès refusé.'], 403);
         }
 
-        $filepath = $this->exportsDir . '/justificatifs/' . $filename;
-        if (!file_exists($filepath)) {
+        $justificatifsDir = realpath($this->exportsDir . '/justificatifs');
+        if (false === $justificatifsDir) {
+            return $this->json(['message' => 'Répertoire justificatifs introuvable.'], 404);
+        }
+
+        $filepath = $justificatifsDir . DIRECTORY_SEPARATOR . basename($filename);
+        $realPath = realpath($filepath);
+
+        if (false === $realPath || !str_starts_with($realPath, $justificatifsDir . DIRECTORY_SEPARATOR)) {
             return $this->json(['message' => 'Fichier introuvable.'], 404);
         }
 

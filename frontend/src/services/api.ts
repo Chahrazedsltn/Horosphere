@@ -11,7 +11,7 @@ const api = axios.create({
 // ─── Intercepteur requête : injecte le JWT ───────────────────────
 api.interceptors.request.use(
   (config) => {
-    const token = sessionStorage.getItem('token') || localStorage.getItem('token')
+    const token = sessionStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -25,10 +25,10 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
-      localStorage.removeItem('token')
       sessionStorage.removeItem('token')
-      localStorage.removeItem('horosphere-auth')
       sessionStorage.removeItem('horosphere-auth')
+      localStorage.removeItem('token')
+      localStorage.removeItem('horosphere-auth')
       window.location.href = '/login'
     }
     return Promise.reject(error)
