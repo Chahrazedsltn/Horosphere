@@ -215,6 +215,12 @@ export default function LoginPage() {
             </button>
           </form>
 
+          <div className="text-center mt-6">
+            <a href="/mentions-legales" className="text-[11px] text-text3 hover:text-text2 transition-colors">
+              Mentions legales et politique de confidentialite
+            </a>
+          </div>
+
         </div>
       </div>
 

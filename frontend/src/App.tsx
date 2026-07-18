@@ -19,7 +19,8 @@ const RapportsPage     = lazy(() => import('./pages/rh/RapportsPage'))
 const UsersPage        = lazy(() => import('./pages/admin/UsersPage'))
 const SitesPage        = lazy(() => import('./pages/admin/SitesPage'))
 const ParametresPage   = lazy(() => import('./pages/admin/ParametresPage'))
-const AlertesPage      = lazy(() => import('./pages/AlertesPage'))
+const AlertesPage          = lazy(() => import('./pages/AlertesPage'))
+const MentionsLegalesPage  = lazy(() => import('./pages/MentionsLegalesPage'))
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore()
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/mot-de-passe-oublie" element={<ForgotPasswordPage />} />
           <Route path="/reinitialiser-mot-de-passe" element={<ResetPasswordPage />} />
+          <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
 
           <Route element={<RequireAuth><Layout /></RequireAuth>}>
             {/* Agent */}
